@@ -508,7 +508,7 @@ def analyze():
     rs_data = _safe_call(calculate_rs_rating, {"available": False}, ticker, hist=hist)
     history_data = _safe_call(get_historical_metrics, {"available": False}, stock)
     quality_data = _safe_call(evaluate_earnings_quality, {"available": False}, stock, info)
-    fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock)
+    fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock, history_data)
 
     investors = [
         {"name": "워렌 버핏", "sub": "가치투자", "icon": "buffett", "criteria": evaluate_buffett(info, sector_t)},

@@ -1,11 +1,27 @@
-"""DCF / PER / Graham / 애널리스트 기반 적정주가 추정 — 섹터 가중치."""
+"""DCF / PER / Graham / 애널리스트 / P/S 기반 적정주가 추정 — 종목 카테고리 차등 적용."""
 
 import math
 from analysis.sector_baseline import get_sector_thresholds, get_sector_weights
+from analysis.earnings_quality_classifier import classify_company
 
 
-def _dcf_fair_value(fcf: float, shares: float, growth_5y=0.10, terminal_growth=0.04, discount=0.08):
-    """2단계 DCF. 기본값은 대형주/블루칩 기준 (할인 8%, 영구 4%)."""
+# 섹터별 적정 P/S (매출 배수) — 적자 성장주 평가용
+SECTOR_PS_MEDIAN = {
+    "Technology": 7.0,
+    "Communication Services": 4.0,
+    "Healthcare": 5.0,
+    "Consumer Cyclical": 1.5,
+    "Consumer Defensive": 1.5,
+    "Financial Services": 3.0,
+    "Energy": 1.2,
+    "Industrials": 1.8,
+    "Utilities": 2.0,
+    "Real Estate": 6.0,
+    "Basic Materials": 1.5,
+}
+
+
+def _dcf_fair_value(fcf, shares, growth_5y=0.10, terminal_growth=0.04, discount=0.08):
     if not fcf or fcf <= 0 or not shares or shares <= 0:
         return None
     pv = 0.0
@@ -19,32 +35,45 @@ def _dcf_fair_value(fcf: float, shares: float, growth_5y=0.10, terminal_growth=0
     return pv / shares
 
 
-def _graham_number(eps: float, bvps: float):
+def _graham_number(eps, bvps):
     if not eps or not bvps or eps <= 0 or bvps <= 0:
         return None
     return math.sqrt(22.5 * eps * bvps)
 
 
-def calculate_fair_value(info: dict, stock) -> dict:
+def _ps_fair_value(info, sector):
+    """P/S 배수법 — 섹터 중앙값 P/S × 주당매출."""
+    revenue = info.get("totalRevenue")
+    shares = info.get("sharesOutstanding")
+    if not revenue or not shares or revenue <= 0 or shares <= 0:
+        return None
+    sps = revenue / shares  # sales per share
+    target_ps = SECTOR_PS_MEDIAN.get(sector, 2.5)
+    return sps * target_ps
+
+
+def calculate_fair_value(info: dict, stock, history_data: dict | None = None) -> dict:
     current_price = info.get("currentPrice") or info.get("regularMarketPrice")
     if not current_price:
         return {"available": False}
 
     sector = info.get("sector")
     st = get_sector_thresholds(sector)
-    weights = get_sector_weights(sector)
+    base_weights = get_sector_weights(sector)
+
+    # 종목 카테고리 분류
+    quality_class = classify_company(info, history_data)
 
     fcf = info.get("freeCashflow")
     shares = info.get("sharesOutstanding")
     trailing_eps = info.get("trailingEps")
     forward_eps = info.get("forwardEps")
-    # Forward EPS 우선, 없으면 trailing
     eps = forward_eps if (forward_eps and forward_eps > 0) else trailing_eps
     eps_source = "forward" if (forward_eps and forward_eps > 0) else "trailing"
     bvps = info.get("bookValue")
     analyst_target = info.get("targetMeanPrice")
 
-    # 성장률 반영 DCF: 실제 매출/이익 성장률로 1단계 성장률 조정
+    # 동적 성장률 (DCF용)
     dynamic_growth = 0.10
     rg = info.get("revenueGrowth")
     eg = info.get("earningsGrowth")
@@ -55,20 +84,26 @@ def calculate_fair_value(info: dict, stock) -> dict:
     elif eg is not None:
         dynamic_growth = min(0.25, max(0.02, eg))
 
+    enable = quality_class["enable"]
     methods = {}
+    excluded = []
 
-    # 1) DCF (할인율 8%, 영구성장 4%, 1단계 상한 25%)
-    dcf_fv = _dcf_fair_value(fcf, shares, growth_5y=dynamic_growth, discount=0.08, terminal_growth=0.04)
-    if dcf_fv is not None:
-        methods["dcf"] = {
-            "fair_value": round(dcf_fv, 2),
-            "upside_pct": round((dcf_fv - current_price) / current_price * 100, 1),
-            "assumptions": {"growth_5y": round(dynamic_growth, 3), "terminal_growth": 0.04, "discount_rate": 0.08},
-        }
+    # 1) DCF
+    if enable["dcf"]:
+        dcf_fv = _dcf_fair_value(fcf, shares, growth_5y=dynamic_growth, discount=0.08, terminal_growth=0.04)
+        if dcf_fv is not None:
+            methods["dcf"] = {
+                "fair_value": round(dcf_fv, 2),
+                "upside_pct": round((dcf_fv - current_price) / current_price * 100, 1),
+                "assumptions": {"growth_5y": round(dynamic_growth, 3), "terminal_growth": 0.04, "discount_rate": 0.08},
+            }
+        else:
+            excluded.append({"method": "DCF", "reason": "FCF 음수 또는 데이터 부족"})
+    else:
+        excluded.append({"method": "DCF", "reason": f"카테고리 '{quality_class['label']}' — DCF 부적합"})
 
-    # 2) PER 기반 (Forward EPS 우선, 섹터 중앙값)
-    per_fv = None
-    if eps and eps > 0:
+    # 2) PER
+    if enable["per"] and eps and eps > 0:
         per_fv = eps * st["median_pe"]
         methods["per_based"] = {
             "fair_value": round(per_fv, 2),
@@ -78,67 +113,139 @@ def calculate_fair_value(info: dict, stock) -> dict:
             "eps_source": eps_source,
             "sector": st.get("sector", "Unknown"),
         }
+    elif not enable["per"]:
+        excluded.append({"method": "PER", "reason": f"카테고리 '{quality_class['label']}' — 이익 왜곡 의심"})
+    else:
+        excluded.append({"method": "PER", "reason": "EPS 음수 또는 데이터 부족"})
 
-    # 3) Graham Number — 역사적 수치 기반이므로 trailing EPS 사용
-    graham_fv = _graham_number(trailing_eps, bvps)
-    if graham_fv is not None:
-        methods["graham_number"] = {
-            "fair_value": round(graham_fv, 2),
-            "upside_pct": round((graham_fv - current_price) / current_price * 100, 1),
-        }
+    # 3) Graham
+    if enable["graham"]:
+        graham_fv = _graham_number(trailing_eps, bvps)
+        if graham_fv is not None:
+            methods["graham_number"] = {
+                "fair_value": round(graham_fv, 2),
+                "upside_pct": round((graham_fv - current_price) / current_price * 100, 1),
+            }
+        else:
+            excluded.append({"method": "Graham", "reason": "EPS·BVPS 음수 또는 데이터 부족"})
+    else:
+        excluded.append({"method": "Graham", "reason": f"카테고리 '{quality_class['label']}' — 순자산 지표 무효"})
 
     # 4) 애널리스트 목표가
-    analyst_fv = None
-    if analyst_target and analyst_target > 0:
-        analyst_fv = float(analyst_target)
+    if enable["analyst"] and analyst_target and analyst_target > 0:
         methods["analyst_target"] = {
-            "fair_value": round(analyst_fv, 2),
-            "upside_pct": round((analyst_fv - current_price) / current_price * 100, 1),
+            "fair_value": round(float(analyst_target), 2),
+            "upside_pct": round((analyst_target - current_price) / current_price * 100, 1),
             "num_analysts": info.get("numberOfAnalystOpinions"),
         }
+    elif enable["analyst"]:
+        excluded.append({"method": "애널리스트", "reason": "목표가 데이터 없음"})
 
-    # 섹터 가중 composite (사용 가능한 방법만 선별 후 정규화)
+    # 5) P/S 기반
+    if enable["ps"]:
+        ps_fv = _ps_fair_value(info, sector)
+        if ps_fv is not None:
+            methods["ps_based"] = {
+                "fair_value": round(ps_fv, 2),
+                "upside_pct": round((ps_fv - current_price) / current_price * 100, 1),
+                "sector_ps_median": SECTOR_PS_MEDIAN.get(sector, 2.5),
+            }
+        else:
+            excluded.append({"method": "P/S", "reason": "매출 데이터 부족"})
+
+    # ===== Composite 계산 =====
+    # 카테고리에 맞는 가중치 재구성
+    method_weight_key = {
+        "dcf": "dcf",
+        "per_based": "per",
+        "graham_number": "graham",
+        "analyst_target": "analyst",
+        "ps_based": "analyst",  # P/S는 애널리스트와 비슷한 무게로 처리
+    }
+
     available_methods = {}
-    if dcf_fv is not None:
-        available_methods["dcf"] = (dcf_fv, weights["dcf"])
-    if per_fv is not None:
-        available_methods["per"] = (per_fv, weights["per"])
-    if graham_fv is not None:
-        available_methods["graham"] = (graham_fv, weights["graham"])
-    if analyst_fv is not None:
-        available_methods["analyst"] = (analyst_fv, weights["analyst"])
+    for method_name, method_data in methods.items():
+        fair_val = method_data["fair_value"]
+        weight_key = method_weight_key.get(method_name, "analyst")
+        base_w = base_weights.get(weight_key, 0.25)
+        # UNRELIABLE_EARNINGS/GROWTH_UNPROFITABLE면 애널리스트 가중치 증폭
+        if quality_class["category"] in ("UNRELIABLE_EARNINGS", "GROWTH_UNPROFITABLE", "DISTRESSED"):
+            if method_name == "analyst_target":
+                base_w = max(base_w, 0.60)
+            elif method_name == "ps_based":
+                base_w = 0.30
+        available_methods[method_name] = (fair_val, base_w)
 
     if not available_methods:
-        return {"available": False, "current_price": round(current_price, 2)}
+        return {
+            "available": False,
+            "current_price": round(current_price, 2),
+            "quality_class": quality_class,
+            "excluded_methods": excluded,
+        }
 
+    # 극단 이상치 제거: 현재가 대비 10배 이상 또는 1/10 이하는 outlier (계산오류 가능성)
+    filtered_methods = {}
+    for name, (val, w) in available_methods.items():
+        ratio = val / current_price if current_price > 0 else 0
+        if 0.1 <= ratio <= 10.0:
+            filtered_methods[name] = (val, w)
+        else:
+            reason = f"outlier 제외 (적정가/현재가 비율 {ratio:.2f}x — 비정상)"
+            excluded.append({"method": {"dcf":"DCF","per_based":"PER","graham_number":"Graham","analyst_target":"애널리스트","ps_based":"P/S"}.get(name, name), "reason": reason})
+
+    if not filtered_methods:
+        return {
+            "available": False,
+            "current_price": round(current_price, 2),
+            "quality_class": quality_class,
+            "excluded_methods": excluded,
+            "note": "모든 평가법이 이상치로 제외됨 — 수동 검토 필요",
+        }
+
+    available_methods = filtered_methods
     total_w = sum(w for _, w in available_methods.values())
     composite = sum(v * w for v, w in available_methods.values()) / total_w
     upside = (composite - current_price) / current_price * 100
 
-    # 사용된 가중치 정규화해서 표기
     used_weights = {k: round(w / total_w, 2) for k, (_, w) in available_methods.items()}
 
-    if upside >= 20:
-        verdict = "크게 저평가 (적정가 대비 20%+ 할인)"
-    elif upside >= 10:
-        verdict = "저평가 (적정가 대비 10~20% 할인)"
-    elif upside >= -10:
-        verdict = "현재가가 적정가 근처 (±10%)"
-    elif upside >= -20:
-        verdict = "고평가 (적정가 대비 10~20% 프리미엄)"
+    # 판정
+    if quality_class["confidence"] == "low":
+        verdict_prefix = "⚠ 신뢰도 낮음 — "
     else:
-        verdict = "크게 고평가 (적정가 대비 20%+ 프리미엄)"
+        verdict_prefix = ""
+
+    if upside >= 20:
+        verdict = f"{verdict_prefix}크게 저평가 (적정가 대비 20%+ 할인)"
+    elif upside >= 10:
+        verdict = f"{verdict_prefix}저평가 (적정가 대비 10~20% 할인)"
+    elif upside >= -10:
+        verdict = f"{verdict_prefix}현재가가 적정가 근처 (±10%)"
+    elif upside >= -20:
+        verdict = f"{verdict_prefix}고평가 (적정가 대비 10~20% 프리미엄)"
+    else:
+        verdict = f"{verdict_prefix}크게 고평가 (적정가 대비 20%+ 프리미엄)"
 
     return {
         "current_price": round(current_price, 2),
         "dcf": methods.get("dcf"),
         "per_based": methods.get("per_based"),
-        "graham_number": methods.get("graham_number", {}).get("fair_value") if "graham_number" in methods else None,
+        "graham_number": methods.get("graham_number", {}).get("fair_value") if methods.get("graham_number") else None,
         "analyst_target": methods.get("analyst_target"),
+        "ps_based": methods.get("ps_based"),
         "composite_fair_value": round(composite, 2),
         "upside_pct": round(upside, 1),
         "verdict": verdict,
         "sector": st.get("sector", "Unknown"),
         "weights_used": used_weights,
+        "quality_class": {
+            "category": quality_class["category"],
+            "label": quality_class["label"],
+            "confidence": quality_class["confidence"],
+            "warnings": quality_class["warnings"],
+            "note": quality_class["note"],
+        },
+        "excluded_methods": excluded,
         "available": True,
     }

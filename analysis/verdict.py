@@ -42,21 +42,34 @@ def generate_verdict(overall: dict, rs_data: dict | None, market_data: dict | No
             score -= 1
             warnings.append(f"시장 조정 중")
 
-    # 4) 적정주가
+    # 4) 적정주가 — quality_class 신뢰도 따라 가중치 조정
     if fair_value and fair_value.get("available"):
         upside = fair_value.get("upside_pct", 0) or 0
+        qc = fair_value.get("quality_class") or {}
+        confidence = qc.get("confidence", "high")
+        # 신뢰도 낮으면 영향력 절반으로
+        mult = 0.5 if confidence == "low" else 1.0
         if upside >= 20:
-            score += 2
+            score += int(2 * mult)
             reasons.append(f"적정가 대비 {upside:+.0f}% 저평가")
         elif upside >= 10:
-            score += 1
+            score += int(1 * mult)
             reasons.append(f"적정가 대비 {upside:+.0f}%")
         elif upside <= -20:
-            score -= 2
+            score -= int(2 * mult)
             warnings.append(f"적정가 대비 {upside:+.0f}% 고평가")
         elif upside <= -10:
-            score -= 1
+            score -= int(1 * mult)
             warnings.append(f"적정가 대비 {upside:+.0f}% 고평가")
+        # 카테고리 기반 추가 경고
+        cat = qc.get("category")
+        if cat == "DISTRESSED":
+            score -= 2
+            warnings.append("지속 적자·자금고갈 위험")
+        elif cat == "UNRELIABLE_EARNINGS":
+            warnings.append("최근 이익 일회성 의심")
+        elif cat == "GROWTH_UNPROFITABLE":
+            warnings.append("적자 성장주 — 품질 주의")
 
     # 5) 재무 품질
     if quality and quality.get("available"):

@@ -497,33 +497,63 @@
 
         function renderFairValue(fv) {
             const el = document.getElementById('fvCard');
-            if (!fv || !fv.available) { el.innerHTML = ''; return; }
+            if (!fv || !fv.available) {
+                if (fv && fv.quality_class) {
+                    const qc = fv.quality_class;
+                    el.innerHTML = `<div class="fv-card"><div class="section-title" style="margin-top:0;">적정주가 추정 불가</div><div style="padding:12px;color:#ff9800;">카테고리: ${qc.label}<br><small style="color:#aaa;">${qc.note}</small></div></div>`;
+                } else { el.innerHTML = ''; }
+                return;
+            }
             let cls = 'fv-fair';
             if (fv.upside_pct >= 10) cls = 'fv-up';
             else if (fv.upside_pct <= -10) cls = 'fv-down';
             const fmtUp = (p) => p == null ? '' : `<span style="color:${p>=0?'#4caf50':'#f44336'};font-size:0.72rem;">(${p>=0?'+':''}${p}%)</span>`;
-            const dcfStr = fv.dcf ? `$${fv.dcf.fair_value} ${fmtUp(fv.dcf.upside_pct)}` : '—';
-            const perStr = fv.per_based ? `$${fv.per_based.fair_value} ${fmtUp(fv.per_based.upside_pct)}` : '—';
-            const grahamStr = fv.graham_number ? `$${fv.graham_number}` : '—';
-            const analystStr = fv.analyst_target ? `$${fv.analyst_target.fair_value} ${fmtUp(fv.analyst_target.upside_pct)}` : '—';
+            const dcfStr = fv.dcf ? `$${fv.dcf.fair_value} ${fmtUp(fv.dcf.upside_pct)}` : '<span style="color:#666;">제외</span>';
+            const perStr = fv.per_based ? `$${fv.per_based.fair_value} ${fmtUp(fv.per_based.upside_pct)}` : '<span style="color:#666;">제외</span>';
+            const grahamStr = fv.graham_number ? `$${fv.graham_number}` : '<span style="color:#666;">제외</span>';
+            const analystStr = fv.analyst_target ? `$${fv.analyst_target.fair_value} ${fmtUp(fv.analyst_target.upside_pct)}` : '<span style="color:#666;">—</span>';
+            const psStr = fv.ps_based ? `$${fv.ps_based.fair_value} ${fmtUp(fv.ps_based.upside_pct)}` : null;
+
             const weights = fv.weights_used || {};
-            const weightLabels = {dcf: 'DCF', per: 'PER', graham: 'Graham', analyst: '애널리스트'};
+            const weightLabels = {dcf: 'DCF', per_based: 'PER', graham_number: 'Graham', analyst_target: '애널', ps_based: 'P/S'};
             const weightText = Object.keys(weights).length
                 ? Object.entries(weights).map(([k, w]) => `${weightLabels[k]||k} ${Math.round(w*100)}%`).join(' · ')
                 : '';
+
+            const qc = fv.quality_class || {};
+            const confCol = qc.confidence === 'high' ? '#4caf50' : qc.confidence === 'medium' ? '#ffeb3b' : '#f44336';
+            const catBadge = qc.label
+                ? `<div style="display:inline-block;padding:3px 10px;border-radius:12px;background:${confCol}22;color:${confCol};font-size:0.72rem;font-weight:600;margin-left:8px;">${qc.label}</div>`
+                : '';
+            const warningsHTML = qc.warnings && qc.warnings.length
+                ? `<div style="background:#2a2410;border-left:3px solid #ff9800;padding:8px 12px;margin-top:10px;border-radius:6px;font-size:0.75rem;color:#ffb74d;">${qc.warnings.map(w=>`⚠ ${w}`).join('<br>')}</div>`
+                : '';
+            const noteHTML = qc.note
+                ? `<div style="text-align:center;font-size:0.72rem;color:#888;margin-top:6px;font-style:italic;">${qc.note}</div>`
+                : '';
+            const excludedHTML = fv.excluded_methods && fv.excluded_methods.length
+                ? `<details style="margin-top:8px;font-size:0.72rem;color:#888;"><summary style="cursor:pointer;">제외된 평가법 ${fv.excluded_methods.length}개</summary><ul style="padding-left:18px;margin-top:4px;">${fv.excluded_methods.map(e=>`<li>${e.method}: ${e.reason}</li>`).join('')}</ul></details>`
+                : '';
+
+            const extraPSRow = psStr ? `<div class="fv-box"><div class="fv-box-label">P/S 기반 (매출 배수)</div><div class="fv-box-value">${psStr}</div></div>` : '';
+
             el.innerHTML = `
                 <div class="fv-card">
-                    <div class="section-title" style="margin-top:0;">적정주가 추정 <span style="font-size:0.7rem;font-weight:400;color:#888;">(${fv.sector || 'Unknown'} 섹터 가중)</span></div>
+                    <div class="section-title" style="margin-top:0;">적정주가 추정 <span style="font-size:0.7rem;font-weight:400;color:#888;">(${fv.sector || '?'} 섹터)</span>${catBadge}</div>
                     <div class="fv-grid">
                         <div class="fv-box"><div class="fv-box-label">현재가</div><div class="fv-box-value">$${fv.current_price}</div></div>
                         <div class="fv-box"><div class="fv-box-label">종합 적정가</div><div class="fv-box-value">$${fv.composite_fair_value}</div><div class="fv-box-sub">${fv.upside_pct >= 0 ? '+' : ''}${fv.upside_pct}%</div></div>
                         <div class="fv-box"><div class="fv-box-label">DCF ${fv.dcf ? `(성장률 ${(fv.dcf.assumptions.growth_5y*100).toFixed(0)}%)` : ''}</div><div class="fv-box-value">${dcfStr}</div></div>
                         <div class="fv-box"><div class="fv-box-label">PER 기반 ${fv.per_based ? `(PE ${fv.per_based.assumption_pe})` : ''}</div><div class="fv-box-value">${perStr}</div></div>
-                        <div class="fv-box"><div class="fv-box-label">애널리스트 목표가${fv.analyst_target && fv.analyst_target.num_analysts ? ` (${fv.analyst_target.num_analysts}명)` : ''}</div><div class="fv-box-value">${analystStr}</div></div>
-                        <div class="fv-box"><div class="fv-box-label">Graham Number</div><div class="fv-box-value">${grahamStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">애널리스트${fv.analyst_target && fv.analyst_target.num_analysts ? ` (${fv.analyst_target.num_analysts}명)` : ''}</div><div class="fv-box-value">${analystStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">Graham</div><div class="fv-box-value">${grahamStr}</div></div>
+                        ${extraPSRow}
                     </div>
                     ${weightText ? `<div style="text-align:center;font-size:0.72rem;color:#666;margin-top:8px;">가중치: ${weightText}</div>` : ''}
+                    ${warningsHTML}
+                    ${noteHTML}
                     <div class="fv-verdict ${cls}">${fv.verdict}</div>
+                    ${excludedHTML}
                 </div>`;
         }
 
