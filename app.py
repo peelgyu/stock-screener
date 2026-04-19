@@ -1,6 +1,7 @@
 """유명 투자자 기준 주식 스크리너 - Flask 웹앱 (개선판)."""
 
 import os
+import math
 import time
 import urllib.request
 import urllib.parse
@@ -8,8 +9,27 @@ import json as json_lib
 from collections import defaultdict
 
 from flask import Flask, render_template, request, jsonify
+from flask.json.provider import DefaultJSONProvider
 import yfinance as yf
 import numpy as np
+
+
+class SafeJSONProvider(DefaultJSONProvider):
+    """NaN/Infinity를 null로 변환해 JavaScript 호환 JSON 생성."""
+    def dumps(self, obj, **kwargs):
+        def clean(o):
+            if isinstance(o, float):
+                if math.isnan(o) or math.isinf(o):
+                    return None
+                return o
+            if isinstance(o, dict):
+                return {k: clean(v) for k, v in o.items()}
+            if isinstance(o, (list, tuple)):
+                return [clean(v) for v in o]
+            return o
+        kwargs.setdefault("ensure_ascii", False)
+        kwargs.setdefault("allow_nan", False)
+        return json_lib.dumps(clean(obj), **kwargs)
 
 from kr_stocks import search_kr_stocks, KR_STOCKS, US_STOCKS_KR
 from data.cache import cache, cached
@@ -25,6 +45,7 @@ from analysis.options_v2 import evaluate_options
 from analysis.verdict import generate_verdict
 
 app = Flask(__name__)
+app.json = SafeJSONProvider(app)
 
 RATE_LIMIT_PER_MIN = 30
 _rate_bucket: dict = defaultdict(list)

@@ -1,5 +1,7 @@
 """재무 품질 (어닝 퀄리티) 분석."""
 
+import math
+
 
 def _pick(row, *keys):
     for k in keys:
@@ -7,11 +9,15 @@ def _pick(row, *keys):
             v = row.get(k)
         except Exception:
             v = None
-        if v is not None:
-            try:
-                return float(v)
-            except Exception:
-                pass
+        if v is None:
+            continue
+        try:
+            f = float(v)
+        except Exception:
+            continue
+        if math.isnan(f) or math.isinf(f):
+            continue
+        return f
     return None
 
 
