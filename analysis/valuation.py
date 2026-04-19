@@ -4,14 +4,15 @@ import math
 from analysis.sector_baseline import get_sector_thresholds, get_sector_weights
 
 
-def _dcf_fair_value(fcf: float, shares: float, growth_5y=0.10, terminal_growth=0.03, discount=0.09):
+def _dcf_fair_value(fcf: float, shares: float, growth_5y=0.10, terminal_growth=0.04, discount=0.08):
+    """2단계 DCF. 기본값은 대형주/블루칩 기준 (할인 8%, 영구 4%)."""
     if not fcf or fcf <= 0 or not shares or shares <= 0:
         return None
     pv = 0.0
     current_fcf = fcf
-    for _ in range(1, 6):
+    for yr in range(1, 6):
         current_fcf *= (1 + growth_5y)
-        pv += current_fcf / ((1 + discount) ** _)
+        pv += current_fcf / ((1 + discount) ** yr)
     terminal_fcf = current_fcf * (1 + terminal_growth)
     terminal_value = terminal_fcf / (discount - terminal_growth)
     pv += terminal_value / ((1 + discount) ** 5)
@@ -35,33 +36,37 @@ def calculate_fair_value(info: dict, stock) -> dict:
 
     fcf = info.get("freeCashflow")
     shares = info.get("sharesOutstanding")
-    eps = info.get("trailingEps")
+    trailing_eps = info.get("trailingEps")
+    forward_eps = info.get("forwardEps")
+    # Forward EPS 우선, 없으면 trailing
+    eps = forward_eps if (forward_eps and forward_eps > 0) else trailing_eps
+    eps_source = "forward" if (forward_eps and forward_eps > 0) else "trailing"
     bvps = info.get("bookValue")
     analyst_target = info.get("targetMeanPrice")
 
-    # 성장률 반영 DCF: 실제 매출/이익 성장률로 1단계 성장률 조정 (보수적 상한)
+    # 성장률 반영 DCF: 실제 매출/이익 성장률로 1단계 성장률 조정
     dynamic_growth = 0.10
     rg = info.get("revenueGrowth")
     eg = info.get("earningsGrowth")
     if rg is not None and eg is not None:
-        dynamic_growth = min(0.20, max(0.02, (rg + eg) / 2))
+        dynamic_growth = min(0.25, max(0.02, (rg + eg) / 2))
     elif rg is not None:
-        dynamic_growth = min(0.20, max(0.02, rg))
+        dynamic_growth = min(0.25, max(0.02, rg))
     elif eg is not None:
-        dynamic_growth = min(0.20, max(0.02, eg))
+        dynamic_growth = min(0.25, max(0.02, eg))
 
     methods = {}
 
-    # 1) DCF
-    dcf_fv = _dcf_fair_value(fcf, shares, growth_5y=dynamic_growth)
+    # 1) DCF (할인율 8%, 영구성장 4%, 1단계 상한 25%)
+    dcf_fv = _dcf_fair_value(fcf, shares, growth_5y=dynamic_growth, discount=0.08, terminal_growth=0.04)
     if dcf_fv is not None:
         methods["dcf"] = {
             "fair_value": round(dcf_fv, 2),
             "upside_pct": round((dcf_fv - current_price) / current_price * 100, 1),
-            "assumptions": {"growth_5y": round(dynamic_growth, 3), "terminal_growth": 0.03, "discount_rate": 0.09},
+            "assumptions": {"growth_5y": round(dynamic_growth, 3), "terminal_growth": 0.04, "discount_rate": 0.08},
         }
 
-    # 2) PER 기반 (섹터 중앙값)
+    # 2) PER 기반 (Forward EPS 우선, 섹터 중앙값)
     per_fv = None
     if eps and eps > 0:
         per_fv = eps * st["median_pe"]
@@ -69,11 +74,13 @@ def calculate_fair_value(info: dict, stock) -> dict:
             "fair_value": round(per_fv, 2),
             "upside_pct": round((per_fv - current_price) / current_price * 100, 1),
             "assumption_pe": st["median_pe"],
+            "eps_used": round(eps, 2),
+            "eps_source": eps_source,
             "sector": st.get("sector", "Unknown"),
         }
 
-    # 3) Graham Number
-    graham_fv = _graham_number(eps, bvps)
+    # 3) Graham Number — 역사적 수치 기반이므로 trailing EPS 사용
+    graham_fv = _graham_number(trailing_eps, bvps)
     if graham_fv is not None:
         methods["graham_number"] = {
             "fair_value": round(graham_fv, 2),
