@@ -30,6 +30,21 @@ RATE_LIMIT_PER_MIN = 30
 _rate_bucket: dict = defaultdict(list)
 
 
+@app.errorhandler(500)
+def _handle_500(e):
+    if request.path.startswith("/api/"):
+        return jsonify({"error": f"서버 내부 오류: {type(e).__name__}"}), 500
+    return "Internal Server Error", 500
+
+
+@app.errorhandler(Exception)
+def _handle_exc(e):
+    if request.path.startswith("/api/"):
+        app.logger.exception("API exception")
+        return jsonify({"error": f"처리 중 오류 발생: {type(e).__name__}: {str(e)[:200]}"}), 500
+    raise e
+
+
 @app.before_request
 def _rate_limit():
     if not request.path.startswith("/api/"):
@@ -455,24 +470,24 @@ def analyze():
 
     is_kr = ticker.endswith(".KS") or ticker.endswith(".KQ")
 
-    # 시장 방향 (캐싱)
+    def _safe_call(fn, default, *args, **kwargs):
+        try:
+            return fn(*args, **kwargs)
+        except Exception as e:
+            app.logger.warning(f"{fn.__name__} failed: {e}")
+            return default
+
     market_cache_key = f"market_regime:{is_kr}"
     market_data = cache.get(market_cache_key)
     if market_data is None:
-        market_data = get_market_regime(is_kr=is_kr)
-        cache.set(market_cache_key, market_data, ttl=900)
+        market_data = _safe_call(get_market_regime, {"available": False}, is_kr=is_kr)
+        if market_data.get("available"):
+            cache.set(market_cache_key, market_data, ttl=900)
 
-    # RS Rating
-    rs_data = calculate_rs_rating(ticker, hist=hist)
-
-    # 다년도 추이
-    history_data = get_historical_metrics(stock)
-
-    # 재무 품질
-    quality_data = evaluate_earnings_quality(stock, info)
-
-    # 적정주가
-    fair_value = calculate_fair_value(info, stock)
+    rs_data = _safe_call(calculate_rs_rating, {"available": False}, ticker, hist=hist)
+    history_data = _safe_call(get_historical_metrics, {"available": False}, stock)
+    quality_data = _safe_call(evaluate_earnings_quality, {"available": False}, stock, info)
+    fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock)
 
     investors = [
         {"name": "워렌 버핏", "sub": "가치투자", "icon": "buffett", "criteria": evaluate_buffett(info, sector_t)},
@@ -507,11 +522,12 @@ def analyze():
 
     overall = {"yes": total_yes, "total": total_count, "rate": overall_rate, "grade": grade, "gradeText": grade_text}
 
-    fear_greed = evaluate_fear_greed(data)
-    positions = evaluate_positions(data)
-    options = evaluate_options(data)
+    fear_greed = _safe_call(evaluate_fear_greed, {"score": None, "label": "데이터 부족", "indicators": []}, data)
+    positions = _safe_call(evaluate_positions, {"short": [], "long": [], "sentiment": "중립", "sentimentDetail": ""}, data)
+    options = _safe_call(evaluate_options, {"available": False}, data)
 
-    verdict = generate_verdict(overall, rs_data, market_data, fair_value, quality_data, fear_greed)
+    verdict = _safe_call(generate_verdict, {"decision": "관망", "color": "yellow", "reasons": [], "warnings": [], "confidence": "low"},
+                         overall, rs_data, market_data, fair_value, quality_data, fear_greed)
 
     return jsonify({
         "stock": stock_info,

@@ -2,6 +2,11 @@
 
 import yfinance as yf
 
+try:
+    from data.cache import cache
+except Exception:
+    cache = None
+
 
 def _benchmark_for(ticker: str) -> str:
     t = (ticker or "").upper()
@@ -42,11 +47,20 @@ def calculate_rs_rating(ticker: str, hist=None) -> dict:
     except Exception:
         return {"available": False, "benchmark": benchmark}
 
-    try:
-        bench_hist = yf.Ticker(benchmark).history(period="1y")
-        bench_close = bench_hist["Close"] if bench_hist is not None and not bench_hist.empty else None
-    except Exception:
-        bench_close = None
+    # 벤치마크는 15분 캐시 (모든 종목이 공유)
+    bench_close = None
+    cache_key = f"rs_bench:{benchmark}"
+    if cache is not None:
+        bench_close = cache.get(cache_key)
+    if bench_close is None:
+        try:
+            bench_hist = yf.Ticker(benchmark).history(period="1y")
+            if bench_hist is not None and not bench_hist.empty:
+                bench_close = bench_hist["Close"]
+                if cache is not None:
+                    cache.set(cache_key, bench_close, ttl=900)
+        except Exception:
+            bench_close = None
 
     if bench_close is None or len(bench_close) < 30:
         return {"available": False, "benchmark": benchmark}
