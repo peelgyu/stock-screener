@@ -501,19 +501,28 @@
             let cls = 'fv-fair';
             if (fv.upside_pct >= 10) cls = 'fv-up';
             else if (fv.upside_pct <= -10) cls = 'fv-down';
-            const dcfStr = fv.dcf ? `$${fv.dcf.fair_value} (${fv.dcf.upside_pct >= 0 ? '+' : ''}${fv.dcf.upside_pct}%)` : '—';
-            const perStr = fv.per_based ? `$${fv.per_based.fair_value} (PE ${fv.per_based.assumption_pe})` : '—';
+            const fmtUp = (p) => p == null ? '' : `<span style="color:${p>=0?'#4caf50':'#f44336'};font-size:0.72rem;">(${p>=0?'+':''}${p}%)</span>`;
+            const dcfStr = fv.dcf ? `$${fv.dcf.fair_value} ${fmtUp(fv.dcf.upside_pct)}` : '—';
+            const perStr = fv.per_based ? `$${fv.per_based.fair_value} ${fmtUp(fv.per_based.upside_pct)}` : '—';
             const grahamStr = fv.graham_number ? `$${fv.graham_number}` : '—';
+            const analystStr = fv.analyst_target ? `$${fv.analyst_target.fair_value} ${fmtUp(fv.analyst_target.upside_pct)}` : '—';
+            const weights = fv.weights_used || {};
+            const weightLabels = {dcf: 'DCF', per: 'PER', graham: 'Graham', analyst: '애널리스트'};
+            const weightText = Object.keys(weights).length
+                ? Object.entries(weights).map(([k, w]) => `${weightLabels[k]||k} ${Math.round(w*100)}%`).join(' · ')
+                : '';
             el.innerHTML = `
                 <div class="fv-card">
-                    <div class="section-title" style="margin-top:0;">적정주가 추정</div>
+                    <div class="section-title" style="margin-top:0;">적정주가 추정 <span style="font-size:0.7rem;font-weight:400;color:#888;">(${fv.sector || 'Unknown'} 섹터 가중)</span></div>
                     <div class="fv-grid">
                         <div class="fv-box"><div class="fv-box-label">현재가</div><div class="fv-box-value">$${fv.current_price}</div></div>
                         <div class="fv-box"><div class="fv-box-label">종합 적정가</div><div class="fv-box-value">$${fv.composite_fair_value}</div><div class="fv-box-sub">${fv.upside_pct >= 0 ? '+' : ''}${fv.upside_pct}%</div></div>
-                        <div class="fv-box"><div class="fv-box-label">DCF 적정가</div><div class="fv-box-value">${dcfStr}</div></div>
-                        <div class="fv-box"><div class="fv-box-label">PER 기반</div><div class="fv-box-value">${perStr}</div></div>
-                        <div class="fv-box" style="grid-column:span 2;"><div class="fv-box-label">Graham Number</div><div class="fv-box-value">${grahamStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">DCF ${fv.dcf ? `(성장률 ${(fv.dcf.assumptions.growth_5y*100).toFixed(0)}%)` : ''}</div><div class="fv-box-value">${dcfStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">PER 기반 ${fv.per_based ? `(PE ${fv.per_based.assumption_pe})` : ''}</div><div class="fv-box-value">${perStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">애널리스트 목표가${fv.analyst_target && fv.analyst_target.num_analysts ? ` (${fv.analyst_target.num_analysts}명)` : ''}</div><div class="fv-box-value">${analystStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">Graham Number</div><div class="fv-box-value">${grahamStr}</div></div>
                     </div>
+                    ${weightText ? `<div style="text-align:center;font-size:0.72rem;color:#666;margin-top:8px;">가중치: ${weightText}</div>` : ''}
                     <div class="fv-verdict ${cls}">${fv.verdict}</div>
                 </div>`;
         }
