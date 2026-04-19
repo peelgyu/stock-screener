@@ -524,7 +524,8 @@ def analyze():
 
     fear_greed = _safe_call(evaluate_fear_greed, {"score": None, "label": "데이터 부족", "indicators": []}, data)
     positions = _safe_call(evaluate_positions, {"short": [], "long": [], "sentiment": "중립", "sentimentDetail": ""}, data)
-    options = _safe_call(evaluate_options, {"available": False}, data)
+    # 옵션 체인은 느리므로 별도 엔드포인트(/api/options)로 분리 — 탭 클릭 시 로드
+    options = {"available": None, "lazy": True}
 
     verdict = _safe_call(generate_verdict, {"decision": "관망", "color": "yellow", "reasons": [], "warnings": [], "confidence": "low"},
                          overall, rs_data, market_data, fair_value, quality_data, fear_greed)
@@ -546,6 +547,22 @@ def analyze():
         "overall": overall,
         "dataWarnings": info.get("_data_warnings", []),
     })
+
+
+@app.route("/api/options", methods=["POST"])
+def analyze_options():
+    raw_query = request.json.get("ticker", "").strip()
+    if not raw_query:
+        return jsonify({"available": False, "error": "티커 필요"}), 400
+    ticker = resolve_ticker(raw_query) or raw_query.upper()
+    data = get_stock_data(ticker)
+    if data is None:
+        return jsonify({"available": False, "error": "종목을 찾을 수 없습니다"}), 404
+    try:
+        return jsonify(evaluate_options(data))
+    except Exception as e:
+        app.logger.exception("options fail")
+        return jsonify({"available": False, "error": str(e)[:200]}), 500
 
 
 @app.route("/api/cache/stats")

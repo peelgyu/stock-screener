@@ -324,6 +324,8 @@
         let acTimeout = null;
         let acIndex = -1;
         let chartInstances = [];
+        let currentTicker = null;
+        let optionsLoaded = false;
 
         input.addEventListener('keydown', (e) => {
             const items = acBox.querySelectorAll('.ac-item');
@@ -376,6 +378,21 @@
             document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', tabs[i] === tab));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
+            if (tab === 'options' && !optionsLoaded && currentTicker) loadOptionsLazy();
+        }
+
+        async function loadOptionsLazy() {
+            optionsLoaded = true;
+            const el = document.getElementById('optCard');
+            el.innerHTML = `<div style="text-align:center;padding:40px;color:#888;"><div class="spinner" style="margin:0 auto 12px;"></div>옵션 체인 로딩...</div>`;
+            try {
+                const res = await fetch('/api/options', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker: currentTicker }) });
+                const opt = await res.json();
+                renderOptions(opt);
+            } catch (e) {
+                el.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">옵션 데이터 로드 실패</div>`;
+                optionsLoaded = false;
+            }
         }
 
         async function analyze() {
@@ -387,6 +404,7 @@
             results.style.display = 'none';
             chartInstances.forEach(c => { try { c.destroy(); } catch(e){} });
             chartInstances = [];
+            optionsLoaded = false;
             try {
                 const res = await fetch('/api/analyze', {
                     method: 'POST',
@@ -410,6 +428,7 @@
         function getBarColor(s) { if (s >= 60) return '#4caf50'; if (s >= 40) return '#ffeb3b'; return '#f44336'; }
 
         function renderResults(data) {
+            currentTicker = data.ticker;
             renderMarketBanner(data.marketRegime);
             renderVerdict(data.verdict);
             renderDataWarnings(data.dataWarnings);
@@ -425,7 +444,11 @@
             renderRSRating(data.rsRating);
             renderFearGreed(data.fearGreed);
             renderPositions(data.positions);
-            renderOptions(data.options);
+            if (data.options && data.options.lazy) {
+                document.getElementById('optCard').innerHTML = `<div style="color:#888;padding:40px;text-align:center;">옵션 탭을 클릭하면 데이터를 불러옵니다.</div>`;
+            } else {
+                renderOptions(data.options);
+            }
             renderOverall(data.overall);
             renderInvestors(data.investors);
             renderQuality(data.quality);
