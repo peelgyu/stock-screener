@@ -19,6 +19,51 @@ def get_stock_data(ticker: str) -> dict | None:
         info = stock.info
         if not info or info.get("regularMarketPrice") is None:
             return None
+
+        # 재무제표에서 직접 계산 (info에 None인 항목 보완)
+        try:
+            bs = stock.balance_sheet
+            inc = stock.income_stmt
+            if bs is not None and not bs.empty and inc is not None and not inc.empty:
+                latest_bs = bs.iloc[:, 0]
+                latest_inc = inc.iloc[:, 0]
+
+                # ROE 직접 계산: 순이익 / 자기자본
+                if info.get("returnOnEquity") is None:
+                    net_income = latest_inc.get("Net Income") or latest_inc.get("Net Income Common Stockholders")
+                    equity = latest_bs.get("Stockholders Equity") or latest_bs.get("Total Stockholders Equity") or latest_bs.get("Common Stock Equity")
+                    if net_income is not None and equity is not None and equity != 0:
+                        info["returnOnEquity"] = float(net_income / equity)
+                        info["_roe_note"] = "자본잠식" if equity < 0 else ""
+
+                # 부채비율 직접 계산: 총부채 / 자기자본
+                if info.get("debtToEquity") is None:
+                    total_debt = latest_bs.get("Total Debt") or latest_bs.get("Total Liabilities Net Minority Interest")
+                    equity = latest_bs.get("Stockholders Equity") or latest_bs.get("Total Stockholders Equity") or latest_bs.get("Common Stock Equity")
+                    if total_debt is not None and equity is not None and equity != 0:
+                        info["debtToEquity"] = float(total_debt / equity * 100)
+                        info["_de_note"] = "자본잠식" if equity < 0 else ""
+
+                # EPS 성장률 직접 계산
+                if info.get("earningsGrowth") is None and inc.shape[1] >= 2:
+                    ni_curr = inc.iloc[:, 0].get("Net Income") or inc.iloc[:, 0].get("Net Income Common Stockholders")
+                    ni_prev = inc.iloc[:, 1].get("Net Income") or inc.iloc[:, 1].get("Net Income Common Stockholders")
+                    if ni_curr is not None and ni_prev is not None and ni_prev != 0:
+                        info["earningsGrowth"] = float((ni_curr - ni_prev) / abs(ni_prev))
+        except Exception:
+            pass
+
+        # 분기 실적에서 earningsQuarterlyGrowth 보완
+        try:
+            q_inc = stock.quarterly_income_stmt
+            if info.get("earningsQuarterlyGrowth") is None and q_inc is not None and not q_inc.empty and q_inc.shape[1] >= 5:
+                ni_curr = q_inc.iloc[:, 0].get("Net Income") or q_inc.iloc[:, 0].get("Net Income Common Stockholders")
+                ni_yoy = q_inc.iloc[:, 4].get("Net Income") or q_inc.iloc[:, 4].get("Net Income Common Stockholders")
+                if ni_curr is not None and ni_yoy is not None and ni_yoy != 0:
+                    info["earningsQuarterlyGrowth"] = float((ni_curr - ni_yoy) / abs(ni_yoy))
+        except Exception:
+            pass
+
         return {"info": info}
     except Exception:
         return None
@@ -29,13 +74,23 @@ def evaluate_buffett(info: dict) -> list[dict]:
 
     roe = safe_get(info, "returnOnEquity")
     if roe is not None:
-        results.append({"name": "ROE >= 15%", "passed": roe >= 0.15, "value": f"{roe*100:.1f}%"})
+        note = info.get("_roe_note", "")
+        val_str = f"{roe*100:.1f}%"
+        if note:
+            val_str += f" ({note})"
+        # 자본잠식(음수 자기자본)이면 ROE가 음수로 나옴 -> NO
+        results.append({"name": "ROE >= 15%", "passed": roe >= 0.15 and note != "자본잠식", "value": val_str})
     else:
         results.append({"name": "ROE >= 15%", "passed": None, "value": "데이터 없음"})
 
     de = safe_get(info, "debtToEquity")
     if de is not None:
-        results.append({"name": "부채비율 <= 50%", "passed": de <= 50, "value": f"{de:.1f}%"})
+        note = info.get("_de_note", "")
+        val_str = f"{de:.1f}%"
+        if note:
+            val_str += f" ({note})"
+        # 자본잠식이면 부채비율 의미 없음 -> NO
+        results.append({"name": "부채비율 <= 50%", "passed": de <= 50 and de > 0 and note != "자본잠식", "value": val_str})
     else:
         results.append({"name": "부채비율 <= 50%", "passed": None, "value": "데이터 없음"})
 
