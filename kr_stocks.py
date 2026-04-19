@@ -1,0 +1,207 @@
+"""한국 주식 이름 -> 티커 매핑 (주요 종목)"""
+
+# 한국어 이름 : (티커, 영문명)
+KR_STOCKS = {
+    # 코스피 대형주
+    "삼성전자": ("005930.KS", "Samsung Electronics"),
+    "삼성전자우": ("005935.KS", "Samsung Electronics Pref"),
+    "SK하이닉스": ("000660.KS", "SK Hynix"),
+    "LG에너지솔루션": ("373220.KS", "LG Energy Solution"),
+    "삼성바이오로직스": ("207940.KS", "Samsung Biologics"),
+    "현대자동차": ("005380.KS", "Hyundai Motor"),
+    "현대차": ("005380.KS", "Hyundai Motor"),
+    "셀트리온": ("068270.KS", "Celltrion"),
+    "기아": ("000270.KS", "Kia"),
+    "KB금융": ("105560.KS", "KB Financial"),
+    "신한지주": ("055550.KS", "Shinhan Financial"),
+    "POSCO홀딩스": ("005490.KS", "POSCO Holdings"),
+    "포스코홀딩스": ("005490.KS", "POSCO Holdings"),
+    "NAVER": ("035420.KS", "NAVER"),
+    "네이버": ("035420.KS", "NAVER"),
+    "카카오": ("035720.KS", "Kakao"),
+    "삼성SDI": ("006400.KS", "Samsung SDI"),
+    "LG화학": ("051910.KS", "LG Chem"),
+    "현대모비스": ("012330.KS", "Hyundai Mobis"),
+    "SK이노베이션": ("096770.KS", "SK Innovation"),
+    "SK텔레콤": ("017670.KS", "SK Telecom"),
+    "KT": ("030200.KS", "KT Corp"),
+    "LG전자": ("066570.KS", "LG Electronics"),
+    "삼성물산": ("028260.KS", "Samsung C&T"),
+    "삼성생명": ("032830.KS", "Samsung Life Insurance"),
+    "하나금융지주": ("086790.KS", "Hana Financial"),
+    "우리금융지주": ("316140.KS", "Woori Financial"),
+    "한국전력": ("015760.KS", "KEPCO"),
+    "한전": ("015760.KS", "KEPCO"),
+    "SK": ("034730.KS", "SK Inc"),
+    "LG": ("003550.KS", "LG Corp"),
+    "HD현대중공업": ("329180.KS", "HD Hyundai Heavy Industries"),
+    "한화에어로스페이스": ("012450.KS", "Hanwha Aerospace"),
+    "한화오션": ("042660.KS", "Hanwha Ocean"),
+    "두산에너빌리티": ("034020.KS", "Doosan Enerbility"),
+    "삼성전기": ("009150.KS", "Samsung Electro-Mechanics"),
+    "삼성중공업": ("010140.KS", "Samsung Heavy Industries"),
+    "삼성SDS": ("018260.KS", "Samsung SDS"),
+    "삼성화재": ("000810.KS", "Samsung Fire & Marine Insurance"),
+    "SK바이오팜": ("326030.KS", "SK Biopharm"),
+    "카카오뱅크": ("323410.KS", "KakaoBank"),
+    "카카오페이": ("377300.KS", "KakaoPay"),
+    "크래프톤": ("259960.KS", "Krafton"),
+    "한화솔루션": ("009830.KS", "Hanwha Solutions"),
+    "아모레퍼시픽": ("090430.KS", "Amorepacific"),
+    "HLB": ("028300.KS", "HLB"),
+    "HD한국조선해양": ("009540.KS", "HD Korea Shipbuilding"),
+    "포스코퓨처엠": ("003670.KS", "POSCO Future M"),
+    "에코프로비엠": ("247540.KS", "EcoPro BM"),
+    "에코프로": ("086520.KS", "EcoPro"),
+    "LG이노텍": ("011070.KS", "LG Innotek"),
+    "고려아연": ("010130.KS", "Korea Zinc"),
+    "한미반도체": ("042700.KS", "Hanmi Semiconductor"),
+    "CJ제일제당": ("097950.KS", "CJ CheilJedang"),
+    "대한항공": ("003490.KS", "Korean Air"),
+    "현대건설": ("000720.KS", "Hyundai E&C"),
+    "롯데케미칼": ("011170.KS", "Lotte Chemical"),
+    "한화": ("000880.KS", "Hanwha"),
+    "두산밥캣": ("241560.KS", "Doosan Bobcat"),
+    "엔씨소프트": ("036570.KS", "NCSoft"),
+    "넷마블": ("251270.KS", "Netmarble"),
+    "펄어비스": ("263750.KS", "Pearl Abyss"),
+    "CJ ENM": ("035760.KS", "CJ ENM"),
+    "하이브": ("352820.KS", "HYBE"),
+    "JYP엔터": ("035900.KS", "JYP Entertainment"),
+    "SM": ("041510.KS", "SM Entertainment"),
+    "에스엠": ("041510.KS", "SM Entertainment"),
+    "YG엔터": ("122870.KS", "YG Entertainment"),
+    "코스모신소재": ("005070.KS", "Cosmo AM&T"),
+
+    # 코스닥 주요 종목
+    "에코프로에이치엔": ("383310.KQ", "EcoPro HN"),
+    "알테오젠": ("196170.KQ", "Alteogen"),
+    "HLB생명과학": ("067630.KQ", "HLB Life Science"),
+    "레인보우로보틱스": ("277810.KQ", "Rainbow Robotics"),
+    "리노공업": ("058470.KQ", "LEENO Industrial"),
+    "클래시스": ("214150.KQ", "Classis"),
+    "파크시스템스": ("140860.KQ", "Park Systems"),
+    "CJ프리드라이프": ("043090.KQ", "CJ Freshway"),
+    "셀트리온제약": ("068760.KQ", "Celltrion Pharm"),
+    "카페24": ("042000.KQ", "Cafe24"),
+    "위메이드": ("112040.KQ", "Wemade"),
+    "컴투스": ("078340.KQ", "Com2uS"),
+    "제이앤티씨": ("204270.KQ", "J&TC"),
+    "씨젠": ("096530.KQ", "Seegene"),
+    "메디톡스": ("086900.KQ", "Medytox"),
+    "원익IPS": ("240810.KQ", "Wonik IPS"),
+    "솔브레인": ("357780.KQ", "Soulbrain"),
+    "엘앤에프": ("066970.KQ", "L&F"),
+    "포스코DX": ("022100.KQ", "POSCO DX"),
+    "더블유게임즈": ("192080.KQ", "DoubleU Games"),
+}
+
+# 미국 주요 종목 한국어 매핑
+US_STOCKS_KR = {
+    "애플": "AAPL",
+    "마이크로소프트": "MSFT",
+    "구글": "GOOGL",
+    "알파벳": "GOOGL",
+    "아마존": "AMZN",
+    "엔비디아": "NVDA",
+    "테슬라": "TSLA",
+    "메타": "META",
+    "페이스북": "META",
+    "넷플릭스": "NFLX",
+    "디즈니": "DIS",
+    "나이키": "NKE",
+    "코카콜라": "KO",
+    "펩시": "PEP",
+    "맥도날드": "MCD",
+    "스타벅스": "SBUX",
+    "버크셔해서웨이": "BRK-B",
+    "JP모건": "JPM",
+    "골드만삭스": "GS",
+    "비자": "V",
+    "마스터카드": "MA",
+    "월마트": "WMT",
+    "코스트코": "COST",
+    "존슨앤존슨": "JNJ",
+    "화이자": "PFE",
+    "모더나": "MRNA",
+    "노바백스": "NVAX",
+    "AMD": "AMD",
+    "인텔": "INTC",
+    "퀄컴": "QCOM",
+    "브로드컴": "AVGO",
+    "TSMC": "TSM",
+    "대만반도체": "TSM",
+    "마이크론": "MU",
+    "팔란티어": "PLTR",
+    "스노우플레이크": "SNOW",
+    "세일즈포스": "CRM",
+    "어도비": "ADBE",
+    "오라클": "ORCL",
+    "IBM": "IBM",
+    "시스코": "CSCO",
+    "우버": "UBER",
+    "에어비앤비": "ABNB",
+    "스포티파이": "SPOT",
+    "쇼피파이": "SHOP",
+    "로블록스": "RBLX",
+    "유니티": "U",
+    "리비안": "RIVN",
+    "루시드": "LCID",
+    "보잉": "BA",
+    "록히드마틴": "LMT",
+    "엑슨모빌": "XOM",
+    "쉐브론": "CVX",
+    "AT&T": "T",
+    "버라이즌": "VZ",
+    "티모바일": "TMUS",
+    "레딧": "RDDT",
+    "핀터레스트": "PINS",
+    "스냅": "SNAP",
+    "줌": "ZM",
+    "도어대시": "DASH",
+    "크라우드스트라이크": "CRWD",
+    "슈퍼마이크로": "SMCI",
+    "아이온큐": "IONQ",
+    "ARM": "ARM",
+    "소파이": "SOFI",
+    "코인베이스": "COIN",
+    "로빈후드": "HOOD",
+    "게임스톱": "GME",
+    "AMC": "AMC",
+}
+
+
+def search_kr_stocks(query: str) -> list[dict]:
+    """한국어 검색어로 종목 검색"""
+    query = query.strip()
+    results = []
+
+    # 한국 주식 검색
+    for name, (ticker, eng_name) in KR_STOCKS.items():
+        if query in name:
+            results.append({
+                "symbol": ticker,
+                "name": name,
+                "engName": eng_name,
+                "exchange": "KOSDAQ" if ".KQ" in ticker else "KOSPI",
+            })
+
+    # 미국 주식 한국어 검색
+    for kr_name, ticker in US_STOCKS_KR.items():
+        if query in kr_name:
+            results.append({
+                "symbol": ticker,
+                "name": kr_name,
+                "engName": kr_name,
+                "exchange": "US",
+            })
+
+    # 중복 제거 (같은 티커)
+    seen = set()
+    unique = []
+    for r in results:
+        if r["symbol"] not in seen:
+            seen.add(r["symbol"])
+            unique.append(r)
+
+    return unique[:8]
