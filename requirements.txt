@@ -1,3 +1,5 @@
 flask
 yfinance
+numpy
+pandas
 gunicorn
