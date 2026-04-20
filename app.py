@@ -8,7 +8,7 @@ import urllib.parse
 import json as json_lib
 from collections import defaultdict
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect
 from flask.json.provider import DefaultJSONProvider
 import yfinance as yf
 import numpy as np
@@ -50,6 +50,21 @@ app.json = SafeJSONProvider(app)
 
 RATE_LIMIT_PER_MIN = 30
 _rate_bucket: dict = defaultdict(list)
+
+
+CANONICAL_HOST = "stockinto.com"
+REDIRECT_HOSTS = {"stockinto.co.kr", "www.stockinto.co.kr", "www.stockinto.com"}
+
+
+@app.before_request
+def _canonical_redirect():
+    """`.co.kr` 및 `www.` 접속을 `stockinto.com`으로 301 리다이렉트 (SEO 최적화)."""
+    host = (request.host or "").lower().split(":")[0]
+    if host in REDIRECT_HOSTS:
+        path = request.full_path if request.query_string else request.path
+        path = path.rstrip("?")
+        return redirect(f"https://{CANONICAL_HOST}{path}", code=301)
+    return None
 
 
 @app.errorhandler(500)
