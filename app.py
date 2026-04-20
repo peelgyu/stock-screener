@@ -33,6 +33,7 @@ class SafeJSONProvider(DefaultJSONProvider):
 
 from kr_stocks import search_kr_stocks, KR_STOCKS, US_STOCKS_KR
 from data.cache import cache, cached
+from data.fetcher import fetch_stock_data, detect_fetch_error_type
 from analysis.sector_baseline import get_sector_thresholds
 from analysis.history import get_historical_metrics
 from analysis.quality import evaluate_earnings_quality
@@ -88,12 +89,29 @@ def safe_get(info: dict, key: str, default=None):
 
 @cached(ttl=300)
 def get_stock_data(ticker: str) -> dict | None:
-    try:
-        stock = yf.Ticker(ticker)
-        info = stock.info
-        if not info or info.get("regularMarketPrice") is None:
-            return None
+    # 통합 fetcher: yfinance 우선, 실패 시 FDR fallback (한국만)
+    fetched = fetch_stock_data(ticker)
+    if fetched is None:
+        return None
 
+    info = fetched["info"]
+    stock = fetched["stock"]
+    source = fetched["source"]
+
+    # FDR fallback인 경우: 재무제표 보강 로직 스킵 (stock=None이라 호출 불가)
+    if source == "fdr":
+        # FDR이 제공하는 hist DataFrame을 1년치로 슬라이스
+        fdr_hist = fetched.get("hist")
+        try:
+            if fdr_hist is not None and not fdr_hist.empty:
+                hist = fdr_hist.tail(252)  # 최근 1년
+            else:
+                hist = None
+        except Exception:
+            hist = None
+        return {"info": info, "hist": hist, "stock": None, "source": "fdr"}
+
+    try:
         warnings: list = []
 
         try:
@@ -477,7 +495,15 @@ def analyze():
 
     data = get_stock_data(ticker)
     if data is None:
-        return jsonify({"error": f"'{raw_query}' 종목을 찾을 수 없습니다."}), 404
+        error_type = detect_fetch_error_type(ticker)
+        if error_type == "DATA_SOURCE_LIMITED":
+            msg = "Yahoo Finance 데이터 제공이 일시 제한됐습니다. 2~3분 후 다시 시도해주세요. (한국 주식은 대체 데이터로 계속 사용 가능)"
+            return jsonify({"error": msg, "type": error_type}), 503
+        elif error_type == "DATA_SOURCE_DOWN":
+            msg = "데이터 소스가 일시적으로 응답하지 않습니다. 잠시 후 다시 시도해주세요."
+            return jsonify({"error": msg, "type": error_type}), 503
+        else:
+            return jsonify({"error": f"'{raw_query}' 종목을 찾을 수 없습니다. 티커·종목명을 확인해주세요."}), 404
 
     info = data["info"]
     hist = data.get("hist")
