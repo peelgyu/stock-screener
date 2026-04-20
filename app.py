@@ -562,12 +562,12 @@ def analyze():
     fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock, history_data)
 
     investors = [
-        {"name": "워렌 버핏", "sub": "가치투자", "icon": "buffett", "criteria": evaluate_buffett(info, sector_t)},
-        {"name": "벤저민 그레이엄", "sub": "안전마진", "icon": "graham", "criteria": evaluate_graham(info, sector_t)},
-        {"name": "피터 린치", "sub": "성장주", "icon": "lynch", "criteria": evaluate_lynch(info, sector_t)},
-        {"name": "윌리엄 오닐", "sub": "CAN SLIM", "icon": "oneil",
+        {"name": "워렌 버핏", "label": "워렌 버핏이라면?", "sub": "가치투자", "icon": "buffett", "criteria": evaluate_buffett(info, sector_t)},
+        {"name": "벤저민 그레이엄", "label": "벤저민 그레이엄이라면?", "sub": "안전마진", "icon": "graham", "criteria": evaluate_graham(info, sector_t)},
+        {"name": "피터 린치", "label": "피터 린치라면?", "sub": "성장주", "icon": "lynch", "criteria": evaluate_lynch(info, sector_t)},
+        {"name": "윌리엄 오닐", "label": "윌리엄 오닐이라면?", "sub": "CAN SLIM", "icon": "oneil",
          "criteria": evaluate_oneil(info, ticker=ticker, hist=hist, rs_data=rs_data, market_data=market_data)},
-        {"name": "필립 피셔", "sub": "장기성장", "icon": "fisher", "criteria": evaluate_fisher(info, sector_t)},
+        {"name": "필립 피셔", "label": "필립 피셔라면?", "sub": "장기성장", "icon": "fisher", "criteria": evaluate_fisher(info, sector_t)},
     ]
 
     total_yes, total_count = 0, 0
