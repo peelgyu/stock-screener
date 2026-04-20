@@ -44,6 +44,7 @@ from analysis.oneil_v2 import evaluate_oneil
 from analysis.fear_greed_v2 import evaluate_fear_greed
 from analysis.options_v2 import evaluate_options
 from analysis.verdict import generate_verdict
+from analysis.most_active import get_most_active
 
 app = Flask(__name__)
 app.json = SafeJSONProvider(app)
@@ -102,7 +103,7 @@ def safe_get(info: dict, key: str, default=None):
     return val if val is not None else default
 
 
-@cached(ttl=300)
+@cached(ttl=1800)  # 30분 캐시 — Yahoo 레이트리밋 완화
 def get_stock_data(ticker: str) -> dict | None:
     # 통합 fetcher: yfinance 우선, 실패 시 FDR fallback (한국만)
     fetched = fetch_stock_data(ticker)
@@ -635,6 +636,21 @@ def analyze_options():
     except Exception as e:
         app.logger.exception("options fail")
         return jsonify({"available": False, "error": str(e)[:200]}), 500
+
+
+@app.route("/api/most_active")
+def api_most_active():
+    cache_key = "most_active:v1"
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return jsonify(cached_result)
+    try:
+        result = get_most_active()
+        cache.set(cache_key, result, ttl=900)  # 15분 캐시
+        return jsonify(result)
+    except Exception as e:
+        app.logger.exception("most_active fail")
+        return jsonify({"us": [], "kr": [], "error": str(e)[:200]}), 500
 
 
 @app.route("/api/cache/stats")

@@ -35,6 +35,37 @@ def _fetch_yfinance(ticker: str, retries: int = 2, delay: float = 2.0):
     return None
 
 
+def _fetch_fdr_us(ticker: str):
+    """미국 주식 FDR(Stooq) fallback — Yahoo 차단 시 대체."""
+    if not FDR_AVAILABLE:
+        return None
+    try:
+        df = fdr.DataReader(ticker, start="2024-01-01")
+        if df is None or df.empty:
+            return None
+        latest = df.iloc[-1]
+        close = float(latest["Close"])
+        volume = int(latest["Volume"]) if latest.get("Volume") is not None else 0
+
+        info = {
+            "regularMarketPrice": close,
+            "currentPrice": close,
+            "volume": volume,
+            "averageVolume": int(df["Volume"].tail(20).mean()) if len(df) >= 20 else volume,
+            "fiftyTwoWeekHigh": float(df["Close"].tail(252).max()),
+            "fiftyTwoWeekLow": float(df["Close"].tail(252).min()),
+            "currency": "USD",
+            "symbol": ticker,
+            "longName": ticker,
+            "_data_warnings": [
+                "yfinance 일시 제한 — Stooq 대체 데이터 사용 (재무제표 등 일부 지표 누락)"
+            ],
+        }
+        return {"source": "fdr_us", "info": info, "stock": None, "hist": df}
+    except Exception:
+        return None
+
+
 def _fetch_fdr_korean(ticker: str):
     """FinanceDataReader로 한국 주식 fetch. 제한적이지만 yfinance 대체."""
     if not FDR_AVAILABLE:
@@ -128,6 +159,11 @@ def fetch_stock_data(ticker: str) -> dict | None:
     # 2차: 한국 종목이면 FDR fallback
     if _is_kr_ticker(ticker):
         result = _fetch_fdr_korean(ticker)
+        if result is not None:
+            return result
+    else:
+        # 미국·기타 종목은 Stooq fallback 시도
+        result = _fetch_fdr_us(ticker)
         if result is not None:
             return result
 

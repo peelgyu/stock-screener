@@ -77,6 +77,53 @@
         .stock-meta { display: flex; flex-wrap: wrap; gap: 12px; color: #aaa; font-size: 0.85rem; }
         .stock-meta span { background: #2a2a3e; padding: 4px 12px; border-radius: 20px; }
 
+        /* 거래량 TOP 사이드바 (우측 고정) */
+        .volume-sidebar {
+            position: fixed; top: 100px; right: 20px;
+            width: 280px; max-height: calc(100vh - 140px); overflow-y: auto;
+            background: #1a1a2e; border: 1px solid #3a2a5e; border-radius: 14px;
+            padding: 14px; z-index: 50; font-size: 0.82rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+        }
+        .vs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .vs-title { font-size: 0.9rem; font-weight: 700; color: #fff; }
+        .vs-refresh { background: none; border: none; color: #888; cursor: pointer; font-size: 0.72rem; }
+        .vs-refresh:hover { color: #00d2ff; }
+        .vs-tabs { display: flex; margin-bottom: 10px; border-bottom: 1px solid #2a2a3e; }
+        .vs-tab { flex: 1; padding: 6px; text-align: center; cursor: pointer; color: #888; font-size: 0.78rem; font-weight: 600; border-bottom: 2px solid transparent; }
+        .vs-tab.active { color: #fff; border-bottom-color: #7b2ff7; }
+        .vs-list { display: none; }
+        .vs-list.active { display: block; }
+        .vs-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 8px 4px; border-bottom: 1px solid #1e1e35; cursor: pointer;
+            transition: background 0.15s;
+        }
+        .vs-item:hover { background: #2a2a4e; }
+        .vs-item:last-child { border-bottom: none; }
+        .vs-rank { font-size: 0.7rem; color: #7b2ff7; font-weight: 700; min-width: 18px; text-align: center; }
+        .vs-main { flex: 1; min-width: 0; overflow: hidden; }
+        .vs-ticker { font-weight: 700; color: #fff; font-size: 0.8rem; }
+        .vs-name { color: #888; font-size: 0.68rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .vs-right { text-align: right; }
+        .vs-price { font-size: 0.78rem; color: #fff; font-weight: 600; }
+        .vs-change { font-size: 0.68rem; }
+        .vs-change.up { color: #4caf50; }
+        .vs-change.down { color: #f44336; }
+        .vs-change.flat { color: #888; }
+        .vs-toggle {
+            display: none;
+            position: fixed; top: 20px; right: 20px; z-index: 51;
+            background: #7b2ff7; color: #fff; border: none;
+            padding: 10px 14px; border-radius: 8px; cursor: pointer;
+            font-size: 0.8rem; font-weight: 600;
+        }
+        @media (max-width: 1200px) {
+            .volume-sidebar { display: none; }
+            .volume-sidebar.open { display: block; top: 60px; right: 10px; left: 10px; width: auto; max-height: calc(100vh - 80px); }
+            .vs-toggle { display: block; }
+        }
+
         /* TradingView 차트 */
         .tv-card { background: #1a1a2e; border-radius: 16px; padding: 12px; margin-bottom: 20px; border: 1px solid #2a2a3e; }
         .tv-card-title { font-size: 0.85rem; color: #aaa; margin-bottom: 8px; padding-left: 8px; }
@@ -292,6 +339,21 @@
     </style>
 </head>
 <body>
+    <button class="vs-toggle" onclick="toggleVolumeSidebar()">📊 거래량 TOP</button>
+
+    <aside class="volume-sidebar" id="volumeSidebar">
+        <div class="vs-header">
+            <div class="vs-title">📊 거래량 TOP 10</div>
+            <button class="vs-refresh" onclick="loadMostActive(true)">↻</button>
+        </div>
+        <div class="vs-tabs">
+            <div class="vs-tab active" data-market="us" onclick="switchVSTab('us')">🇺🇸 US</div>
+            <div class="vs-tab" data-market="kr" onclick="switchVSTab('kr')">🇰🇷 KR</div>
+        </div>
+        <div class="vs-list active" id="vsListUs"><div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로딩 중…</div></div>
+        <div class="vs-list" id="vsListKr"><div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로딩 중…</div></div>
+    </aside>
+
     <div class="top-warning">
         ⚠ <strong>투자 참고용</strong>이며 투자 권유가 아닙니다. 모든 투자 판단과 결과에 대한 책임은 이용자 본인에게 있습니다.
     </div>
@@ -398,6 +460,74 @@
         let chartInstances = [];
         let currentTicker = null;
         let optionsLoaded = false;
+
+        // 거래량 TOP 10 사이드바
+        let mostActiveData = null;
+        async function loadMostActive(force=false) {
+            if (!force && mostActiveData) return;
+            try {
+                const res = await fetch('/api/most_active');
+                const data = await res.json();
+                mostActiveData = data;
+                renderVS('us', data.us || []);
+                renderVS('kr', data.kr || []);
+            } catch(e) {
+                ['us','kr'].forEach(m => {
+                    document.getElementById('vsList'+m.charAt(0).toUpperCase()+m.slice(1))
+                        .innerHTML = '<div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로드 실패</div>';
+                });
+            }
+        }
+
+        function renderVS(market, items) {
+            const el = document.getElementById('vsList' + market.charAt(0).toUpperCase() + market.slice(1));
+            if (!items || items.length === 0) {
+                el.innerHTML = '<div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">데이터 없음</div>';
+                return;
+            }
+            el.innerHTML = items.map((item, i) => {
+                const changeClass = item.change_pct > 0 ? 'up' : item.change_pct < 0 ? 'down' : 'flat';
+                const sign = item.change_pct >= 0 ? '+' : '';
+                const priceStr = market === 'kr'
+                    ? '₩' + Math.round(item.price).toLocaleString()
+                    : '$' + item.price.toFixed(2);
+                const volStr = item.volume >= 1e6 ? (item.volume/1e6).toFixed(1)+'M'
+                    : item.volume >= 1e3 ? (item.volume/1e3).toFixed(0)+'K' : item.volume;
+                const displayTicker = item.display_ticker || item.ticker;
+                return `<div class="vs-item" onclick="vsQuickAnalyze('${item.ticker}')">
+                    <div class="vs-rank">${i+1}</div>
+                    <div class="vs-main">
+                        <div class="vs-ticker">${displayTicker}</div>
+                        <div class="vs-name">${item.name} · ${volStr}</div>
+                    </div>
+                    <div class="vs-right">
+                        <div class="vs-price">${priceStr}</div>
+                        <div class="vs-change ${changeClass}">${sign}${item.change_pct}%</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function switchVSTab(market) {
+            document.querySelectorAll('.vs-tab').forEach(t => t.classList.toggle('active', t.dataset.market === market));
+            document.querySelectorAll('.vs-list').forEach(l => l.classList.remove('active'));
+            document.getElementById('vsList' + market.charAt(0).toUpperCase() + market.slice(1)).classList.add('active');
+        }
+
+        function vsQuickAnalyze(ticker) {
+            input.value = ticker;
+            acBox.classList.remove('show');
+            analyze();
+            // 모바일에선 사이드바 닫기
+            document.getElementById('volumeSidebar').classList.remove('open');
+        }
+
+        function toggleVolumeSidebar() {
+            document.getElementById('volumeSidebar').classList.toggle('open');
+        }
+
+        // 페이지 로드 시 거래량 TOP 자동 로드
+        window.addEventListener('load', () => loadMostActive());
 
         // 이용 동의 모달 (localStorage로 한 번만 표시)
         (function initConsent() {
