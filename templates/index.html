@@ -226,7 +226,43 @@
         .qm-label { color: #888; font-size: 0.72rem; }
         .qm-value { color: #fff; font-weight: 600; margin-top: 2px; }
 
-        .disclaimer { text-align: center; color: #555; font-size: 0.75rem; padding: 20px 0; line-height: 1.6; }
+        .disclaimer { text-align: center; color: #888; font-size: 0.78rem; padding: 20px 0; line-height: 1.7; }
+        .disclaimer strong { color: #ff9800; }
+        .disclaimer a { color: #7b2ff7; text-decoration: none; margin: 0 6px; }
+        .disclaimer a:hover { text-decoration: underline; }
+
+        /* 상단 고정 면책 배너 */
+        .top-warning {
+            background: linear-gradient(135deg, #3a2410, #2a1a1a); color: #ffcc80;
+            font-size: 0.72rem; text-align: center; padding: 6px 12px;
+            border-bottom: 1px solid #5a3a20; line-height: 1.5;
+        }
+        .top-warning strong { color: #ff9800; }
+
+        /* 첫 방문 동의 모달 */
+        .consent-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+            display: none; align-items: center; justify-content: center; z-index: 10000; padding: 20px;
+        }
+        .consent-overlay.show { display: flex; }
+        .consent-box {
+            background: #1a1a2e; border: 2px solid #7b2ff7; border-radius: 16px;
+            max-width: 520px; padding: 28px; color: #e0e0e0;
+        }
+        .consent-title { font-size: 1.2rem; font-weight: 700; color: #00d2ff; margin-bottom: 14px; }
+        .consent-body { font-size: 0.88rem; line-height: 1.7; color: #ccc; margin-bottom: 20px; }
+        .consent-body strong { color: #ff9800; }
+        .consent-body ul { padding-left: 20px; margin: 10px 0; }
+        .consent-body li { margin: 4px 0; }
+        .consent-links { font-size: 0.8rem; margin-bottom: 14px; }
+        .consent-links a { color: #7b2ff7; margin-right: 10px; }
+        .consent-btn {
+            display: block; width: 100%; padding: 12px;
+            background: linear-gradient(135deg, #7b2ff7, #00d2ff);
+            color: #fff; font-size: 1rem; font-weight: 700; border: none;
+            border-radius: 10px; cursor: pointer; transition: opacity 0.2s;
+        }
+        .consent-btn:hover { opacity: 0.85; }
 
         .quick-search { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
         .quick-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid #2a2a3e; background: transparent; color: #aaa; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
@@ -249,6 +285,30 @@
     </style>
 </head>
 <body>
+    <div class="top-warning">
+        ⚠ <strong>투자 참고용</strong>이며 투자 권유가 아닙니다. 모든 투자 판단과 결과에 대한 책임은 이용자 본인에게 있습니다.
+    </div>
+
+    <div class="consent-overlay" id="consentOverlay">
+        <div class="consent-box">
+            <div class="consent-title">Stock Screener 이용 안내</div>
+            <div class="consent-body">
+                본 서비스는 공개 데이터를 기반으로 한 <strong>주식 참고 정보</strong>를 제공합니다.
+                <ul>
+                    <li>자본시장법상 <strong>투자자문업이 아니며</strong>, 모든 분석·등급·점수는 참고용입니다</li>
+                    <li>특정 종목의 매수·매도를 권유하지 않습니다</li>
+                    <li>투자 결정과 그 결과에 대한 책임은 <strong>이용자 본인</strong>에게 있습니다</li>
+                    <li>데이터는 15~20분 지연되며 오류·누락이 있을 수 있습니다</li>
+                </ul>
+            </div>
+            <div class="consent-links">
+                <a href="/terms" target="_blank">이용약관 전문</a>
+                <a href="/privacy" target="_blank">개인정보처리방침</a>
+            </div>
+            <button class="consent-btn" onclick="acceptConsent()">이해했으며 참고용으로만 이용합니다</button>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
             <h1>Stock Screener</h1>
@@ -308,8 +368,12 @@
             </div>
 
             <div class="disclaimer">
-                Yahoo Finance 데이터 기반 | 투자 참고용이며 투자 권유가 아닙니다<br>
-                재무제표는 가장 최근 분기 기준 | 실시간 주가는 15분 지연
+                <strong>⚠ 본 서비스는 투자 참고용이며, 투자 권유·조언·자문이 아닙니다.</strong><br>
+                본 서비스는 자본시장법상 투자자문업·유사투자자문업이 아니며, 인가된 금융투자업자가 아닙니다.<br>
+                제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 참고 정보이며,<br>
+                <strong>투자 판단과 그에 따른 결과의 책임은 이용자 본인</strong>에게 있습니다.<br>
+                데이터: Yahoo Finance (15~20분 지연) · 재무제표는 공시된 최신 분기·연간 기준<br><br>
+                <a href="/terms" target="_blank">이용약관</a> · <a href="/privacy" target="_blank">개인정보처리방침</a>
             </div>
         </div>
     </div>
@@ -326,6 +390,18 @@
         let chartInstances = [];
         let currentTicker = null;
         let optionsLoaded = false;
+
+        // 이용 동의 모달 (localStorage로 한 번만 표시)
+        (function initConsent() {
+            const KEY = 'ss_consent_v1';
+            if (!localStorage.getItem(KEY)) {
+                document.getElementById('consentOverlay').classList.add('show');
+            }
+        })();
+        function acceptConsent() {
+            localStorage.setItem('ss_consent_v1', new Date().toISOString());
+            document.getElementById('consentOverlay').classList.remove('show');
+        }
 
         input.addEventListener('keydown', (e) => {
             const items = acBox.querySelectorAll('.ac-item');

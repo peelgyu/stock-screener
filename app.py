@@ -425,6 +425,16 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+
 @app.route("/api/search", methods=["GET"])
 def search_stocks():
     q = request.args.get("q", "").strip()

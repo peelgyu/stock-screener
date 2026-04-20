@@ -91,17 +91,17 @@ def generate_verdict(overall: dict, rs_data: dict | None, market_data: dict | No
             score -= 1
             warnings.append(f"극단적 탐욕 ({fg}) — 단기 과열")
 
-    # 판정
+    # 판정 — 중립적 등급제 (투자 권유 표현 회피)
     if score >= 4:
-        decision, color, confidence = "매수", "green", "high"
+        decision, color, confidence = "긍정 (A)", "green", "high"
     elif score >= 2:
-        decision, color, confidence = "관심 (선별 매수)", "green", "medium"
+        decision, color, confidence = "양호 (B)", "green", "medium"
     elif score >= 0:
-        decision, color, confidence = "관망", "yellow", "medium"
+        decision, color, confidence = "중립 (C)", "yellow", "medium"
     elif score >= -2:
-        decision, color, confidence = "회피 (리스크)", "red", "medium"
+        decision, color, confidence = "주의 (D)", "red", "medium"
     else:
-        decision, color, confidence = "회피", "red", "high"
+        decision, color, confidence = "부적합 (F)", "red", "high"
 
     if not reasons:
         reasons = ["특이점 없음"]

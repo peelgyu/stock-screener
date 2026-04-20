@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인정보처리방침 - Stock Screener</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.8; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        h1 { color: #00d2ff; font-size: 1.8rem; margin-bottom: 8px; }
+        h2 { color: #7b2ff7; font-size: 1.1rem; margin: 24px 0 10px; border-left: 3px solid #7b2ff7; padding-left: 12px; }
+        p, li { color: #ccc; font-size: 0.9rem; }
+        ul, ol { padding-left: 24px; margin: 8px 0; }
+        li { margin: 4px 0; }
+        .meta { color: #666; font-size: 0.8rem; margin-bottom: 20px; }
+        a { color: #00d2ff; }
+        .back { margin-top: 40px; padding-top: 20px; border-top: 1px solid #2a2a3e; }
+        table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.85rem; }
+        th, td { padding: 8px 12px; border: 1px solid #2a2a3e; text-align: left; }
+        th { background: #1a1a2e; color: #aaa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>개인정보처리방침</h1>
+        <p class="meta">시행일: 2026년 4월 20일</p>
+
+        <h2>1. 개인정보 수집 여부</h2>
+        <p>Stock Screener는 현재 <strong>회원가입 기능을 제공하지 않으며, 이용자의 개인정보를 직접 수집하지 않습니다.</strong></p>
+
+        <h2>2. 자동 수집 정보 (로그·쿠키)</h2>
+        <p>서비스 품질 관리 및 장애 대응을 위해 다음 정보가 자동 수집될 수 있습니다:</p>
+        <table>
+            <tr><th>항목</th><th>용도</th><th>보관기간</th></tr>
+            <tr><td>IP 주소 (일부 마스킹)</td><td>요청 속도 제한(Rate limit), 보안</td><td>60초 이내 자동 삭제</td></tr>
+            <tr><td>브라우저 종류, 접속 시각</td><td>서버 로그</td><td>최대 30일</td></tr>
+            <tr><td>조회한 종목명·티커</td><td>캐시 성능 개선</td><td>5분 이내 자동 삭제</td></tr>
+        </table>
+
+        <h2>3. 제3자 서비스 이용</h2>
+        <p>본 서비스는 다음 제3자 서비스를 이용하며, 각 서비스의 개인정보처리방침을 따릅니다:</p>
+        <ul>
+            <li><strong>Yahoo Finance</strong> (주가·재무 데이터 제공) — <a href="https://legal.yahoo.com/us/en/yahoo/privacy/index.html" target="_blank">개인정보처리방침</a></li>
+            <li><strong>Render.com</strong> (서비스 호스팅) — <a href="https://render.com/privacy" target="_blank">개인정보처리방침</a></li>
+            <li><strong>Cloudflare CDN</strong> (정적 자원 전송)</li>
+        </ul>
+
+        <h2>4. 쿠키 사용</h2>
+        <p>본 서비스는 다음 쿠키/로컬 저장소를 사용합니다:</p>
+        <ul>
+            <li><strong>이용약관 동의 기록</strong>: 첫 방문 동의 모달을 다시 띄우지 않기 위해 localStorage 사용</li>
+            <li><strong>세션 쿠키</strong>: Flask 기본 세션 (현재 비활성)</li>
+        </ul>
+        <p>이용자는 브라우저 설정에서 쿠키를 거부할 수 있으나, 이 경우 일부 기능 사용이 제한될 수 있습니다.</p>
+
+        <h2>5. 개인정보 제3자 제공</h2>
+        <p>본 서비스는 이용자의 개인정보를 제3자에게 제공하지 않습니다. 단, 법령에 따른 요구가 있을 경우 예외로 합니다.</p>
+
+        <h2>6. 이용자 권리</h2>
+        <ul>
+            <li>이용자는 본 서비스가 보관 중인 본인의 정보에 대해 열람, 정정, 삭제를 요구할 수 있습니다.</li>
+            <li>현재는 회원제가 아니므로 보관되는 개인 식별 정보가 제한적입니다.</li>
+            <li>문의: (이메일 주소 추후 명시)</li>
+        </ul>
+
+        <h2>7. 정보 보호 조치</h2>
+        <ul>
+            <li>HTTPS 암호화 통신 적용</li>
+            <li>서버 로그는 접근 제한된 환경에서 보관</li>
+            <li>불필요한 개인정보 수집·저장 최소화 원칙 준수</li>
+        </ul>
+
+        <h2>8. 방침 변경</h2>
+        <p>본 방침은 법령·서비스 변경에 따라 개정될 수 있으며, 변경 시 서비스 내 공지합니다.</p>
+
+        <div class="back">
+            <a href="/">← 메인 페이지로 돌아가기</a> | <a href="/terms">이용약관</a>
+        </div>
+    </div>
+</body>
+</html>

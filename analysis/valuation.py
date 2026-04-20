@@ -217,15 +217,15 @@ def calculate_fair_value(info: dict, stock, history_data: dict | None = None) ->
         verdict_prefix = ""
 
     if upside >= 20:
-        verdict = f"{verdict_prefix}크게 저평가 (적정가 대비 20%+ 할인)"
+        verdict = f"{verdict_prefix}적정가 대비 큰 상승여력 (+20% 이상)"
     elif upside >= 10:
-        verdict = f"{verdict_prefix}저평가 (적정가 대비 10~20% 할인)"
+        verdict = f"{verdict_prefix}적정가 대비 상승여력 (+10~20%)"
     elif upside >= -10:
         verdict = f"{verdict_prefix}현재가가 적정가 근처 (±10%)"
     elif upside >= -20:
-        verdict = f"{verdict_prefix}고평가 (적정가 대비 10~20% 프리미엄)"
+        verdict = f"{verdict_prefix}적정가 대비 프리미엄 반영 (10~20%)"
     else:
-        verdict = f"{verdict_prefix}크게 고평가 (적정가 대비 20%+ 프리미엄)"
+        verdict = f"{verdict_prefix}적정가 대비 큰 프리미엄 (20% 이상)"
 
     return {
         "current_price": round(current_price, 2),
