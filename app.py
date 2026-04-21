@@ -470,6 +470,11 @@ def install_guide():
     return render_template("install.html")
 
 
+@app.route("/glossary")
+def glossary():
+    return render_template("glossary.html")
+
+
 @app.route("/terms")
 def terms():
     return render_template("terms.html")

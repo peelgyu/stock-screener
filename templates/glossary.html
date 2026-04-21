@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주식 용어 사전 - StockInto</title>
+    <meta name="theme-color" content="#7b2ff7">
+    <meta name="description" content="PER, ROE, DCF, RSI, CAN SLIM 등 주식 분석 핵심 용어 한눈에 정리. 대가들의 투자 기준부터 재무 지표까지.">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.7; }
+        .container { max-width: 860px; margin: 0 auto; padding: 30px 20px 80px; }
+
+        .header { text-align: center; margin-bottom: 24px; }
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #00d2ff, #7b2ff7);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+        .header p { color: #888; font-size: 0.9rem; }
+
+        .search-bar {
+            width: 100%; padding: 12px 16px; font-size: 0.95rem;
+            background: #1a1a2e; color: #fff; border: 2px solid #2a2a3e;
+            border-radius: 12px; outline: none; margin-bottom: 20px;
+        }
+        .search-bar:focus { border-color: #7b2ff7; }
+        .search-bar::placeholder { color: #555; }
+
+        .toc {
+            background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 12px;
+            padding: 14px 16px; margin-bottom: 24px; font-size: 0.82rem;
+        }
+        .toc-title { color: #aaa; font-weight: 600; margin-bottom: 8px; font-size: 0.78rem; }
+        .toc-links { display: flex; flex-wrap: wrap; gap: 6px; }
+        .toc-link {
+            background: #0f0f1a; padding: 6px 12px; border-radius: 16px;
+            color: #ccc; text-decoration: none; font-size: 0.78rem;
+            border: 1px solid #2a2a3e; transition: all 0.15s;
+        }
+        .toc-link:hover { background: #7b2ff7; color: #fff; border-color: #7b2ff7; }
+
+        .category {
+            background: #1a1a2e; border: 1px solid #2a2a3e;
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+        }
+        .category h2 {
+            font-size: 1.15rem; color: #7b2ff7; margin-bottom: 12px;
+            padding-bottom: 8px; border-bottom: 1px solid #2a2a3e;
+            scroll-margin-top: 20px;
+        }
+
+        .term { padding: 12px 0; border-bottom: 1px solid #1e1e35; }
+        .term:last-child { border-bottom: none; }
+        .term-head {
+            display: flex; align-items: baseline; gap: 10px; margin-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        .term-name { font-size: 0.98rem; font-weight: 700; color: #fff; }
+        .term-en { font-size: 0.75rem; color: #00d2ff; font-weight: 500; }
+        .term-tag {
+            font-size: 0.66rem; background: #2a1a3e; color: #b092e8;
+            padding: 2px 8px; border-radius: 10px; border: 1px solid #3a2a5e;
+        }
+        .term-def { font-size: 0.88rem; color: #ccc; }
+        .term-formula {
+            background: #0f0f1a; color: #8bc34a; font-family: 'Consolas','Courier New',monospace;
+            font-size: 0.82rem; padding: 6px 10px; border-radius: 6px;
+            margin: 6px 0; display: inline-block;
+        }
+        .term-tip {
+            background: #2a2410; border-left: 3px solid #ffb74d;
+            padding: 6px 10px; margin-top: 6px; border-radius: 6px;
+            font-size: 0.78rem; color: #ffcc80;
+        }
+        .term-tip strong { color: #ffb74d; }
+
+        .back {
+            position: fixed; bottom: 24px; right: 24px;
+            background: linear-gradient(135deg, #7b2ff7, #00d2ff);
+            color: #fff; text-decoration: none; padding: 10px 18px;
+            border-radius: 22px; font-size: 0.82rem; font-weight: 700;
+            box-shadow: 0 4px 14px rgba(123,47,247,0.5); z-index: 100;
+        }
+        .back:hover { opacity: 0.9; }
+
+        .hidden { display: none !important; }
+        .empty-state { text-align: center; padding: 40px; color: #666; font-size: 0.88rem; }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.5rem; }
+            .back { bottom: 12px; right: 12px; padding: 8px 14px; font-size: 0.75rem; }
+            .container { padding: 20px 14px 80px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 주식 용어 사전</h1>
+            <p>분석 화면에 나오는 지표·용어들을 한눈에</p>
+        </div>
+
+        <input type="text" class="search-bar" id="searchBar" placeholder="🔍 용어 검색 (예: PER, ROE, RSI, DCF)">
+
+        <div class="toc">
+            <div class="toc-title">빠른 이동</div>
+            <div class="toc-links">
+                <a href="#valuation" class="toc-link">가치평가</a>
+                <a href="#profitability" class="toc-link">수익성</a>
+                <a href="#health" class="toc-link">재무건전성</a>
+                <a href="#growth" class="toc-link">성장성</a>
+                <a href="#technical" class="toc-link">기술적</a>
+                <a href="#market" class="toc-link">시장·수급</a>
+                <a href="#options" class="toc-link">옵션</a>
+                <a href="#legend" class="toc-link">대가별 용어</a>
+                <a href="#category" class="toc-link">종목 카테고리</a>
+                <a href="#grade" class="toc-link">StockInto 등급</a>
+            </div>
+        </div>
+
+        <div id="emptyState" class="empty-state hidden">🔍 검색 결과 없음. 다른 키워드로 시도해주세요.</div>
+
+        <!-- 1. 가치평가 -->
+        <div class="category" data-section="valuation">
+            <h2 id="valuation">📊 1. 가치평가 (밸류에이션)</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">PER</span>
+                    <span class="term-en">Price to Earnings Ratio · 주가수익비율</span>
+                </div>
+                <div class="term-formula">PER = 주가 ÷ 주당순이익(EPS)</div>
+                <div class="term-def">주가가 1년간 벌어들이는 이익의 몇 배인지. 낮을수록 저평가로 본다.</div>
+                <div class="term-tip"><strong>기준</strong>: 그레이엄 15 이하 · Tech 섹터 30 이하 · 미국 전체 평균 ~20</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">PBR</span>
+                    <span class="term-en">Price to Book Ratio · 주가순자산비율</span>
+                </div>
+                <div class="term-formula">PBR = 주가 ÷ 주당순자산(BVPS)</div>
+                <div class="term-def">장부상 순자산 대비 주가 배수. 1 이하면 장부가치 이하로 거래되는 셈.</div>
+                <div class="term-tip"><strong>그레이엄</strong>: 1.5 이하 선호 · <strong>자본잠식</strong>이면 무효</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">PEG</span>
+                    <span class="term-en">PE to Growth · 주가수익성장비율</span>
+                </div>
+                <div class="term-formula">PEG = PER ÷ 연간 EPS 성장률(%)</div>
+                <div class="term-def">성장률 대비 PER. 1 이하면 성장 대비 저평가로 본다.</div>
+                <div class="term-tip"><strong>피터 린치</strong>: PEG 1 이하 종목 선호</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">P/S</span>
+                    <span class="term-en">Price to Sales · 주가매출비율</span>
+                </div>
+                <div class="term-formula">P/S = 시가총액 ÷ 매출</div>
+                <div class="term-def">적자 기업이나 성장주 평가 시 PER 대신 사용. 매출 대비 몸값.</div>
+                <div class="term-tip"><strong>StockInto</strong>: UNRELIABLE/GROWTH_UNPROFITABLE 카테고리에서 주로 사용</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">EV/EBITDA</span>
+                    <span class="term-en">Enterprise Value / EBITDA</span>
+                </div>
+                <div class="term-formula">EV ÷ 감가상각·이자·세금 전 영업이익</div>
+                <div class="term-def">M&A 평가나 자본구조 무관 비교 시 활용. 통신·인프라 업종에서 많이 씀.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">Graham Number</span>
+                    <span class="term-en">그레이엄 수 · 안전마진 가격</span>
+                </div>
+                <div class="term-formula">√(22.5 × EPS × BVPS)</div>
+                <div class="term-def">벤저민 그레이엄의 최대 적정주가. 이하면 안전마진 확보.</div>
+                <div class="term-tip"><strong>한계</strong>: 자산집약 기업 가정. 테크·플랫폼주에는 부적합 (StockInto에서 Tech 섹터는 5% 가중만)</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">DCF</span>
+                    <span class="term-en">Discounted Cash Flow · 현금흐름할인법</span>
+                </div>
+                <div class="term-def">미래에 벌 현금을 현재가치로 환산해서 기업가치 추정. 가장 이론적인 적정주가 계산법.</div>
+                <div class="term-tip"><strong>StockInto 설정</strong>: 5년 성장 → 영구성장 4%, 할인율 8%</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">적정주가</span>
+                    <span class="term-en">Fair Value</span>
+                </div>
+                <div class="term-def">내재가치 기반 이상적 주가. StockInto는 DCF·PER·Graham·애널리스트·P/S 5개 방법을 섹터 가중 평균으로 도출.</div>
+            </div>
+        </div>
+
+        <!-- 2. 수익성 -->
+        <div class="category" data-section="profitability">
+            <h2 id="profitability">💰 2. 수익성 지표</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">ROE</span>
+                    <span class="term-en">Return on Equity · 자기자본이익률</span>
+                </div>
+                <div class="term-formula">ROE = 순이익 ÷ 자기자본</div>
+                <div class="term-def">주주 돈으로 얼마 버는지. 높을수록 효율적 경영.</div>
+                <div class="term-tip"><strong>워렌 버핏</strong>: 15% 이상 선호 · <strong>다년 일관성</strong> 중시 (단년 고ROE는 의심)</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">ROA</span>
+                    <span class="term-en">Return on Assets · 총자산이익률</span>
+                </div>
+                <div class="term-formula">ROA = 순이익 ÷ 총자산</div>
+                <div class="term-def">자산 전체의 활용도. 부채 영향 받지 않아 ROE와 함께 봐야 함.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">영업이익률</span>
+                    <span class="term-en">Operating Margin</span>
+                </div>
+                <div class="term-formula">영업이익 ÷ 매출</div>
+                <div class="term-def">본업으로 얼마 남기는지. 금융비용·세금 전.</div>
+                <div class="term-tip"><strong>섹터별 차이 큼</strong>: Tech 18%+, Energy 8%+, Utility 15%+ (StockInto 기준)</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">순이익률</span>
+                    <span class="term-en">Profit Margin</span>
+                </div>
+                <div class="term-formula">순이익 ÷ 매출</div>
+                <div class="term-def">최종 남는 돈 비율. 10%+는 양호.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">매출총이익률</span>
+                    <span class="term-en">Gross Margin</span>
+                </div>
+                <div class="term-formula">(매출 - 매출원가) ÷ 매출</div>
+                <div class="term-def">원재료·제조 후 남는 마진. 브랜드력 측정 가능.</div>
+                <div class="term-tip"><strong>필립 피셔</strong>: 40%+ 선호 (R&D·장기투자 여력 확보)</div>
+            </div>
+        </div>
+
+        <!-- 3. 재무건전성 -->
+        <div class="category" data-section="health">
+            <h2 id="health">🛡 3. 재무건전성</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">부채비율</span>
+                    <span class="term-en">Debt to Equity</span>
+                </div>
+                <div class="term-formula">총부채 ÷ 자기자본 × 100</div>
+                <div class="term-def">자기자본 대비 빚 비중. 금융·유틸 업종은 높아도 정상.</div>
+                <div class="term-tip"><strong>버핏</strong>: 50% 이하 · <strong>린치</strong>: 80% 이하 · 자본잠식이면 의미 없음</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">유동비율</span>
+                    <span class="term-en">Current Ratio</span>
+                </div>
+                <div class="term-formula">유동자산 ÷ 유동부채</div>
+                <div class="term-def">1년 내 갚아야 할 빚 대비 1년 내 현금화 가능한 자산. 단기 지급능력.</div>
+                <div class="term-tip"><strong>그레이엄</strong>: 200% 이상 선호 (매우 보수적)</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">FCF</span>
+                    <span class="term-en">Free Cash Flow · 잉여현금흐름</span>
+                </div>
+                <div class="term-formula">FCF = 영업현금흐름(OCF) - 설비투자(CapEx)</div>
+                <div class="term-def">기업이 실제로 자유롭게 쓸 수 있는 현금. 배당·자사주매입·M&A 재원.</div>
+                <div class="term-tip">장부이익이 높아도 <strong>FCF가 음수면</strong> 회계 품질 의심</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">OCF</span>
+                    <span class="term-en">Operating Cash Flow · 영업현금흐름</span>
+                </div>
+                <div class="term-def">본업에서 실제 들어온 현금. 이익과 달라서 회계 품질 체크에 중요.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">자본잠식</span>
+                    <span class="term-en">Negative Equity</span>
+                </div>
+                <div class="term-def">순자산(자기자본) < 0 상태. 청산가치 없음. 단, AAPL처럼 자사주 매입 과다 시 <strong>건강한 자본잠식</strong>도 있음.</div>
+                <div class="term-tip">StockInto는 BUYBACK_HEAVY 카테고리로 자동 구분</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">발생액</span>
+                    <span class="term-en">Accruals</span>
+                </div>
+                <div class="term-formula">(순이익 - OCF) ÷ 총자산</div>
+                <div class="term-def">장부이익과 실제 현금의 차이. 10%+면 공격적 회계·분식 가능성.</div>
+                <div class="term-tip">StockInto 재무품질 점수에 반영</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">FCF/NI 비율</span>
+                    <span class="term-en">FCF to Net Income</span>
+                </div>
+                <div class="term-def">FCF를 순이익으로 나눈 값. 0.7 이상이 건전. 0.4 이하면 현금 전환력 약함.</div>
+            </div>
+        </div>
+
+        <!-- 4. 성장성 -->
+        <div class="category" data-section="growth">
+            <h2 id="growth">🚀 4. 성장성 지표</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">매출 성장률</span>
+                    <span class="term-en">Revenue Growth</span>
+                </div>
+                <div class="term-def">전년 대비 매출 증가율. 10%+면 성장주로 분류.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">EPS 성장률</span>
+                    <span class="term-en">Earnings Growth</span>
+                </div>
+                <div class="term-def">전년 대비 주당순이익 증가율. 수익성까지 개선됐는지 확인.</div>
+                <div class="term-tip"><strong>린치</strong>: 15%+ · <strong>오닐</strong>: 25%+ 선호</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">분기 EPS 성장률</span>
+                    <span class="term-en">Quarterly Earnings Growth (YoY)</span>
+                </div>
+                <div class="term-def">같은 분기 전년 대비. 오닐 CAN SLIM의 "C" — 25% 이상이 기준.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">CAGR</span>
+                    <span class="term-en">Compound Annual Growth Rate · 연평균 성장률</span>
+                </div>
+                <div class="term-def">복리 기준 연평균. 5년 CAGR 10%+면 장기 성장 기업.</div>
+            </div>
+        </div>
+
+        <!-- 5. 기술적 -->
+        <div class="category" data-section="technical">
+            <h2 id="technical">📈 5. 기술적 지표</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">RSI</span>
+                    <span class="term-en">Relative Strength Index · 상대강도지수</span>
+                </div>
+                <div class="term-def">0~100 사이 값. 주가의 최근 상승·하락 비율 측정.</div>
+                <div class="term-tip"><strong>70 이상</strong>: 과매수 (조정 위험) · <strong>30 이하</strong>: 과매도 (반등 기회)</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">이동평균선 (MA)</span>
+                    <span class="term-en">Moving Average</span>
+                </div>
+                <div class="term-def">일정 기간 주가 평균선. MA5(5일)·MA20·MA50·MA200.</div>
+                <div class="term-tip"><strong>골든크로스</strong>: MA50이 MA200 위로 돌파 (상승 신호) · <strong>데드크로스</strong>: 그 반대</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">52주 범위</span>
+                    <span class="term-en">52-Week Range</span>
+                </div>
+                <div class="term-def">최근 1년 고가·저가. 현재가가 범위 내 어디 위치했는지로 상대적 비싸다·싸다 판단.</div>
+                <div class="term-tip"><strong>오닐</strong>: 52주 고가 85%+ 근처 선호 (상승 추세 확인)</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">거래량</span>
+                    <span class="term-en">Volume</span>
+                </div>
+                <div class="term-def">하루 동안 거래된 주식 수. 평균 대비 급증 시 관심도 증가·이벤트 발생 신호.</div>
+                <div class="term-tip"><strong>오닐</strong>: 브레이크아웃 시 평균 1.5배+ 거래량 선호</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">변동성</span>
+                    <span class="term-en">Volatility</span>
+                </div>
+                <div class="term-def">주가 변동 폭. 일반적으로 표준편차로 측정. 연환산 20% 이하면 안정, 40%+ 면 극단적.</div>
+            </div>
+        </div>
+
+        <!-- 6. 시장·수급 -->
+        <div class="category" data-section="market">
+            <h2 id="market">🏛 6. 시장·수급 지표</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">시가총액</span>
+                    <span class="term-en">Market Cap</span>
+                </div>
+                <div class="term-formula">현재가 × 발행주식수</div>
+                <div class="term-def">기업의 주식시장 전체 가치.</div>
+                <div class="term-tip"><strong>분류</strong>: 대형주 10조↑ · 중형주 1~10조 · 소형주 1조↓</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">유통주식</span>
+                    <span class="term-en">Float Shares</span>
+                </div>
+                <div class="term-def">실제 시장에서 거래 가능한 주식. 대주주·내부자 보유분 제외. 적을수록 변동성 큼.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">공매도</span>
+                    <span class="term-en">Short Selling</span>
+                </div>
+                <div class="term-def">주식을 빌려서 먼저 팔고, 나중에 싸게 사서 갚는 거래. 하락 베팅.</div>
+                <div class="term-tip"><strong>공매도 비율 20%+</strong> = 강한 하락 베팅 + 숏스퀴즈 가능성</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">숏 커버 일수</span>
+                    <span class="term-en">Days to Cover</span>
+                </div>
+                <div class="term-formula">공매도 잔량 ÷ 일평균 거래량</div>
+                <div class="term-def">공매도 포지션을 전부 청산하는 데 걸리는 거래일.</div>
+                <div class="term-tip"><strong>10일+</strong>: 숏커버 어려움 → 숏스퀴즈 위험 (주가 급등 가능)</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">숏스퀴즈</span>
+                    <span class="term-en">Short Squeeze</span>
+                </div>
+                <div class="term-def">공매도 세력이 손절로 반대 매수할 때 주가 폭등 현상. GameStop 사례가 대표.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">기관 보유율</span>
+                    <span class="term-en">Institutional Holdings</span>
+                </div>
+                <div class="term-def">뮤추얼펀드·연기금 등 기관투자자 보유 비중.</div>
+                <div class="term-tip"><strong>오닐</strong>: 20%+ 선호 (대형 자금 유입) · <strong>린치</strong>: 60% 미만 선호 (아직 안 알려진 종목)</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">내부자 보유율</span>
+                    <span class="term-en">Insider Ownership</span>
+                </div>
+                <div class="term-def">임원·대주주 보유 비중. 높으면 경영진이 회사 가치에 베팅 중이라는 신호.</div>
+            </div>
+        </div>
+
+        <!-- 7. 옵션 -->
+        <div class="category" data-section="options">
+            <h2 id="options">🎯 7. 옵션 관련</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">콜옵션</span>
+                    <span class="term-en">Call Option</span>
+                </div>
+                <div class="term-def">특정 가격에 주식을 <strong>살 권리</strong>. 상승 베팅.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">풋옵션</span>
+                    <span class="term-en">Put Option</span>
+                </div>
+                <div class="term-def">특정 가격에 주식을 <strong>팔 권리</strong>. 하락 베팅 or 하락 헷지.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">Put/Call Ratio</span>
+                    <span class="term-en">P/C 비율</span>
+                </div>
+                <div class="term-formula">풋 미결제약정 ÷ 콜 미결제약정</div>
+                <div class="term-def">옵션 시장의 심리 지표.</div>
+                <div class="term-tip"><strong>1.0+</strong>: 약세 우세 · <strong>0.7 미만</strong>: 강세 우세 · <strong>1.5+</strong>: 극단적 약세</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">Max Pain</span>
+                    <span class="term-en">맥스페인</span>
+                </div>
+                <div class="term-def">옵션 만기 시 옵션 매도자(시장메이커)에게 가장 유리한 주가. 만기일 주가가 여기로 수렴하는 경향 있음.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">미결제약정</span>
+                    <span class="term-en">Open Interest (OI)</span>
+                </div>
+                <div class="term-def">아직 청산되지 않은 옵션 계약 수. 특정 행사가에 OI 집중 = 중요 지지·저항선.</div>
+            </div>
+        </div>
+
+        <!-- 8. 대가별 용어 -->
+        <div class="category" data-section="legend">
+            <h2 id="legend">👑 8. 대가별 투자 용어</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">가치투자</span>
+                    <span class="term-en">Value Investing</span>
+                    <span class="term-tag">그레이엄·버핏</span>
+                </div>
+                <div class="term-def">내재가치보다 싸게 사서 가격이 올라올 때까지 기다리는 방식. "가격은 지불하는 것, 가치는 받는 것" (버핏).</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">성장주 투자</span>
+                    <span class="term-en">Growth Investing</span>
+                    <span class="term-tag">피터 린치</span>
+                </div>
+                <div class="term-def">이익이 빠르게 성장 중인 기업에 프리미엄을 주고라도 매수. "10루타(Tenbagger)" 추구.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">안전마진</span>
+                    <span class="term-en">Margin of Safety</span>
+                    <span class="term-tag">그레이엄</span>
+                </div>
+                <div class="term-def">내재가치보다 30~50% 할인된 가격에 매수. 오판 가능성 대비 버퍼.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">경제적 해자</span>
+                    <span class="term-en">Economic Moat</span>
+                    <span class="term-tag">버핏</span>
+                </div>
+                <div class="term-def">경쟁사가 쉽게 침범 못 하는 경쟁우위. 브랜드·네트워크 효과·전환비용·규모의 경제 등.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">CAN SLIM</span>
+                    <span class="term-en">캔슬림 7가지 기준</span>
+                    <span class="term-tag">윌리엄 오닐</span>
+                </div>
+                <div class="term-def">오닐의 대표 성장주 선별법. 각 이니셜이 기준:</div>
+                <div class="term-formula">
+                    C: Current Quarterly EPS (분기 25%+)<br>
+                    A: Annual Earnings (연간 25%+)<br>
+                    N: New (신고가·신제품)<br>
+                    S: Supply/Demand (수급·거래량)<br>
+                    L: Leader (RS 80+)<br>
+                    I: Institutional (기관 보유 증가)<br>
+                    M: Market Direction (상승장)
+                </div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">RS Rating</span>
+                    <span class="term-en">Relative Strength Rating · 상대강도 등급</span>
+                    <span class="term-tag">오닐</span>
+                </div>
+                <div class="term-def">시장(S&P500 등) 대비 주가 강도. 0~100 점수화.</div>
+                <div class="term-tip"><strong>80+</strong>: 선도주 · <strong>60~80</strong>: 시장 상회 · <strong>40 이하</strong>: 부진</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">스캇틀벗</span>
+                    <span class="term-en">Scuttlebutt</span>
+                    <span class="term-tag">필립 피셔</span>
+                </div>
+                <div class="term-def">경쟁사·고객·공급업체 등 주변 관계자 탐문으로 기업 분석. 15가지 질문으로 체계화.</div>
+            </div>
+        </div>
+
+        <!-- 9. 종목 카테고리 -->
+        <div class="category" data-section="category">
+            <h2 id="category">🏷 9. StockInto 종목 카테고리</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">STABLE</span>
+                    <span class="term-en">안정 수익 구조</span>
+                </div>
+                <div class="term-def">꾸준한 이익 + 양수 FCF. 모든 평가 방법(DCF·PER·Graham·애널·P/S) 적용 가능. 가장 표준적인 분석.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">STABLE_FINANCIAL</span>
+                    <span class="term-en">금융 안정</span>
+                </div>
+                <div class="term-def">금융섹터 꾸준 이익. 은행·보험·증권. DCF 대신 PER·Graham·애널 중심 (금융사는 FCF 개념 다름).</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">VOLATILE</span>
+                    <span class="term-en">이익 변동성</span>
+                </div>
+                <div class="term-def">최근 1~2년 적자 or 일시적 FCF 마이너스. 순환적 산업에 흔함. PER 해석 신중.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">BUYBACK_HEAVY</span>
+                    <span class="term-en">자사주매입형 우량주</span>
+                </div>
+                <div class="term-def">AAPL처럼 자사주 매입 과다로 장부상 자본잠식. 실제 부실 아님. Graham·PBR 무효 처리.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">WEAK_CASH_FLOW</span>
+                    <span class="term-en">이익-현금흐름 괴리</span>
+                </div>
+                <div class="term-def">장부이익은 양수지만 FCF 적자. 회계 품질 주의. DCF 제외, PER·P/S·애널 중심 평가.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">GROWTH_UNPROFITABLE</span>
+                    <span class="term-en">적자 성장주</span>
+                </div>
+                <div class="term-def">EPS 적자지만 매출 25%+ 급성장. P/S·애널 중심 평가.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">UNRELIABLE_EARNINGS</span>
+                    <span class="term-en">일회성 이익 의심</span>
+                </div>
+                <div class="term-def">과거 다년 적자 → 현재 일시 흑자 + FCF 여전히 적자. NVAX의 Sanofi 딜 같은 케이스. PER 왜곡 위험 → 제외.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">DISTRESSED</span>
+                    <span class="term-en">지속 적자·자금고갈 위험</span>
+                </div>
+                <div class="term-def">3년+ 적자 + 현재 FCF 적자. 펀더멘털 분석 신뢰도 매우 낮음. 애널리스트 타겟가만 참고.</div>
+            </div>
+        </div>
+
+        <!-- 10. StockInto 등급 -->
+        <div class="category" data-section="grade">
+            <h2 id="grade">🏆 10. StockInto 등급 시스템</h2>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">긍정 (A)</span>
+                    <span class="term-en">Grade A</span>
+                </div>
+                <div class="term-def">대부분 기준 통과 + 시장·RS·적정가 모두 우호적. 매수 참고 고려 범위.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">양호 (B)</span>
+                    <span class="term-en">Grade B</span>
+                </div>
+                <div class="term-def">일부 기준 통과. 선별적 관심 대상.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">중립 (C)</span>
+                    <span class="term-en">Grade C</span>
+                </div>
+                <div class="term-def">양호·부정 신호 혼재. 관망 권장.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">주의 (D)</span>
+                    <span class="term-en">Grade D</span>
+                </div>
+                <div class="term-def">리스크 신호 다수. 신중.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">부적합 (F)</span>
+                    <span class="term-en">Grade F</span>
+                </div>
+                <div class="term-def">기준 대부분 미달. 투자 지양.</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">공포/탐욕 점수</span>
+                    <span class="term-en">Fear & Greed Index (종목별)</span>
+                </div>
+                <div class="term-def">해당 종목의 단기 심리 지표. 0=극단적 공포, 100=극단적 탐욕.</div>
+                <div class="term-tip"><strong>25 이하</strong>: 역발상 매수 기회 · <strong>75 이상</strong>: 단기 과열</div>
+            </div>
+
+            <div class="term">
+                <div class="term-head">
+                    <span class="term-name">섹터 상대 평가</span>
+                    <span class="term-en">Sector-Relative Evaluation</span>
+                </div>
+                <div class="term-def">같은 섹터 기준값과 비교. Tech PER 30 기준은 엄격할 수 있지만 Energy PER 15 기준은 느슨. 섹터별 차등 적용으로 왜곡 방지.</div>
+            </div>
+        </div>
+
+        <div style="text-align:center; padding: 30px 10px; color: #666; font-size: 0.78rem;">
+            본 용어집은 교육·참고 목적이며, 각 기준은 StockInto의 해석에 따라 달라질 수 있습니다.<br>
+            투자 판단과 그 결과의 책임은 이용자 본인에게 있습니다.
+        </div>
+    </div>
+
+    <a href="/" class="back">🏠 메인으로</a>
+
+    <script>
+        const search = document.getElementById('searchBar');
+        const emptyState = document.getElementById('emptyState');
+
+        search.addEventListener('input', () => {
+            const q = search.value.trim().toLowerCase();
+            const terms = document.querySelectorAll('.term');
+            const categories = document.querySelectorAll('.category');
+            let visibleCount = 0;
+
+            if (q.length === 0) {
+                terms.forEach(t => t.classList.remove('hidden'));
+                categories.forEach(c => c.classList.remove('hidden'));
+                emptyState.classList.add('hidden');
+                return;
+            }
+
+            // Term 필터
+            terms.forEach(t => {
+                const text = t.textContent.toLowerCase();
+                if (text.includes(q)) {
+                    t.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    t.classList.add('hidden');
+                }
+            });
+
+            // Category는 안에 visible term 있을 때만 표시
+            categories.forEach(c => {
+                const visible = c.querySelectorAll('.term:not(.hidden)').length;
+                c.classList.toggle('hidden', visible === 0);
+            });
+
+            emptyState.classList.toggle('hidden', visibleCount > 0);
+        });
+    </script>
+</body>
+</html>
