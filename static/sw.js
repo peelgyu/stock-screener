@@ -1,7 +1,7 @@
-// StockInto Service Worker - 오프라인 캐시 + 네트워크 우선
-const CACHE_NAME = 'stockinto-v2';
+// StockInto Service Worker - v4
+// 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
+const CACHE_NAME = 'stockinto-v4';
 const STATIC_ASSETS = [
-  '/',
   '/static/manifest.json',
   '/static/icon-192.png',
   '/static/icon-512.png',
@@ -28,8 +28,10 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  // API 요청은 네트워크 우선, 실패 시 캐시 없음
-  if (req.url.includes('/api/')) {
+  const url = new URL(req.url);
+
+  // API 요청은 네트워크 우선, 실패 시 에러
+  if (url.pathname.startsWith('/api/')) {
     event.respondWith(
       fetch(req).catch(() => new Response(
         JSON.stringify({ error: '오프라인 상태입니다' }),
@@ -39,18 +41,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 정적 자원은 캐시 우선, 없으면 네트워크
+  // 메인 HTML 페이지(/, /install, /terms, /privacy)는 항상 네트워크에서 받기
+  // (캐시하지 않음 → 업데이트 즉시 반영)
+  if (req.destination === 'document') {
+    event.respondWith(
+      fetch(req).catch(() => caches.match('/static/manifest.json'))
+    );
+    return;
+  }
+
+  // 정적 자원(이미지·아이콘)만 캐시 우선
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
       return fetch(req).then((res) => {
-        // 성공적인 GET은 캐시에 추가
         if (res.ok && res.type === 'basic') {
           const resClone = res.clone();
           caches.open(CACHE_NAME).then(c => c.put(req, resClone));
         }
         return res;
-      }).catch(() => caches.match('/'));
+      });
     })
   );
 });
