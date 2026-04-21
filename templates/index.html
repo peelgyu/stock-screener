@@ -360,6 +360,27 @@
         .consent-btn:hover { opacity: 0.85; }
 
         .quick-search { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+
+        /* 랜딩 앱 설치 배너 */
+        .install-promo {
+            display: flex; align-items: center; justify-content: space-between;
+            background: linear-gradient(135deg, rgba(123,47,247,0.15), rgba(0,210,255,0.15));
+            border: 1px solid #3a2a5e; border-radius: 12px;
+            padding: 12px 16px; margin-bottom: 20px; gap: 12px;
+        }
+        .install-promo-text { flex: 1; }
+        .install-promo-title { font-size: 0.88rem; font-weight: 700; color: #fff; margin-bottom: 2px; }
+        .install-promo-sub { font-size: 0.72rem; color: #aaa; }
+        .install-promo-btn {
+            background: linear-gradient(135deg, #7b2ff7, #00d2ff);
+            color: #fff; padding: 8px 14px; border-radius: 20px;
+            text-decoration: none; font-size: 0.78rem; font-weight: 700;
+            white-space: nowrap; transition: opacity 0.2s;
+        }
+        .install-promo-btn:hover { opacity: 0.85; }
+        @media (max-width: 480px) {
+            .install-promo { flex-direction: column; align-items: flex-start; text-align: left; }
+        }
         .quick-btn { padding: 6px 14px; border-radius: 20px; border: 1px solid #2a2a3e; background: transparent; color: #aaa; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
         .quick-btn:hover { border-color: #7b2ff7; color: #fff; }
 
@@ -434,6 +455,14 @@
             <div class="autocomplete" id="autocomplete"></div>
         </div>
 
+        <a href="/install" class="install-promo" style="text-decoration:none;">
+            <div class="install-promo-text">
+                <div class="install-promo-title">📱 앱처럼 쓰고 싶나요?</div>
+                <div class="install-promo-sub">Android·iPhone 홈 화면에 바로 설치 (무료, 30초)</div>
+            </div>
+            <span class="install-promo-btn">설치 방법 보기 →</span>
+        </a>
+
         <div class="quick-search">
             <button class="quick-btn" onclick="quickSearch('AAPL')">AAPL</button>
             <button class="quick-btn" onclick="quickSearch('MSFT')">MSFT</button>
@@ -479,14 +508,16 @@
                 <div id="trendCharts"></div>
             </div>
 
-            <div class="disclaimer">
-                <strong>⚠ 본 서비스는 투자 참고용이며, 투자 권유·조언·자문이 아닙니다.</strong><br>
-                본 서비스는 자본시장법상 투자자문업·유사투자자문업이 아니며, 인가된 금융투자업자가 아닙니다.<br>
-                제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 참고 정보이며,<br>
-                <strong>투자 판단과 그에 따른 결과의 책임은 이용자 본인</strong>에게 있습니다.<br>
-                데이터: Yahoo Finance (15~20분 지연) · 재무제표는 공시된 최신 분기·연간 기준<br><br>
-                <a href="/install" target="_blank">📱 앱 설치 가이드</a> · <a href="/terms" target="_blank">이용약관</a> · <a href="/privacy" target="_blank">개인정보처리방침</a>
-            </div>
+        </div>
+
+        <!-- 항상 보이는 푸터 (분석 여부 무관) -->
+        <div class="disclaimer">
+            <strong>⚠ 본 서비스는 투자 참고용이며, 투자 권유·조언·자문이 아닙니다.</strong><br>
+            본 서비스는 자본시장법상 투자자문업·유사투자자문업이 아니며, 인가된 금융투자업자가 아닙니다.<br>
+            제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 참고 정보이며,<br>
+            <strong>투자 판단과 그에 따른 결과의 책임은 이용자 본인</strong>에게 있습니다.<br>
+            데이터: Yahoo Finance (15~20분 지연) · 재무제표는 공시된 최신 분기·연간 기준<br><br>
+            <a href="/install" target="_blank">📱 앱 설치 가이드</a> · <a href="/terms" target="_blank">이용약관</a> · <a href="/privacy" target="_blank">개인정보처리방침</a>
         </div>
     </div>
 
