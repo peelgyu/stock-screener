@@ -4,6 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StockInto - 투자자 기준 종목 분석</title>
+
+    <!-- PWA 매니페스트 -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#7b2ff7">
+    <meta name="description" content="버핏·그레이엄·린치·오닐·피셔 5인 기준 종목 스크리너. 섹터 상대 평가, 적정주가, 재무 추세 분석.">
+
+    <!-- iOS 홈화면 추가 지원 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="StockInto">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png">
+
+    <!-- OpenGraph (공유 미리보기) -->
+    <meta property="og:title" content="StockInto - 투자자 기준 종목 분석">
+    <meta property="og:description" content="버핏·그레이엄·린치·오닐·피셔 기준으로 종목 채점. 적정주가·재무 추세·거래량 TOP까지.">
+    <meta property="og:image" content="/static/icon-512.png">
+    <meta property="og:url" content="https://stockinto.com">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <meta name="twitter:card" content="summary_large_image">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
@@ -293,6 +316,24 @@
         }
         .top-warning strong { color: #ff9800; }
 
+        /* 앱 설치 버튼 */
+        .install-btn {
+            display: none;
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #7b2ff7, #00d2ff);
+            color: #fff; border: none; padding: 11px 20px;
+            border-radius: 25px; cursor: pointer; font-size: 0.88rem; font-weight: 700;
+            box-shadow: 0 4px 14px rgba(123,47,247,0.5); z-index: 200;
+            gap: 6px; align-items: center;
+        }
+        .install-btn:hover { opacity: 0.9; }
+        .install-btn-inline {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #7b2ff7; color: #fff; border: none;
+            padding: 4px 10px; border-radius: 14px; font-size: 0.72rem;
+            cursor: pointer; font-weight: 600;
+        }
+
         /* 첫 방문 동의 모달 */
         .consent-overlay {
             position: fixed; inset: 0; background: rgba(0,0,0,0.85);
@@ -340,6 +381,7 @@
 </head>
 <body>
     <button class="vs-toggle" onclick="toggleVolumeSidebar()">📊 거래량 TOP</button>
+    <button class="install-btn" id="installBtn" onclick="triggerInstall()">📱 앱으로 설치</button>
 
     <aside class="volume-sidebar" id="volumeSidebar">
         <div class="vs-header">
@@ -443,7 +485,7 @@
                 제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 참고 정보이며,<br>
                 <strong>투자 판단과 그에 따른 결과의 책임은 이용자 본인</strong>에게 있습니다.<br>
                 데이터: Yahoo Finance (15~20분 지연) · 재무제표는 공시된 최신 분기·연간 기준<br><br>
-                <a href="/terms" target="_blank">이용약관</a> · <a href="/privacy" target="_blank">개인정보처리방침</a>
+                <a href="/install" target="_blank">📱 앱 설치 가이드</a> · <a href="/terms" target="_blank">이용약관</a> · <a href="/privacy" target="_blank">개인정보처리방침</a>
             </div>
         </div>
     </div>
@@ -460,6 +502,38 @@
         let chartInstances = [];
         let currentTicker = null;
         let optionsLoaded = false;
+
+        // PWA Service Worker 등록
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(() => {});
+            });
+        }
+
+        // 설치 유도 (Android Chrome)
+        let deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const btn = document.getElementById('installBtn');
+            if (btn) btn.style.display = 'inline-flex';
+        });
+        function triggerInstall() {
+            if (!deferredPrompt) {
+                window.location.href = '/install';
+                return;
+            }
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => {
+                deferredPrompt = null;
+                const btn = document.getElementById('installBtn');
+                if (btn) btn.style.display = 'none';
+            });
+        }
+        window.addEventListener('appinstalled', () => {
+            const btn = document.getElementById('installBtn');
+            if (btn) btn.style.display = 'none';
+        });
 
         // 거래량 TOP 10 사이드바
         let mostActiveData = null;

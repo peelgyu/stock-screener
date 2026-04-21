@@ -8,7 +8,7 @@ import urllib.parse
 import json as json_lib
 from collections import defaultdict
 
-from flask import Flask, render_template, request, jsonify, redirect
+from flask import Flask, render_template, request, jsonify, redirect, send_from_directory
 from flask.json.provider import DefaultJSONProvider
 import yfinance as yf
 import numpy as np
@@ -457,6 +457,17 @@ def resolve_ticker(query: str) -> str | None:
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/sw.js")
+def sw_js_root():
+    # Service Worker는 스코프 문제로 루트에서 서빙
+    return send_from_directory("static", "sw.js", mimetype="application/javascript")
+
+
+@app.route("/install")
+def install_guide():
+    return render_template("install.html")
 
 
 @app.route("/terms")
