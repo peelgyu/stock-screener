@@ -872,6 +872,36 @@ def cache_stats():
     return jsonify(cache.stats())
 
 
+@app.route("/api/debug/echo", methods=["POST"])
+def debug_echo():
+    """body가 어떻게 들어오는지 확인."""
+    raw_bytes = request.get_data()
+    raw_text = raw_bytes.decode("utf-8", errors="replace")
+    body_json = request.get_json(force=True, silent=True)
+    try:
+        manual = json_lib.loads(raw_text or "{}")
+    except Exception as e:
+        manual = {"parse_error": str(e)}
+    from kr_stocks import search_kr_stocks, KR_STOCKS
+    ticker_in = (body_json or {}).get("ticker") or manual.get("ticker") or ""
+    # kr_stocks 매핑 테스트
+    mapped = KR_STOCKS.get(ticker_in)
+    search_hit = search_kr_stocks(ticker_in)[:3] if ticker_in else []
+    return jsonify({
+        "content_type": request.content_type,
+        "raw_bytes_len": len(raw_bytes),
+        "raw_bytes_hex": raw_bytes.hex()[:200],
+        "raw_text": raw_text[:300],
+        "body_json_parsed": body_json,
+        "manual_parsed": manual,
+        "ticker_in": ticker_in,
+        "ticker_in_len": len(ticker_in),
+        "ticker_in_codepoints": [hex(ord(c)) for c in ticker_in[:20]],
+        "kr_stocks_direct": mapped,
+        "search_results": search_hit,
+    })
+
+
 @app.route("/api/debug/dart")
 def dart_debug():
     """DART 연결 진단 (키 자체는 절대 노출 안 함)."""
