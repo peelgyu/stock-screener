@@ -1329,6 +1329,23 @@
                     else { bc = 'badge-na'; bt = 'N/A'; }
                     cHTML += `<div class="criteria-item"><div class="criteria-name">${c.name}</div><div class="criteria-value">${c.value}</div><div class="badge ${bc}">${bt}</div></div>`;
                 });
+
+                // 버핏 전용: 엄격 등급 배지
+                let strictBadge = '';
+                if (inv.strict_grade) {
+                    const sg = inv.strict_grade;
+                    const colorMap = { green: '#4caf50', yellow: '#ffeb3b', red: '#f44336', gray: '#888' };
+                    const bg = sg.color === 'green' ? 'rgba(76,175,80,0.15)'
+                            : sg.color === 'yellow' ? 'rgba(255,235,59,0.15)'
+                            : sg.color === 'red' ? 'rgba(244,67,54,0.15)'
+                            : 'rgba(136,136,136,0.15)';
+                    const col = colorMap[sg.color] || '#888';
+                    strictBadge = `<div style="margin-top:10px;padding:10px 14px;background:${bg};border-left:3px solid ${col};border-radius:8px;font-size:0.82rem;">
+                        <strong style="color:${col};font-size:1rem;">엄격 등급: ${sg.grade}</strong>
+                        <div style="color:#ccc;margin-top:2px;">${sg.text}</div>
+                    </div>`;
+                }
+
                 html += `
                     <div class="investor-card">
                         <div class="investor-header" onclick="toggleCard(${i})">
@@ -1342,7 +1359,7 @@
                             </div>
                         </div>
                         <div class="progress-bar"><div class="progress-fill" style="width:${inv.rate}%;background:${pc};"></div></div>
-                        <div class="criteria-list" id="criteria-${i}">${cHTML}</div>
+                        <div class="criteria-list" id="criteria-${i}">${cHTML}${strictBadge ? '<div style="padding:0 20px 14px;">' + strictBadge + '</div>' : ''}</div>
                     </div>`;
             });
             document.getElementById('investorCards').innerHTML = html;

@@ -268,8 +268,13 @@ def evaluate_positions(data: dict) -> dict:
 # ──────────────────────────────────────────────
 # 투자자 기준 — 섹터 상대 기준 반영
 # ──────────────────────────────────────────────
-def evaluate_buffett(info: dict, sector_t: dict) -> list[dict]:
+def evaluate_buffett(info: dict, sector_t: dict, history_data: dict | None = None, fair_value: dict | None = None) -> list[dict]:
+    """버핏 9대 기준 — 원조 5개 + 개선 4개 (다년도 ROE·해자·안전마진)."""
     results = []
+
+    # ===== 원조 5개 =====
+
+    # 1. ROE (섹터 기준)
     roe = safe_get(info, "returnOnEquity")
     if roe is not None:
         note = info.get("_roe_note", "")
@@ -280,6 +285,7 @@ def evaluate_buffett(info: dict, sector_t: dict) -> list[dict]:
     else:
         results.append({"name": "ROE (섹터 기준)", "passed": None, "value": "데이터 없음"})
 
+    # 2. 부채비율
     de = safe_get(info, "debtToEquity")
     if de is not None:
         note = info.get("_de_note", "")
@@ -290,6 +296,7 @@ def evaluate_buffett(info: dict, sector_t: dict) -> list[dict]:
     else:
         results.append({"name": "부채비율 (섹터 기준)", "passed": None, "value": "데이터 없음"})
 
+    # 3. 영업이익률
     om = safe_get(info, "operatingMargins")
     if om is not None:
         results.append({"name": f"영업이익률 >= {sector_t['om_min']*100:.0f}% (섹터 기준)",
@@ -297,19 +304,122 @@ def evaluate_buffett(info: dict, sector_t: dict) -> list[dict]:
     else:
         results.append({"name": "영업이익률 (섹터 기준)", "passed": None, "value": "데이터 없음"})
 
+    # 4. 매출 성장
     rg = safe_get(info, "revenueGrowth")
     if rg is not None:
         results.append({"name": "매출 성장 중", "passed": rg > 0, "value": f"{rg*100:.1f}%"})
     else:
         results.append({"name": "매출 성장 중", "passed": None, "value": "데이터 없음"})
 
+    # 5. FCF 양수
     fcf = safe_get(info, "freeCashflow")
     if fcf is not None:
         results.append({"name": "FCF 양수", "passed": fcf > 0, "value": f"${fcf/1e9:.2f}B"})
     else:
         results.append({"name": "FCF 양수", "passed": None, "value": "데이터 없음"})
 
+    # ===== 개선 4개 (실제 버핏 철학 반영) =====
+
+    # 6. ROE 꾸준함 (여러 해 연속 15%+)
+    if history_data and history_data.get("available") and history_data.get("roe_consistency"):
+        rc = history_data["roe_consistency"]
+        years_above = rc.get("years_above_15pct", 0)
+        total = rc.get("total_measured", 0)
+        # 측정된 기간의 60%+ 연도에서 ROE 15%+ 달성
+        passed = total >= 3 and years_above >= max(3, int(total * 0.6))
+        results.append({
+            "name": "ROE 꾸준함 (다년도 15%+)",
+            "passed": passed if total >= 3 else None,
+            "value": f"{years_above}/{total}년" if total > 0 else "데이터 없음"
+        })
+    else:
+        results.append({"name": "ROE 꾸준함 (다년도 15%+)", "passed": None, "value": "데이터 없음"})
+
+    # 7. Gross Margin 안정성 (편차 5%p 이하)
+    if history_data and history_data.get("gross_margin_analysis"):
+        gma = history_data["gross_margin_analysis"]
+        std = gma.get("std")
+        avg = gma.get("avg")
+        measured = gma.get("measured", 0)
+        if std is not None and avg is not None and measured >= 3:
+            results.append({
+                "name": "Gross Margin 안정 (편차 ≤5%p)",
+                "passed": std <= 0.05,
+                "value": f"평균 {avg*100:.1f}% · 편차 {std*100:.1f}%p"
+            })
+        else:
+            results.append({"name": "Gross Margin 안정", "passed": None, "value": "데이터 부족"})
+    else:
+        results.append({"name": "Gross Margin 안정", "passed": None, "value": "데이터 없음"})
+
+    # 8. R&D 투자 적극성 (섹터별 기준)
+    if history_data and history_data.get("rd_analysis"):
+        rda = history_data["rd_analysis"]
+        rd = rda.get("latest")
+        sector = info.get("sector", "")
+        # 섹터별 R&D 기대값: Tech 5%+, Healthcare 8%+, 그 외 1%+ (있기만 하면 OK)
+        rd_threshold = {
+            "Technology": 0.05,
+            "Healthcare": 0.08,
+            "Communication Services": 0.05,
+        }.get(sector, 0.01)
+        if rd is not None:
+            results.append({
+                "name": f"R&D 투자 (매출 대비 {rd_threshold*100:.0f}%+)",
+                "passed": rd >= rd_threshold,
+                "value": f"{rd*100:.1f}%"
+            })
+        else:
+            # R&D 없는 섹터는 자동 통과 (금융·유틸 등)
+            if sector in ("Financial Services", "Utilities", "Real Estate", "Energy"):
+                results.append({
+                    "name": "R&D 투자 (섹터 특성)",
+                    "passed": True,
+                    "value": f"{sector} — 해당 없음"
+                })
+            else:
+                results.append({"name": "R&D 투자", "passed": None, "value": "데이터 없음"})
+    else:
+        results.append({"name": "R&D 투자", "passed": None, "value": "데이터 없음"})
+
+    # 9. 안전마진 30%+ (저평가)
+    if fair_value and fair_value.get("available"):
+        upside = fair_value.get("upside_pct", 0) or 0
+        # upside_pct가 양수면 저평가 = 안전마진 존재
+        results.append({
+            "name": "안전마진 30%+ (저평가)",
+            "passed": upside >= 30,
+            "value": f"{upside:+.1f}% (기준 +30%)"
+        })
+    else:
+        results.append({"name": "안전마진 30%+ (저평가)", "passed": None, "value": "데이터 없음"})
+
     return results
+
+
+def buffett_strict_grade(yes: int, total: int) -> dict:
+    """버핏 전용 엄격 등급제 (9개 기준 가정).
+
+    9/9  = A+ (코카콜라·애플급 완벽)
+    8/9  = A  (버핏 관심 최상위)
+    7/9  = B  (좋은 회사)
+    5-6/9= C  (부분 충족)
+    3-4/9= D  (철학 미달)
+    0-2/9= F  (버핏 안 산다)
+    """
+    if total == 0:
+        return {"grade": "N/A", "text": "데이터 부족", "color": "gray"}
+    if yes >= 9:
+        return {"grade": "A+", "text": "버핏이 대량 매수할 종목", "color": "green"}
+    if yes >= 8:
+        return {"grade": "A", "text": "버핏 관심 최상위", "color": "green"}
+    if yes >= 7:
+        return {"grade": "B", "text": "좋은 회사, 가격만 맞으면", "color": "green"}
+    if yes >= 5:
+        return {"grade": "C", "text": "해자는 있지만 약점 존재", "color": "yellow"}
+    if yes >= 3:
+        return {"grade": "D", "text": "버핏 철학 미달", "color": "red"}
+    return {"grade": "F", "text": "버핏이 안 사는 종목", "color": "red"}
 
 
 def evaluate_graham(info: dict, sector_t: dict) -> list[dict]:
@@ -579,7 +689,8 @@ def analyze():
     fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock, history_data)
 
     investors = [
-        {"name": "워렌 버핏", "label": "워렌 버핏이라면?", "sub": "가치투자", "icon": "buffett", "criteria": evaluate_buffett(info, sector_t)},
+        {"name": "워렌 버핏", "label": "워렌 버핏이라면?", "sub": "가치투자", "icon": "buffett",
+         "criteria": evaluate_buffett(info, sector_t, history_data=history_data, fair_value=fair_value)},
         {"name": "벤저민 그레이엄", "label": "벤저민 그레이엄이라면?", "sub": "안전마진", "icon": "graham", "criteria": evaluate_graham(info, sector_t)},
         {"name": "피터 린치", "label": "피터 린치라면?", "sub": "성장주", "icon": "lynch", "criteria": evaluate_lynch(info, sector_t)},
         {"name": "윌리엄 오닐", "label": "윌리엄 오닐이라면?", "sub": "CAN SLIM", "icon": "oneil",
@@ -596,6 +707,10 @@ def analyze():
         inv["rate"] = round(yes / count * 100) if count > 0 else 0
         total_yes += yes
         total_count += count
+
+        # 버핏 전용 엄격 등급 (9기준 중 통과 수 기반 — %가 아닌 절대값)
+        if inv["name"] == "워렌 버핏":
+            inv["strict_grade"] = buffett_strict_grade(yes, count)
 
     overall_rate = round(total_yes / total_count * 100) if total_count > 0 else 0
     if overall_rate >= 70:
