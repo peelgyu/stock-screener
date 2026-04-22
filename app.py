@@ -110,6 +110,29 @@ def safe_get(info: dict, key: str, default=None):
     return val if val is not None else default
 
 
+def fmt_money(amount: float, info: dict = None) -> str:
+    """금액을 통화·규모에 맞게 포맷. KRW는 조/억, USD는 B/M."""
+    if amount is None:
+        return "데이터 없음"
+    cur = (info or {}).get("currency") or "USD"
+    if cur == "KRW":
+        a = abs(amount)
+        if a >= 1e12:
+            return f"₩{amount/1e12:.1f}조"
+        if a >= 1e8:
+            return f"₩{amount/1e8:.0f}억"
+        if a >= 1e4:
+            return f"₩{amount/1e4:.0f}만"
+        return f"₩{amount:,.0f}"
+    # USD 기본
+    a = abs(amount)
+    if a >= 1e9:
+        return f"${amount/1e9:.2f}B"
+    if a >= 1e6:
+        return f"${amount/1e6:.0f}M"
+    return f"${amount:,.0f}"
+
+
 @cached(ttl=1800)  # 30분 캐시 — Yahoo 레이트리밋 완화
 def get_stock_data(ticker: str) -> dict | None:
     # 통합 fetcher: yfinance 우선, 실패 시 FDR fallback (한국만)
@@ -321,7 +344,7 @@ def evaluate_buffett(info: dict, sector_t: dict, history_data: dict | None = Non
     # 5. FCF 양수
     fcf = safe_get(info, "freeCashflow")
     if fcf is not None:
-        results.append({"name": "FCF 양수", "passed": fcf > 0, "value": f"${fcf/1e9:.2f}B"})
+        results.append({"name": "FCF 양수", "passed": fcf > 0, "value": fmt_money(fcf, info)})
     else:
         results.append({"name": "FCF 양수", "passed": None, "value": "데이터 없음"})
 
@@ -670,13 +693,19 @@ def analyze():
 
     price = safe_get(info, "currentPrice") or safe_get(info, "regularMarketPrice", 0)
     market_cap = safe_get(info, "marketCap", 0)
-    cap_str = f"${market_cap/1e9:.1f}B" if market_cap >= 1e9 else f"${market_cap/1e6:.0f}M"
+    cap_str = fmt_money(market_cap, info)
+
+    currency = safe_get(info, "currency", "USD")
+    if currency == "KRW":
+        price_str = f"₩{price:,.0f}"
+    else:
+        price_str = f"${price:,.2f}"
 
     stock_info = {
         "name": safe_get(info, "longName", ticker),
         "sector": sector,
         "industry": safe_get(info, "industry", "N/A"),
-        "price": f"{safe_get(info, 'currency', 'USD')} {price:,.2f}",
+        "price": price_str,
         "marketCap": cap_str,
         "logo": safe_get(info, "logo_url", ""),
     }
@@ -727,7 +756,16 @@ def analyze():
         hist["years"] = years
         hist["revenue"] = rev
         hist["net_income"] = ni
-        hist["eps"] = _arr("eps")
+
+        # EPS: yfinance가 있으면 사용, 없으면 NI/shares 로 근사
+        shares = info.get("sharesOutstanding")
+        if isinstance(hist.get("eps"), list) and any(v is not None for v in hist["eps"]) and can_reuse:
+            hist["eps"] = hist["eps"]
+        elif shares and shares > 0:
+            hist["eps"] = [n / shares if n is not None else None for n in ni]
+        else:
+            hist["eps"] = _arr("eps")
+
         hist["roe"] = roe
         hist["fcf"] = fcf_dart
         hist["gross_margins"] = gross_margins
@@ -846,6 +884,29 @@ def analyze():
         ni_vals = [v for v in ni if v is not None]
         if len(ni_vals) >= 2 and ni_vals[-2] != 0:
             _set_if_missing("earningsGrowth", (ni_vals[-1] - ni_vals[-2]) / abs(ni_vals[-2]))
+
+        # EPS / PER / PBR / PEG — FDR에서 받은 sharesOutstanding + 현재가 기반
+        shares = info.get("sharesOutstanding")
+        price = info.get("currentPrice") or info.get("regularMarketPrice")
+        if shares and shares > 0:
+            if ni_l is not None:
+                eps = ni_l / shares
+                _set_if_missing("trailingEps", eps)
+                if price and price > 0 and eps > 0:
+                    _set_if_missing("trailingPE", price / eps)
+            if eq_l is not None and eq_l > 0:
+                bps = eq_l / shares
+                _set_if_missing("bookValue", bps)
+                if price and price > 0 and bps > 0:
+                    _set_if_missing("priceToBook", price / bps)
+            # PEG
+            pe = info.get("trailingPE")
+            eg = info.get("earningsGrowth")
+            if pe and eg and eg > 0:
+                _set_if_missing("pegRatio", pe / (eg * 100))
+
+        # history EPS 채우기 (연도별 NI / 현재 shares)
+        # (정확한 계산은 주식수 변동 고려해야 하지만, 근사치로 유용)
 
     market_cache_key = f"market_regime:{is_kr}"
     market_data = cache.get(market_cache_key)
