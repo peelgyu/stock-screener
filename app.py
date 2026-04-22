@@ -925,9 +925,25 @@ def analyze():
             history_data = _merge_dart_into_history(history_data, dart_fin)
             info["_data_source_dart"] = True
             _populate_info_from_dart(info, dart_fin)
+        # 배당 공시
+        dart_div = _safe_call(dart_client.fetch_dividend, None, ticker)
+        if dart_div:
+            dps = dart_div.get("dps")
+            y = dart_div.get("yield_pct")
+            if dps is not None and info.get("dividendRate") is None:
+                info["dividendRate"] = dps
+            if y is not None and info.get("dividendYield") is None:
+                info["dividendYield"] = y / 100  # DART는 %로 줌 → yfinance는 소수
+            price = info.get("currentPrice") or info.get("regularMarketPrice")
+            if dps and price and price > 0 and info.get("payoutRatio") is None:
+                eps = info.get("trailingEps")
+                if eps and eps > 0:
+                    info["payoutRatio"] = dps / eps
 
     quality_data = _safe_call(evaluate_earnings_quality, {"available": False}, stock, info)
     fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock, history_data)
+    if isinstance(fair_value, dict):
+        fair_value["currency"] = safe_get(info, "currency", "USD")
 
     investors = [
         {"name": "워렌 버핏", "label": "워렌 버핏이라면?", "sub": "가치투자", "icon": "buffett",

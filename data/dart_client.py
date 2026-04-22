@@ -106,7 +106,7 @@ ACCOUNT_ALIASES = {
     "cost_of_revenue": ("IS", "CIS", ["매출원가"]),
     "gross_profit": ("IS", "CIS", ["매출총이익", "매출총이익(손실)"]),
     "operating_income": ("IS", "CIS", ["영업이익", "영업이익(손실)"]),
-    "rd_expense": ("IS", "CIS", ["연구개발비", "경상연구개발비"]),
+    "rd_expense": ("IS", "CIS", ["연구개발비", "경상연구개발비", "연구개발비용", "개발비", "연구비", "판매비와관리비 - 연구개발비"]),
     "net_income": ("IS", "CIS", ["당기순이익", "당기순이익(손실)", "연결당기순이익", "반기순이익"]),
     "total_assets": ("BS", None, ["자산총계", "자산 총계"]),
     "total_liabilities": ("BS", None, ["부채총계", "부채 총계"]),
@@ -238,6 +238,79 @@ def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
     }
     cache.set(cache_key, result, ttl=24 * 3600)
     return result
+
+
+def fetch_dividend(ticker: str) -> Optional[dict]:
+    """DART alotMatter API로 배당 정보 조회.
+
+    Returns:
+        {"dps": 주당배당금(원), "yield_pct": 시가배당률(%), "year": "2024", "source": "dart"}
+        실패 시 None.
+    """
+    key = _api_key()
+    if not key:
+        return None
+    corp = _corp_code(ticker)
+    if not corp:
+        return None
+
+    cache_key = f"dart_div:{corp}"
+    hit = cache.get(cache_key)
+    if hit is not None:
+        return hit
+
+    import datetime
+    now_year = datetime.datetime.now().year
+    for y in range(now_year - 1, now_year - 4, -1):
+        try:
+            r = requests.get(
+                f"{DART_BASE}/alotMatter.json",
+                params={
+                    "crtfc_key": key,
+                    "corp_code": corp,
+                    "bsns_year": str(y),
+                    "reprt_code": "11011",
+                },
+                timeout=10,
+            )
+            if r.status_code != 200:
+                continue
+            data = r.json()
+            if data.get("status") != "000":
+                continue
+            rows = data.get("list") or []
+        except Exception:
+            continue
+
+        dps_common = None
+        yield_pct = None
+        for row in rows:
+            se = (row.get("se") or "").strip()  # 구분 (주당 현금배당금(원), 현금배당수익률(%) 등)
+            stock_knd = (row.get("stock_knd") or "").strip()
+            val = _fnum(row.get("thstrm"))
+            if val is None:
+                continue
+
+            # 주당 배당금 (보통주)
+            if ("주당" in se and "현금배당금" in se):
+                if "보통주" in stock_knd or dps_common is None:
+                    dps_common = val
+            # 시가 배당률
+            if "현금배당수익률" in se:
+                yield_pct = val
+
+        if dps_common is not None or yield_pct is not None:
+            result = {
+                "dps": dps_common,
+                "yield_pct": yield_pct,
+                "year": str(y),
+                "source": "dart",
+            }
+            cache.set(cache_key, result, ttl=24 * 3600)
+            return result
+
+    cache.set(cache_key, {}, ttl=6 * 3600)  # 배당 없는 회사는 6시간만 캐시
+    return None
 
 
 def is_available() -> bool:

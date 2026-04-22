@@ -1182,11 +1182,17 @@
             if (fv.upside_pct >= 10) cls = 'fv-up';
             else if (fv.upside_pct <= -10) cls = 'fv-down';
             const fmtUp = (p) => p == null ? '' : `<span style="color:${p>=0?'#4caf50':'#f44336'};font-size:0.72rem;">(${p>=0?'+':''}${p}%)</span>`;
-            const dcfStr = fv.dcf ? `$${fv.dcf.fair_value} ${fmtUp(fv.dcf.upside_pct)}` : '<span style="color:#666;">제외</span>';
-            const perStr = fv.per_based ? `$${fv.per_based.fair_value} ${fmtUp(fv.per_based.upside_pct)}` : '<span style="color:#666;">제외</span>';
-            const grahamStr = fv.graham_number ? `$${fv.graham_number}` : '<span style="color:#666;">제외</span>';
-            const analystStr = fv.analyst_target ? `$${fv.analyst_target.fair_value} ${fmtUp(fv.analyst_target.upside_pct)}` : '<span style="color:#666;">—</span>';
-            const psStr = fv.ps_based ? `$${fv.ps_based.fair_value} ${fmtUp(fv.ps_based.upside_pct)}` : null;
+            const sym = fv.currency === 'KRW' ? '₩' : '$';
+            const fmtPrice = (v) => {
+                if (v == null) return '';
+                if (fv.currency === 'KRW') return '₩' + Math.round(v).toLocaleString();
+                return '$' + v;
+            };
+            const dcfStr = fv.dcf ? `${fmtPrice(fv.dcf.fair_value)} ${fmtUp(fv.dcf.upside_pct)}` : '<span style="color:#666;">제외</span>';
+            const perStr = fv.per_based ? `${fmtPrice(fv.per_based.fair_value)} ${fmtUp(fv.per_based.upside_pct)}` : '<span style="color:#666;">제외</span>';
+            const grahamStr = fv.graham_number ? `${fmtPrice(fv.graham_number)}` : '<span style="color:#666;">제외</span>';
+            const analystStr = fv.analyst_target ? `${fmtPrice(fv.analyst_target.fair_value)} ${fmtUp(fv.analyst_target.upside_pct)}` : '<span style="color:#666;">—</span>';
+            const psStr = fv.ps_based ? `${fmtPrice(fv.ps_based.fair_value)} ${fmtUp(fv.ps_based.upside_pct)}` : null;
 
             const weights = fv.weights_used || {};
             const weightLabels = {dcf: 'DCF', per_based: 'PER', graham_number: 'Graham', analyst_target: '애널', ps_based: 'P/S'};
@@ -1215,8 +1221,8 @@
                 <div class="fv-card">
                     <div class="section-title" style="margin-top:0;">적정주가 추정 <span style="font-size:0.7rem;font-weight:400;color:#888;">(${fv.sector || '?'} 섹터)</span>${catBadge}</div>
                     <div class="fv-grid">
-                        <div class="fv-box"><div class="fv-box-label">현재가</div><div class="fv-box-value">$${fv.current_price}</div></div>
-                        <div class="fv-box"><div class="fv-box-label">종합 적정가</div><div class="fv-box-value">$${fv.composite_fair_value}</div><div class="fv-box-sub">${fv.upside_pct >= 0 ? '+' : ''}${fv.upside_pct}%</div></div>
+                        <div class="fv-box"><div class="fv-box-label">현재가</div><div class="fv-box-value">${fmtPrice(fv.current_price)}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">종합 적정가</div><div class="fv-box-value">${fmtPrice(fv.composite_fair_value)}</div><div class="fv-box-sub">${fv.upside_pct >= 0 ? '+' : ''}${fv.upside_pct}%</div></div>
                         <div class="fv-box"><div class="fv-box-label">DCF ${fv.dcf ? `(성장률 ${(fv.dcf.assumptions.growth_5y*100).toFixed(0)}%)` : ''}</div><div class="fv-box-value">${dcfStr}</div></div>
                         <div class="fv-box"><div class="fv-box-label">PER 기반 ${fv.per_based ? `(PE ${fv.per_based.assumption_pe})` : ''}</div><div class="fv-box-value">${perStr}</div></div>
                         <div class="fv-box"><div class="fv-box-label">애널리스트${fv.analyst_target && fv.analyst_target.num_analysts ? ` (${fv.analyst_target.num_analysts}명)` : ''}</div><div class="fv-box-value">${analystStr}</div></div>
