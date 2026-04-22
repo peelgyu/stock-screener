@@ -102,38 +102,65 @@
         }
         .container { max-width: 800px; margin: 0 auto; padding: 20px 16px; }
 
-        /* 히어로 — StockInto 로고 유지 + 캐치 */
-        .hero {
-            text-align: center;
-            padding: 50px 0 28px;
+        /* 상단 sticky 네비 (모든 페이지 공통) */
+        .topnav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(10, 14, 26, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 20px;
+            display: flex; align-items: center; justify-content: space-between;
         }
-        .hero h1 {
-            font-size: 2.6rem;
-            font-weight: 800;
+        .brand-link {
+            font-size: 1.35rem; font-weight: 800; text-decoration: none;
             background: var(--accent-gradient);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -0.03em;
-            line-height: 1;
-            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+            transition: opacity var(--transition-fast);
+        }
+        .brand-link:hover { opacity: 0.75; }
+        .topnav-right { display: flex; gap: 8px; align-items: center; }
+        .topnav-link {
+            color: var(--text-secondary); text-decoration: none;
+            font-size: 0.8rem; font-weight: 600;
+            padding: 6px 12px; border-radius: var(--radius-pill);
+            transition: all var(--transition-fast);
+        }
+        .topnav-link:hover { background: var(--accent-bg); color: var(--text-primary); }
+        @media (max-width: 480px) {
+            .topnav { padding: 10px 14px; }
+            .brand-link { font-size: 1.15rem; }
+            .topnav-link { font-size: 0.72rem; padding: 4px 8px; }
+        }
+
+        /* 히어로 — 캐치 문구 중심 */
+        .hero {
+            text-align: center;
+            padding: 44px 0 28px;
         }
         .hero .hero-catch {
+            font-size: 1.6rem;
+            font-weight: 800;
             color: var(--text-primary);
-            font-size: 1.15rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin-bottom: 4px;
+            letter-spacing: -0.03em;
+            line-height: 1.25;
+            margin-bottom: 10px;
+        }
+        .hero .hero-catch .accent {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         .hero .hero-sub {
-            color: var(--text-muted);
-            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
             font-weight: 500;
             letter-spacing: -0.01em;
         }
         @media (max-width: 480px) {
             .hero { padding: 30px 0 18px; }
-            .hero h1 { font-size: 2rem; }
-            .hero .hero-catch { font-size: 1rem; }
-            .hero .hero-sub { font-size: 0.78rem; }
+            .hero .hero-catch { font-size: 1.25rem; }
+            .hero .hero-sub { font-size: 0.82rem; }
         }
 
         .search-wrap { position: relative; margin: 20px 0 24px; }
@@ -621,6 +648,14 @@
     <button class="vs-toggle" onclick="toggleVolumeSidebar()">📊 거래량 TOP</button>
     <button class="install-btn" id="installBtn" onclick="triggerInstall()">📱 앱으로 설치</button>
 
+    <nav class="topnav">
+        <a href="/" class="brand-link">StockInto</a>
+        <div class="topnav-right">
+            <a href="/glossary" class="topnav-link">📚 용어</a>
+            <a href="/install" class="topnav-link">📱 앱</a>
+        </div>
+    </nav>
+
     <aside class="volume-sidebar" id="volumeSidebar">
         <div class="vs-header">
             <div class="vs-title">📊 거래량 TOP 10</div>
@@ -660,9 +695,8 @@
 
     <div class="container">
         <div class="hero">
-            <h1>StockInto</h1>
-            <p class="hero-catch">대가들이라면, 이 주식 살까?</p>
-            <p class="hero-sub">워렌 버핏부터 피터 린치까지 · 5명의 전설이 종목을 채점합니다</p>
+            <h1 class="hero-catch"><span class="accent">대가들</span>이라면,<br>이 주식 살까?</h1>
+            <p class="hero-sub">워렌 버핏부터 피터 린치까지 · 5명의 전설이 채점합니다</p>
         </div>
 
         <div class="search-wrap">
