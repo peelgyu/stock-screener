@@ -860,6 +860,25 @@ def cache_stats():
     return jsonify(cache.stats())
 
 
+@app.route("/api/debug/dart")
+def dart_debug():
+    """DART 연결 진단 (키 자체는 절대 노출 안 함)."""
+    key = os.getenv("DART_API_KEY") or ""
+    info = {
+        "env_key_set": bool(key),
+        "env_key_len": len(key),
+        "env_key_prefix": key[:4] + "..." if key else "",
+        "is_available": dart_client.is_available(),
+    }
+    try:
+        m = dart_client._load_corp_map()
+        info["corp_map_size"] = len(m)
+        info["sample_samsung"] = m.get("005930", "NOT_FOUND")
+    except Exception as e:
+        info["corp_map_error"] = str(e)[:200]
+    return jsonify(info)
+
+
 if __name__ == "__main__":
     debug = os.getenv("FLASK_DEBUG", "0") == "1"
     port = int(os.getenv("PORT", "5000"))
