@@ -635,11 +635,12 @@ def search_stocks():
 @app.route("/api/analyze", methods=["POST"])
 def analyze():
     body = request.get_json(force=True, silent=True)
-    if body is None:
+    if body is None or not body.get("ticker"):
         try:
-            body = json_lib.loads(request.get_data(as_text=True) or "{}")
+            raw_body = request.get_data() or b""
+            body = json_lib.loads(raw_body.decode("utf-8", errors="replace") or "{}")
         except Exception:
-            body = {}
+            body = body or {}
     raw_query = (body.get("ticker") or "").strip()
     if not raw_query:
         return jsonify({"error": "종목명 또는 티커를 입력해주세요."}), 400
@@ -702,16 +703,24 @@ def analyze():
         for n, e in zip(ni, eq):
             roe.append(n / e if (n is not None and e and e > 0) else None)
 
+        # yfinance 값을 보존할 수 있는지는 years 일치해야 가능
+        orig_years = hist.get("years")
+        can_reuse = isinstance(orig_years, list) and orig_years == years
+
+        def _arr(key):
+            v = hist.get(key) if can_reuse else None
+            return v if isinstance(v, list) else [None] * len(years)
+
         hist = dict(hist)
         hist["available"] = True
         hist["years"] = years
         hist["revenue"] = rev
         hist["net_income"] = ni
-        hist["eps"] = hist.get("eps") if hist.get("years") == years else [None] * len(years)
+        hist["eps"] = _arr("eps")
         hist["roe"] = roe
-        hist["fcf"] = hist.get("fcf") if hist.get("years") == years else [None] * len(years)
-        hist["gross_margins"] = hist.get("gross_margins") if hist.get("years") == years else [None] * len(years)
-        hist["rd_ratios"] = hist.get("rd_ratios") if hist.get("years") == years else [None] * len(years)
+        hist["fcf"] = _arr("fcf")
+        hist["gross_margins"] = _arr("gross_margins")
+        hist["rd_ratios"] = _arr("rd_ratios")
 
         # CAGR 재계산
         def _endpoints(lst):
@@ -833,11 +842,12 @@ def analyze():
 @app.route("/api/options", methods=["POST"])
 def analyze_options():
     body = request.get_json(force=True, silent=True)
-    if body is None:
+    if body is None or not body.get("ticker"):
         try:
-            body = json_lib.loads(request.get_data(as_text=True) or "{}")
+            raw_body = request.get_data() or b""
+            body = json_lib.loads(raw_body.decode("utf-8", errors="replace") or "{}")
         except Exception:
-            body = {}
+            body = body or {}
     raw_query = (body.get("ticker") or "").strip()
     if not raw_query:
         return jsonify({"available": False, "error": "티커 필요"}), 400

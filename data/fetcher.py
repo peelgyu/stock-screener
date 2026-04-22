@@ -150,24 +150,42 @@ def fetch_stock_data(ticker: str) -> dict | None:
     source 값:
     - "yfinance": Yahoo에서 정상 fetch (full data)
     - "fdr": FinanceDataReader fallback (Korean only, limited data)
-    """
-    # 1차: yfinance 시도
-    result = _fetch_yfinance(ticker, retries=2, delay=1.5)
-    if result is not None:
-        return result
 
-    # 2차: 한국 종목이면 FDR fallback
-    if _is_kr_ticker(ticker):
+    한국 주식은 Yahoo 레이트리밋 빈번하므로 FDR 먼저 시도.
+    """
+    is_kr = _is_kr_ticker(ticker)
+
+    if is_kr:
+        # 한국: FDR 먼저 → 재무는 DART가 app.py에서 덮어씀
         result = _fetch_fdr_korean(ticker)
+        if result is not None:
+            # yfinance로 info 보강 시도 (실패해도 무시)
+            yf_result = _fetch_yfinance(ticker, retries=1, delay=0.5)
+            if yf_result is not None:
+                # yfinance info를 FDR info 위에 병합 (yfinance가 더 많은 필드)
+                merged_info = {**result["info"], **yf_result["info"]}
+                # FDR의 필수 필드는 유지
+                for k in ("regularMarketPrice", "currentPrice", "volume", "currency"):
+                    if yf_result["info"].get(k) is None and result["info"].get(k) is not None:
+                        merged_info[k] = result["info"][k]
+                result["info"] = merged_info
+                result["stock"] = yf_result["stock"]  # stock 객체는 DART/history용
+                result["source"] = "fdr+yfinance"
+            return result
+        # FDR도 실패 → yfinance 시도
+        result = _fetch_yfinance(ticker, retries=2, delay=1.5)
         if result is not None:
             return result
     else:
-        # 미국·기타 종목은 Stooq fallback 시도
+        # 미국·기타: yfinance 먼저
+        result = _fetch_yfinance(ticker, retries=2, delay=1.5)
+        if result is not None:
+            return result
+        # Stooq fallback
         result = _fetch_fdr_us(ticker)
         if result is not None:
             return result
 
-    # 모두 실패
     return None
 
 
