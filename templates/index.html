@@ -1010,17 +1010,27 @@
             chartInstances = [];
             optionsLoaded = false;
             try {
-                const res = await fetch('/api/analyze', {
+                const res = await fetch('/api/analyze?_=' + Date.now(), {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
                     body: JSON.stringify({ ticker: query })
                 });
-                const data = await res.json();
-                if (!res.ok) { errorMsg.textContent = data.error; errorMsg.style.display = 'block'; return; }
+                let data = null;
+                try { data = await res.json(); } catch (e) { /* ignore */ }
+                if (!res.ok) {
+                    errorMsg.textContent = (data && data.error) ? data.error : `서버 오류 (HTTP ${res.status})`;
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+                if (!data) {
+                    errorMsg.textContent = '서버 응답이 비어있습니다. 잠시 후 다시 시도해주세요.';
+                    errorMsg.style.display = 'block';
+                    return;
+                }
                 renderResults(data);
                 results.style.display = 'block';
             } catch (err) {
-                errorMsg.textContent = '서버 연결에 실패했습니다.';
+                errorMsg.textContent = '네트워크 오류: ' + (err && err.message ? err.message : '알 수 없음') + ' — 새로고침(Ctrl+Shift+R)을 시도해주세요.';
                 errorMsg.style.display = 'block';
             } finally {
                 btn.disabled = false;

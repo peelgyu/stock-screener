@@ -634,7 +634,13 @@ def search_stocks():
 
 @app.route("/api/analyze", methods=["POST"])
 def analyze():
-    raw_query = request.json.get("ticker", "").strip()
+    body = request.get_json(force=True, silent=True)
+    if body is None:
+        try:
+            body = json_lib.loads(request.get_data(as_text=True) or "{}")
+        except Exception:
+            body = {}
+    raw_query = (body.get("ticker") or "").strip()
     if not raw_query:
         return jsonify({"error": "종목명 또는 티커를 입력해주세요."}), 400
 
@@ -826,7 +832,13 @@ def analyze():
 
 @app.route("/api/options", methods=["POST"])
 def analyze_options():
-    raw_query = request.json.get("ticker", "").strip()
+    body = request.get_json(force=True, silent=True)
+    if body is None:
+        try:
+            body = json_lib.loads(request.get_data(as_text=True) or "{}")
+        except Exception:
+            body = {}
+    raw_query = (body.get("ticker") or "").strip()
     if not raw_query:
         return jsonify({"available": False, "error": "티커 필요"}), 400
     ticker = resolve_ticker(raw_query) or raw_query.upper()

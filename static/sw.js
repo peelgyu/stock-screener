@@ -1,6 +1,6 @@
-// StockInto Service Worker - v4
+// StockInto Service Worker - v5 (DART 통합 후 강제 갱신)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v4';
+const CACHE_NAME = 'stockinto-v5';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
