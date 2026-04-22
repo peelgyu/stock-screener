@@ -134,14 +134,25 @@
             .topnav-link { font-size: 0.72rem; padding: 4px 8px; }
         }
 
-        /* 히어로 — 캐치 문구 중심 */
+        /* 히어로 — StockInto 로고 + 캐치 */
         .hero {
             text-align: center;
-            padding: 44px 0 28px;
+            padding: 40px 0 28px;
         }
+        .hero-logo {
+            display: inline-block;
+            font-size: 2.4rem; font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.03em; line-height: 1;
+            margin-bottom: 16px;
+            text-decoration: none;
+            transition: transform var(--transition-fast), opacity var(--transition-fast);
+        }
+        .hero-logo:hover { opacity: 0.85; transform: scale(1.02); }
         .hero .hero-catch {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 1.55rem;
+            font-weight: 700;
             color: var(--text-primary);
             letter-spacing: -0.03em;
             line-height: 1.25;
@@ -158,7 +169,8 @@
             letter-spacing: -0.01em;
         }
         @media (max-width: 480px) {
-            .hero { padding: 30px 0 18px; }
+            .hero { padding: 28px 0 16px; }
+            .hero-logo { font-size: 1.9rem; margin-bottom: 12px; }
             .hero .hero-catch { font-size: 1.25rem; }
             .hero .hero-sub { font-size: 0.82rem; }
         }
@@ -695,6 +707,7 @@
 
     <div class="container">
         <div class="hero">
+            <a href="/" class="hero-logo">StockInto</a>
             <h1 class="hero-catch"><span class="accent">대가들</span>이라면,<br>이 주식 살까?</h1>
             <p class="hero-sub">워렌 버핏부터 피터 린치까지 · 5명의 전설이 채점합니다</p>
         </div>
