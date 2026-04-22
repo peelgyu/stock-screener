@@ -100,17 +100,40 @@ def _fnum(v) -> Optional[float]:
         return None
 
 
+# 계정과목 별칭 맵 — DART 회사마다 표기가 살짝 다름
+ACCOUNT_ALIASES = {
+    "revenue": ("IS", "CIS", ["매출액", "영업수익", "수익(매출액)", "매출", "수익"]),
+    "cost_of_revenue": ("IS", "CIS", ["매출원가"]),
+    "gross_profit": ("IS", "CIS", ["매출총이익", "매출총이익(손실)"]),
+    "operating_income": ("IS", "CIS", ["영업이익", "영업이익(손실)"]),
+    "rd_expense": ("IS", "CIS", ["연구개발비", "경상연구개발비"]),
+    "net_income": ("IS", "CIS", ["당기순이익", "당기순이익(손실)", "연결당기순이익", "반기순이익"]),
+    "total_assets": ("BS", None, ["자산총계", "자산 총계"]),
+    "total_liabilities": ("BS", None, ["부채총계", "부채 총계"]),
+    "total_equity": ("BS", None, ["자본총계", "자본 총계"]),
+    "current_assets": ("BS", None, ["유동자산"]),
+    "current_liabilities": ("BS", None, ["유동부채"]),
+    "operating_cf": ("CF", None, ["영업활동현금흐름", "영업활동으로인한현금흐름", "영업활동 현금흐름", "영업활동으로 인한 현금흐름"]),
+    "capex": ("CF", None, ["유형자산의 취득", "유형자산의취득", "유형자산취득"]),
+}
+
+
+def _extract_row(row, target_sj, target_sj2, target_names):
+    nm = (row.get("account_nm") or "").strip()
+    sj = row.get("sj_div") or ""
+    if sj != target_sj and (target_sj2 is None or sj != target_sj2):
+        return None
+    for name in target_names:
+        if nm == name:
+            return _fnum(row.get("thstrm_amount"))
+    return None
+
+
 def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
     """DART에서 최근 N년 연간 연결재무제표 조회.
 
     Returns:
-        {
-            "years": ["2020", "2021", ..., "2024"],  # oldest → newest
-            "revenue": [...],
-            "net_income": [...],
-            "equity": [...],       # 자본총계
-            "source": "dart",
-        }
+        연도별 dict 리스트. 각 항목은 revenue·net_income·operating_income·total_assets 등 모두 포함.
         실패/비대상이면 None.
     """
     key = _api_key()
@@ -121,22 +144,20 @@ def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
     if not corp:
         return None
 
-    cache_key = f"dart_fin:{corp}:{years}"
+    cache_key = f"dart_fin_v2:{corp}:{years}"
     hit = cache.get(cache_key)
     if hit is not None:
         return hit
 
-    # 연도 리스트: 올해-1부터 과거 N년. 올해분은 annual 보고서가 아직 없을 수 있음.
     import datetime
     now_year = datetime.datetime.now().year
     year_list = list(range(now_year - 1, now_year - 1 - years, -1))
 
-    rev: dict[str, float] = {}
-    ni: dict[str, float] = {}
-    eq: dict[str, float] = {}
+    # {year: {field: value}}
+    by_year: dict[str, dict[str, float]] = {}
 
     for y in year_list:
-        for fs_div in ("CFS", "OFS"):  # CFS=연결, OFS=별도. 연결 우선.
+        for fs_div in ("CFS", "OFS"):
             try:
                 r = requests.get(
                     f"{DART_BASE}/fnlttSinglAcntAll.json",
@@ -144,7 +165,7 @@ def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
                         "crtfc_key": key,
                         "corp_code": corp,
                         "bsns_year": str(y),
-                        "reprt_code": "11011",  # 사업보고서 (연간)
+                        "reprt_code": "11011",
                         "fs_div": fs_div,
                     },
                     timeout=10,
@@ -158,42 +179,64 @@ def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
             except Exception:
                 continue
 
-            got_rev = got_ni = got_eq = False
+            year_data: dict[str, float] = {}
             for row in rows:
-                nm = (row.get("account_nm") or "").strip()
-                sj = row.get("sj_div") or ""  # BS/IS/CIS/CF
-                amt = _fnum(row.get("thstrm_amount"))
-                if amt is None:
-                    continue
+                for field, (sj1, sj2, names) in ACCOUNT_ALIASES.items():
+                    if field in year_data:
+                        continue
+                    v = _extract_row(row, sj1, sj2, names)
+                    if v is not None:
+                        year_data[field] = v
 
-                # 매출액 (IS 또는 CIS)
-                if not got_rev and sj in ("IS", "CIS") and nm in ("매출액", "영업수익", "수익(매출액)"):
-                    rev[str(y)] = amt
-                    got_rev = True
-                # 당기순이익 (IS 또는 CIS)
-                if not got_ni and sj in ("IS", "CIS") and nm in ("당기순이익", "당기순이익(손실)", "연결당기순이익"):
-                    ni[str(y)] = amt
-                    got_ni = True
-                # 자본총계 (BS)
-                if not got_eq and sj == "BS" and nm in ("자본총계", "자본 총계"):
-                    eq[str(y)] = amt
-                    got_eq = True
+            if year_data.get("revenue") is not None or year_data.get("net_income") is not None:
+                by_year[str(y)] = year_data
+                break  # 연결 성공 시 별도 스킵
 
-            if got_rev or got_ni:
-                break  # 연결(CFS)에서 찾았으면 별도(OFS) 스킵
-
-    if not rev and not ni:
+    if not by_year:
         return None
 
-    sorted_years = sorted(set(list(rev.keys()) + list(ni.keys()) + list(eq.keys())))
+    sorted_years = sorted(by_year.keys())
+
+    def col(field):
+        return [by_year[y].get(field) for y in sorted_years]
+
+    # gross_profit 계산 fallback: 없으면 revenue - cost_of_revenue
+    gp_col = col("gross_profit")
+    if all(v is None for v in gp_col):
+        gp_col = []
+        for y in sorted_years:
+            d = by_year[y]
+            r, c = d.get("revenue"), d.get("cost_of_revenue")
+            gp_col.append(r - c if (r is not None and c is not None) else None)
+
+    # FCF 계산: operating_cf + capex (DART capex는 이미 음수로 들어옴)
+    fcf_col = []
+    for y in sorted_years:
+        d = by_year[y]
+        ocf, cx = d.get("operating_cf"), d.get("capex")
+        if ocf is None:
+            fcf_col.append(None)
+        else:
+            fcf_col.append(ocf + (cx or 0) if cx is not None and cx < 0 else ocf - (cx or 0))
+
     result = {
         "years": sorted_years,
-        "revenue": [rev.get(y) for y in sorted_years],
-        "net_income": [ni.get(y) for y in sorted_years],
-        "equity": [eq.get(y) for y in sorted_years],
+        "revenue": col("revenue"),
+        "net_income": col("net_income"),
+        "operating_income": col("operating_income"),
+        "gross_profit": gp_col,
+        "rd_expense": col("rd_expense"),
+        "equity": col("total_equity"),
+        "total_assets": col("total_assets"),
+        "total_liabilities": col("total_liabilities"),
+        "current_assets": col("current_assets"),
+        "current_liabilities": col("current_liabilities"),
+        "operating_cf": col("operating_cf"),
+        "capex": col("capex"),
+        "fcf": fcf_col,
         "source": "dart",
     }
-    cache.set(cache_key, result, ttl=24 * 3600)  # 하루 캐시
+    cache.set(cache_key, result, ttl=24 * 3600)
     return result
 
 

@@ -698,12 +698,23 @@ def analyze():
         rev = dart.get("revenue") or []
         ni = dart.get("net_income") or []
         eq = dart.get("equity") or []
+        oi = dart.get("operating_income") or [None] * len(years)
+        gp = dart.get("gross_profit") or [None] * len(years)
+        rd = dart.get("rd_expense") or [None] * len(years)
+        fcf_dart = dart.get("fcf") or [None] * len(years)
 
         roe = []
         for n, e in zip(ni, eq):
             roe.append(n / e if (n is not None and e and e > 0) else None)
 
-        # yfinance 값을 보존할 수 있는지는 years 일치해야 가능
+        gross_margins = []
+        for g, r in zip(gp, rev):
+            gross_margins.append(g / r if (g is not None and r and r > 0) else None)
+
+        rd_ratios = []
+        for x, r in zip(rd, rev):
+            rd_ratios.append(x / r if (x is not None and r and r > 0) else None)
+
         orig_years = hist.get("years")
         can_reuse = isinstance(orig_years, list) and orig_years == years
 
@@ -718,9 +729,9 @@ def analyze():
         hist["net_income"] = ni
         hist["eps"] = _arr("eps")
         hist["roe"] = roe
-        hist["fcf"] = _arr("fcf")
-        hist["gross_margins"] = _arr("gross_margins")
-        hist["rd_ratios"] = _arr("rd_ratios")
+        hist["fcf"] = fcf_dart
+        hist["gross_margins"] = gross_margins
+        hist["rd_ratios"] = rd_ratios
 
         # CAGR 재계산
         def _endpoints(lst):
@@ -751,8 +762,90 @@ def analyze():
             "all_positive": all_positive,
             "passed_buffett_10yr_proxy": years_above_15 >= max(3, len(valid_roe)) and len(valid_roe) >= 3,
         }
+
+        # Gross Margin 안정성
+        valid_gm = [g for g in gross_margins if g is not None]
+        gm_avg = sum(valid_gm) / len(valid_gm) if valid_gm else None
+        gm_std = None
+        if len(valid_gm) >= 3 and gm_avg is not None:
+            var = sum((g - gm_avg) ** 2 for g in valid_gm) / len(valid_gm)
+            gm_std = var ** 0.5
+        hist["gross_margin_analysis"] = {
+            "avg": gm_avg,
+            "std": gm_std,
+            "stable": gm_std is not None and gm_std <= 0.05,
+            "measured": len(valid_gm),
+        }
+
+        # R&D 투자
+        valid_rd = [r for r in rd_ratios if r is not None]
+        hist["rd_analysis"] = {
+            "latest": rd_ratios[-1] if rd_ratios else None,
+            "average": sum(valid_rd) / len(valid_rd) if valid_rd else None,
+        }
         hist["source"] = "dart"
         return hist
+
+    def _populate_info_from_dart(info: dict, dart: dict) -> None:
+        """DART 최신 연도 값으로 info(yfinance 형식) 보강 — 한국 주식 전체 지표 활성화."""
+        years = dart.get("years") or []
+        if not years:
+            return
+
+        def _last(lst):
+            for v in reversed(lst or []):
+                if v is not None:
+                    return v
+            return None
+
+        def _last_n(lst, n):
+            vals = [v for v in (lst or []) if v is not None]
+            return vals[-n:] if len(vals) >= n else vals
+
+        rev = dart.get("revenue") or []
+        ni = dart.get("net_income") or []
+        oi = dart.get("operating_income") or []
+        gp = dart.get("gross_profit") or []
+        eq = dart.get("equity") or []
+        assets = dart.get("total_assets") or []
+        debt = dart.get("total_liabilities") or []
+        ca = dart.get("current_assets") or []
+        cl = dart.get("current_liabilities") or []
+        fcf = dart.get("fcf") or []
+
+        rev_l = _last(rev); ni_l = _last(ni); oi_l = _last(oi); gp_l = _last(gp)
+        eq_l = _last(eq); debt_l = _last(debt); ca_l = _last(ca); cl_l = _last(cl); fcf_l = _last(fcf)
+
+        # yfinance 값이 이미 있으면 덮지 않음 (있는 게 더 정확할 수도)
+        def _set_if_missing(key, val):
+            if val is not None and info.get(key) in (None, 0):
+                info[key] = val
+
+        _set_if_missing("totalRevenue", rev_l)
+        _set_if_missing("freeCashflow", fcf_l)
+        _set_if_missing("totalDebt", debt_l)
+
+        if ni_l is not None and eq_l and eq_l > 0:
+            _set_if_missing("returnOnEquity", ni_l / eq_l)
+        if debt_l is not None and eq_l and eq_l > 0:
+            # Yahoo의 debtToEquity는 %(예: 120) 단위
+            _set_if_missing("debtToEquity", (debt_l / eq_l) * 100)
+        if oi_l is not None and rev_l and rev_l > 0:
+            _set_if_missing("operatingMargins", oi_l / rev_l)
+        if gp_l is not None and rev_l and rev_l > 0:
+            _set_if_missing("grossMargins", gp_l / rev_l)
+        if ni_l is not None and rev_l and rev_l > 0:
+            _set_if_missing("profitMargins", ni_l / rev_l)
+        if ca_l is not None and cl_l and cl_l > 0:
+            _set_if_missing("currentRatio", ca_l / cl_l)
+
+        # YoY 성장률
+        rev_vals = [v for v in rev if v is not None]
+        if len(rev_vals) >= 2 and rev_vals[-2] > 0:
+            _set_if_missing("revenueGrowth", (rev_vals[-1] - rev_vals[-2]) / rev_vals[-2])
+        ni_vals = [v for v in ni if v is not None]
+        if len(ni_vals) >= 2 and ni_vals[-2] != 0:
+            _set_if_missing("earningsGrowth", (ni_vals[-1] - ni_vals[-2]) / abs(ni_vals[-2]))
 
     market_cache_key = f"market_regime:{is_kr}"
     market_data = cache.get(market_cache_key)
@@ -770,6 +863,7 @@ def analyze():
         if dart_fin and dart_fin.get("years"):
             history_data = _merge_dart_into_history(history_data, dart_fin)
             info["_data_source_dart"] = True
+            _populate_info_from_dart(info, dart_fin)
 
     quality_data = _safe_call(evaluate_earnings_quality, {"available": False}, stock, info)
     fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock, history_data)
