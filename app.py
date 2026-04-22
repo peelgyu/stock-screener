@@ -8,6 +8,12 @@ import urllib.parse
 import json as json_lib
 from collections import defaultdict
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 from flask import Flask, render_template, request, jsonify, redirect, send_from_directory
 from flask.json.provider import DefaultJSONProvider
 import yfinance as yf
@@ -34,6 +40,7 @@ class SafeJSONProvider(DefaultJSONProvider):
 from kr_stocks import search_kr_stocks, KR_STOCKS, US_STOCKS_KR
 from data.cache import cache, cached
 from data.fetcher import fetch_stock_data, detect_fetch_error_type
+from data import dart_client
 from analysis.sector_baseline import get_sector_thresholds
 from analysis.history import get_historical_metrics
 from analysis.quality import evaluate_earnings_quality
@@ -676,6 +683,62 @@ def analyze():
             app.logger.warning(f"{fn.__name__} failed: {e}")
             return default
 
+    def _merge_dart_into_history(hist: dict, dart: dict) -> dict:
+        """DART 공시 재무를 history_data에 병합. 공시가 있는 연도는 DART 값 우선."""
+        if not isinstance(hist, dict):
+            hist = {}
+        years = dart.get("years") or []
+        rev = dart.get("revenue") or []
+        ni = dart.get("net_income") or []
+        eq = dart.get("equity") or []
+
+        roe = []
+        for n, e in zip(ni, eq):
+            roe.append(n / e if (n is not None and e and e > 0) else None)
+
+        hist = dict(hist)
+        hist["available"] = True
+        hist["years"] = years
+        hist["revenue"] = rev
+        hist["net_income"] = ni
+        hist["eps"] = hist.get("eps") if hist.get("years") == years else [None] * len(years)
+        hist["roe"] = roe
+        hist["fcf"] = hist.get("fcf") if hist.get("years") == years else [None] * len(years)
+        hist["gross_margins"] = hist.get("gross_margins") if hist.get("years") == years else [None] * len(years)
+        hist["rd_ratios"] = hist.get("rd_ratios") if hist.get("years") == years else [None] * len(years)
+
+        # CAGR 재계산
+        def _endpoints(lst):
+            f = next((i for i, v in enumerate(lst) if v is not None), None)
+            l = next((i for i in range(len(lst) - 1, -1, -1) if lst[i] is not None), None)
+            if f is None or l is None or f == l:
+                return None, None, 0
+            return lst[f], lst[l], l - f
+
+        def _cagr(first, last, y):
+            if first is None or last is None or y <= 0 or first <= 0 or last <= 0:
+                return None
+            try:
+                return (last / first) ** (1 / y) - 1
+            except Exception:
+                return None
+
+        rf, rl, ry = _endpoints(rev)
+        hist["revenue_cagr"] = _cagr(rf, rl, ry)
+
+        # ROE 일관성 재계산
+        valid_roe = [r for r in roe if r is not None]
+        years_above_15 = sum(1 for r in valid_roe if r >= 0.15)
+        all_positive = all(r is not None and r > 0 for r in roe) if roe else False
+        hist["roe_consistency"] = {
+            "years_above_15pct": years_above_15,
+            "total_measured": len(valid_roe),
+            "all_positive": all_positive,
+            "passed_buffett_10yr_proxy": years_above_15 >= max(3, len(valid_roe)) and len(valid_roe) >= 3,
+        }
+        hist["source"] = "dart"
+        return hist
+
     market_cache_key = f"market_regime:{is_kr}"
     market_data = cache.get(market_cache_key)
     if market_data is None:
@@ -685,6 +748,14 @@ def analyze():
 
     rs_data = _safe_call(calculate_rs_rating, {"available": False}, ticker, hist=hist)
     history_data = _safe_call(get_historical_metrics, {"available": False}, stock)
+
+    # 한국 주식(.KS/.KQ)은 DART 공시 데이터로 재무 history 보강 (더 정확)
+    if is_kr and dart_client.is_available():
+        dart_fin = _safe_call(dart_client.fetch_financials, None, ticker, years=5)
+        if dart_fin and dart_fin.get("years"):
+            history_data = _merge_dart_into_history(history_data, dart_fin)
+            info["_data_source_dart"] = True
+
     quality_data = _safe_call(evaluate_earnings_quality, {"available": False}, stock, info)
     fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock, history_data)
 
