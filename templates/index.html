@@ -772,17 +772,14 @@
             <div id="rsCard"></div>
 
             <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('sentiment')">심리</button>
-                <button class="tab-btn" onclick="switchTab('positions')">숏/롱</button>
-                <button class="tab-btn" onclick="switchTab('options')">옵션</button>
-                <button class="tab-btn" onclick="switchTab('investors')">워렌 버핏이라면?</button>
-                <button class="tab-btn" onclick="switchTab('trend')">재무 추세</button>
+                <button class="tab-btn active" onclick="switchTab('investors')">🧠 대가들 평가</button>
+                <button class="tab-btn" onclick="switchTab('trend')">📆 재무 추세</button>
+                <button class="tab-btn" onclick="switchTab('sentiment')">😱 심리</button>
+                <button class="tab-btn" onclick="switchTab('positions')">📊 숏/롱</button>
+                <button class="tab-btn" onclick="switchTab('options')">🎯 옵션</button>
             </div>
 
-            <div class="tab-content active" id="tab-sentiment"><div class="fg-card" id="fgCard"></div></div>
-            <div class="tab-content" id="tab-positions"><div class="pos-card" id="posCard"></div></div>
-            <div class="tab-content" id="tab-options"><div class="opt-card" id="optCard"></div></div>
-            <div class="tab-content" id="tab-investors">
+            <div class="tab-content active" id="tab-investors">
                 <div class="overall-card" id="overallCard"></div>
                 <div id="investorCards"></div>
             </div>
@@ -790,6 +787,9 @@
                 <div id="qualityCard"></div>
                 <div id="trendCharts"></div>
             </div>
+            <div class="tab-content" id="tab-sentiment"><div class="fg-card" id="fgCard"></div></div>
+            <div class="tab-content" id="tab-positions"><div class="pos-card" id="posCard"></div></div>
+            <div class="tab-content" id="tab-options"><div class="opt-card" id="optCard"></div></div>
 
         </div>
 
@@ -977,7 +977,7 @@
         function quickSearch(ticker) { input.value = ticker; acBox.classList.remove('show'); analyze(); }
 
         function switchTab(tab) {
-            const tabs = ['sentiment', 'positions', 'options', 'investors', 'trend'];
+            const tabs = ['investors', 'trend', 'sentiment', 'positions', 'options'];
             document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', tabs[i] === tab));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
