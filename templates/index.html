@@ -1067,7 +1067,8 @@
             renderOverall(data.overall);
             renderInvestors(data.investors);
             renderQuality(data.quality);
-            renderTrendCharts(data.history);
+            const isKR = (data.ticker || '').endsWith('.KS') || (data.ticker || '').endsWith('.KQ');
+            renderTrendCharts(data.history, isKR ? 'KRW' : 'USD');
         }
 
         function tvSymbol(ticker) {
@@ -1425,9 +1426,10 @@
                 </div>`;
         }
 
-        function renderTrendCharts(h) {
+        function renderTrendCharts(h, currency) {
             const el = document.getElementById('trendCharts');
             if (!h || !h.available) { el.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">재무제표 추이 데이터가 부족합니다.</div>`; return; }
+            const isKR = currency === 'KRW';
             const bc = h.roe_consistency || {};
             const cagrHTML = `
                 <div class="cagr-row">
@@ -1442,13 +1444,17 @@
                 <div class="chart-card"><div class="chart-title">ROE (%)</div><div class="chart-canvas-wrap"><canvas id="chROE"></canvas></div></div>
                 <div class="chart-card"><div class="chart-title">FCF (Free Cash Flow)</div><div class="chart-canvas-wrap"><canvas id="chFCF"></canvas></div></div>
                 ${cagrHTML}`;
-            const toM = arr => arr.map(v => v == null ? null : v / 1e6);
+            // 원화: /1e12 (조원), USD: /1e6 (백만$)
+            const scale = isKR ? 1e12 : 1e6;
+            const bigUnit = isKR ? '조원' : '백만 $';
+            const epsUnit = isKR ? '원' : '$';
+            const scaleArr = arr => arr.map(v => v == null ? null : v / scale);
             const toPct = arr => arr.map(v => v == null ? null : v * 100);
-            makeBarChart('chRevenue', h.years, toM(h.revenue), '#7b2ff7', '백만 $');
-            makeBarChart('chNetIncome', h.years, toM(h.net_income), '#00d2ff', '백만 $');
-            makeLineChart('chEPS', h.years, h.eps, '#4caf50', '$');
+            makeBarChart('chRevenue', h.years, scaleArr(h.revenue), '#7b2ff7', bigUnit);
+            makeBarChart('chNetIncome', h.years, scaleArr(h.net_income), '#00d2ff', bigUnit);
+            makeLineChart('chEPS', h.years, h.eps, '#4caf50', epsUnit);
             makeLineChart('chROE', h.years, toPct(h.roe), '#ff9800', '%');
-            makeBarChart('chFCF', h.years, toM(h.fcf), '#8bc34a', '백만 $');
+            makeBarChart('chFCF', h.years, scaleArr(h.fcf), '#8bc34a', bigUnit);
         }
 
         function baseOpts(unit) {
