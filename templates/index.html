@@ -409,7 +409,8 @@
         .fg-needle::after { content: ''; position: absolute; bottom: -5px; left: -5px; width: 13px; height: 13px; background: #fff; border-radius: 50%; }
         .fg-score { font-size: 2.8rem; font-weight: 800; margin: 8px 0 4px; }
         .fg-label { font-size: 1.1rem; font-weight: 600; }
-        .fg-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: #888; margin-top: 4px; padding: 0 10px; max-width: 220px; margin-left: auto; margin-right: auto; }
+        .fg-scale { display: flex; justify-content: space-between; font-size: 0.7rem; color: #888; margin-top: 4px; padding: 0 10px; max-width: 320px; margin-left: auto; margin-right: auto; }
+        .fg-scale span:nth-child(2) { color: #aaa; }
         .fg-indicators { margin-top: 20px; text-align: left; }
         .fg-ind-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #1e1e35; }
         .fg-ind-item:last-child { border-bottom: none; }
@@ -655,7 +656,7 @@
             .fg-gauge-wrap { width: 180px; height: 100px; }
             .fg-gauge-bg { width: 180px; height: 180px; }
             .fg-needle { height: 65px; }
-            .fg-scale { max-width: 180px; }
+            .fg-scale { max-width: 260px; font-size: 0.62rem; }
             .tab-btn { font-size: 0.7rem; padding: 10px 2px; min-width: 70px; }
             .opt-summary, .fv-grid { grid-template-columns: 1fr; }
             .verdict-card { flex-direction: column; text-align: center; gap: 12px; }
@@ -774,7 +775,7 @@
             <div class="tabs">
                 <button class="tab-btn active" onclick="switchTab('investors')">🧠 워렌 버핏이라면?</button>
                 <button class="tab-btn" onclick="switchTab('trend')">📆 재무 추세</button>
-                <button class="tab-btn" onclick="switchTab('sentiment')">😱 심리</button>
+                <button class="tab-btn" onclick="switchTab('sentiment')">😱 탐욕지수</button>
                 <button class="tab-btn" onclick="switchTab('positions')">📊 숏/롱</button>
                 <button class="tab-btn" onclick="switchTab('options')">🎯 옵션</button>
             </div>
@@ -1276,10 +1277,16 @@
                 </div>`;
             });
             document.getElementById('fgCard').innerHTML = `
+                <div style="text-align:center;color:#888;font-size:0.85rem;margin-bottom:14px;line-height:1.55;">
+                    투자자 심리를 0~100으로 표시합니다.<br>
+                    <strong style="color:#f44336;">낮을수록 공포</strong> (매도 과열, 저가매수 기회) ·
+                    <strong style="color:#4caf50;">높을수록 탐욕</strong> (매수 과열, 고점 주의)
+                </div>
                 <div class="fg-gauge-wrap"><div class="fg-gauge-bg"></div><div class="fg-needle" id="fgNeedle" style="transform:rotate(-90deg);"></div></div>
-                <div class="fg-scale"><span>극단적 공포</span><span>극단적 탐욕</span></div>
+                <div class="fg-scale"><span>극단적 공포 (0)</span><span>중립 (50)</span><span>극단적 탐욕 (100)</span></div>
                 <div class="fg-score" style="color:${color}">${fg.score}</div>
                 <div class="fg-label" style="color:${color}">${fg.label}</div>
+                <div style="text-align:center;color:#666;font-size:0.75rem;margin:4px 0 16px;">※ 워렌 버핏: "남들이 탐욕스러울 때 두려워하고, 남들이 두려워할 때 탐욕스러워져라"</div>
                 <div class="fg-indicators">${indHTML}</div>`;
             setTimeout(() => { const n = document.getElementById('fgNeedle'); if (n) n.style.transform = `rotate(${angle}deg)`; }, 100);
         }
