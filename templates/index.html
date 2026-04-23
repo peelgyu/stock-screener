@@ -123,12 +123,11 @@
             display: flex; align-items: center; justify-content: space-between;
         }
         .brand-link {
-            font-size: 1.35rem; font-weight: 800; text-decoration: none;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -0.02em;
+            display: flex; align-items: center;
+            text-decoration: none;
             transition: opacity var(--transition-fast);
         }
+        .brand-link img { height: 40px; width: auto; display: block; }
         .brand-link:hover { opacity: 0.75; }
         .topnav-right { display: flex; gap: 8px; align-items: center; }
         .topnav-link {
@@ -140,7 +139,7 @@
         .topnav-link:hover { background: var(--accent-bg); color: var(--text-primary); }
         @media (max-width: 480px) {
             .topnav { padding: 10px 14px; }
-            .brand-link { font-size: 1.15rem; }
+            .brand-link img { height: 32px; }
             .topnav-link { font-size: 0.72rem; padding: 4px 8px; }
         }
 
@@ -151,15 +150,12 @@
         }
         .hero-logo {
             display: inline-block;
-            font-size: 2.4rem; font-weight: 800;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: -0.03em; line-height: 1;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
             text-decoration: none;
             transition: transform var(--transition-fast), opacity var(--transition-fast);
         }
-        .hero-logo:hover { opacity: 0.85; transform: scale(1.02); }
+        .hero-logo img { height: 220px; width: auto; display: block; filter: drop-shadow(0 12px 24px rgba(13,95,217,0.25)); }
+        .hero-logo:hover { opacity: 0.9; transform: scale(1.02); }
         .hero .hero-catch {
             font-size: 1.55rem;
             font-weight: 700;
@@ -180,7 +176,8 @@
         }
         @media (max-width: 480px) {
             .hero { padding: 28px 0 16px; }
-            .hero-logo { font-size: 1.9rem; margin-bottom: 12px; }
+            .hero-logo { margin-bottom: 10px; }
+            .hero-logo img { height: 140px; }
             .hero .hero-catch { font-size: 1.25rem; }
             .hero .hero-sub { font-size: 0.82rem; }
         }
@@ -671,7 +668,7 @@
     <button class="install-btn" id="installBtn" onclick="triggerInstall()">📱 앱으로 설치</button>
 
     <nav class="topnav">
-        <a href="/" class="brand-link">StockInto</a>
+        <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-topnav.png" alt="StockInto"></a>
         <div class="topnav-right">
             <a href="/glossary" class="topnav-link">📚 용어</a>
             <a href="/install" class="topnav-link">📱 앱</a>
@@ -718,7 +715,7 @@
 
     <div class="container">
         <div class="hero">
-            <a href="/" class="hero-logo">StockInto</a>
+            <a href="/" class="hero-logo" aria-label="StockInto 홈"><img src="/static/logo-hero.png" alt="StockInto"></a>
             <h1 class="hero-catch"><span class="accent">워렌 버핏</span>이라면,<br>이 주식을 살까?</h1>
             <p class="hero-sub">워렌 버핏부터 피터 린치까지 · 5명의 전설이 채점합니다</p>
         </div>
