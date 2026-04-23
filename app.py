@@ -625,6 +625,11 @@ def privacy():
     return render_template("privacy.html")
 
 
+@app.route("/contact")
+def contact():
+    return render_template("contact.html")
+
+
 @app.route("/api/search", methods=["GET"])
 def search_stocks():
     q = request.args.get("q", "").strip()
