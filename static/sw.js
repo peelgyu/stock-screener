@@ -1,6 +1,6 @@
-// StockInto Service Worker - v6 (로고 교체 강제 갱신)
+// StockInto Service Worker - v7 (공식 로고 패키지 교체)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v6';
+const CACHE_NAME = 'stockinto-v7';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
