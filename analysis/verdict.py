@@ -1,4 +1,4 @@
-"""종합 한 줄 판정 — 매수/관망/회피."""
+"""종합 한 줄 점수 등급 — 매수·매도 권유가 아닌 정량 통과율 기반 분류."""
 
 
 def generate_verdict(overall: dict, rs_data: dict | None, market_data: dict | None,
@@ -37,7 +37,7 @@ def generate_verdict(overall: dict, rs_data: dict | None, market_data: dict | No
             reasons.append(f"시장 {market_data.get('benchmark_name','')} 상승장")
         elif "하락장" in (market_data.get("direction","") or ""):
             score -= 2
-            warnings.append(f"시장 하락장 — 신규 매수 비권장")
+            warnings.append(f"시장 하락장 — 일반적으로 신규 진입 부담 구간")
         elif "조정" in (market_data.get("direction","") or ""):
             score -= 1
             warnings.append(f"시장 조정 중")
@@ -86,22 +86,22 @@ def generate_verdict(overall: dict, rs_data: dict | None, market_data: dict | No
         fg = fear_greed["score"]
         if fg <= 25:
             score += 1
-            reasons.append(f"극단적 공포 ({fg}) — 역발상 매수 기회")
+            reasons.append(f"극단적 공포 ({fg}) — 역발상 관점 시 관심 구간")
         elif fg >= 80:
             score -= 1
             warnings.append(f"극단적 탐욕 ({fg}) — 단기 과열")
 
-    # 판정 — 중립적 등급제 (투자 권유 표현 회피)
+    # 점수 등급 — 정량 분류만 표시. 매수·매도 권유 아니며 참고용 정보임
     if score >= 4:
-        decision, color, confidence = "긍정 (A)", "green", "high"
+        decision, color, confidence = "A 등급 (기준 통과율 매우 높음)", "green", "high"
     elif score >= 2:
-        decision, color, confidence = "양호 (B)", "green", "medium"
+        decision, color, confidence = "B 등급 (기준 통과율 높음)", "green", "medium"
     elif score >= 0:
-        decision, color, confidence = "중립 (C)", "yellow", "medium"
+        decision, color, confidence = "C 등급 (기준 통과율 보통)", "yellow", "medium"
     elif score >= -2:
-        decision, color, confidence = "주의 (D)", "red", "medium"
+        decision, color, confidence = "D 등급 (기준 통과율 낮음)", "red", "medium"
     else:
-        decision, color, confidence = "부적합 (F)", "red", "high"
+        decision, color, confidence = "F 등급 (기준 통과율 매우 낮음)", "red", "high"
 
     if not reasons:
         reasons = ["특이점 없음"]

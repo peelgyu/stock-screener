@@ -78,7 +78,8 @@ def _canonical_redirect():
 @app.errorhandler(500)
 def _handle_500(e):
     if request.path.startswith("/api/"):
-        return jsonify({"error": f"서버 내부 오류: {type(e).__name__}"}), 500
+        app.logger.exception("API 500 error")
+        return jsonify({"error": "서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
     return "Internal Server Error", 500
 
 
@@ -86,7 +87,8 @@ def _handle_500(e):
 def _handle_exc(e):
     if request.path.startswith("/api/"):
         app.logger.exception("API exception")
-        return jsonify({"error": f"처리 중 오류 발생: {type(e).__name__}: {str(e)[:200]}"}), 500
+        # 운영에선 내부 정보 절대 노출 금지 — 일반화된 메시지만 반환
+        return jsonify({"error": "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
     raise e
 
 
@@ -428,28 +430,23 @@ def evaluate_buffett(info: dict, sector_t: dict, history_data: dict | None = Non
 
 
 def buffett_strict_grade(yes: int, total: int) -> dict:
-    """버핏 전용 엄격 등급제 (9개 기준 가정).
+    """버핏 전용 점수 등급 (9기준 통과 수). 정량 점수만 표시 — 매수·매도 권유 아님.
 
-    9/9  = A+ (코카콜라·애플급 완벽)
-    8/9  = A  (버핏 관심 최상위)
-    7/9  = B  (좋은 회사)
-    5-6/9= C  (부분 충족)
-    3-4/9= D  (철학 미달)
-    0-2/9= F  (버핏 안 산다)
+    9/9 = 완전 충족, 0/9 = 미충족. 등급은 참고용 분류이며 투자 판단 아님.
     """
     if total == 0:
-        return {"grade": "N/A", "text": "데이터 부족", "color": "gray"}
+        return {"grade": "N/A", "text": "데이터 부족", "color": "gray", "score": "—/9"}
     if yes >= 9:
-        return {"grade": "A+", "text": "버핏이 대량 매수할 종목", "color": "green"}
+        return {"grade": "A+", "text": "버핏 기준 9/9 충족", "color": "green", "score": f"{yes}/9"}
     if yes >= 8:
-        return {"grade": "A", "text": "버핏 관심 최상위", "color": "green"}
+        return {"grade": "A", "text": f"버핏 기준 {yes}/9 충족", "color": "green", "score": f"{yes}/9"}
     if yes >= 7:
-        return {"grade": "B", "text": "좋은 회사, 가격만 맞으면", "color": "green"}
+        return {"grade": "B", "text": f"버핏 기준 {yes}/9 충족", "color": "green", "score": f"{yes}/9"}
     if yes >= 5:
-        return {"grade": "C", "text": "해자는 있지만 약점 존재", "color": "yellow"}
+        return {"grade": "C", "text": f"버핏 기준 {yes}/9 부분 충족", "color": "yellow", "score": f"{yes}/9"}
     if yes >= 3:
-        return {"grade": "D", "text": "버핏 철학 미달", "color": "red"}
-    return {"grade": "F", "text": "버핏이 안 사는 종목", "color": "red"}
+        return {"grade": "D", "text": f"버핏 기준 {yes}/9 충족 — 미달 항목 다수", "color": "red", "score": f"{yes}/9"}
+    return {"grade": "F", "text": f"버핏 기준 {yes}/9 충족 — 대부분 미충족", "color": "red", "score": f"{yes}/9"}
 
 
 def evaluate_graham(info: dict, sector_t: dict) -> list[dict]:
@@ -990,16 +987,17 @@ def analyze():
             inv["strict_grade"] = buffett_strict_grade(yes, count)
 
     overall_rate = round(total_yes / total_count * 100) if total_count > 0 else 0
+    # 등급 = 5인 대가 기준 통과율 (참고용 점수, 매수·매도 권유 아님)
     if overall_rate >= 70:
-        grade, grade_text = "A", "매우 우수"
+        grade, grade_text = "A", "기준 통과율 매우 높음"
     elif overall_rate >= 55:
-        grade, grade_text = "B", "우수"
+        grade, grade_text = "B", "기준 통과율 높음"
     elif overall_rate >= 40:
-        grade, grade_text = "C", "보통"
+        grade, grade_text = "C", "기준 통과율 보통"
     elif overall_rate >= 25:
-        grade, grade_text = "D", "미흡"
+        grade, grade_text = "D", "기준 통과율 낮음"
     else:
-        grade, grade_text = "F", "부적합"
+        grade, grade_text = "F", "기준 통과율 매우 낮음"
 
     overall = {"yes": total_yes, "total": total_count, "rate": overall_rate, "grade": grade, "gradeText": grade_text}
 
@@ -1073,9 +1071,16 @@ def cache_stats():
     return jsonify(cache.stats())
 
 
+def _debug_enabled() -> bool:
+    """디버그 엔드포인트는 STOCKINTO_DEBUG=1 환경변수가 있을 때만 활성화."""
+    return os.getenv("STOCKINTO_DEBUG", "0") == "1"
+
+
 @app.route("/api/debug/echo", methods=["POST"])
 def debug_echo():
-    """body가 어떻게 들어오는지 확인."""
+    """body가 어떻게 들어오는지 확인 (STOCKINTO_DEBUG=1 일 때만)."""
+    if not _debug_enabled():
+        return jsonify({"error": "Not Found"}), 404
     raw_bytes = request.get_data()
     raw_text = raw_bytes.decode("utf-8", errors="replace")
     body_json = request.get_json(force=True, silent=True)
@@ -1105,7 +1110,9 @@ def debug_echo():
 
 @app.route("/api/debug/dart")
 def dart_debug():
-    """DART 연결 진단 (키 자체는 절대 노출 안 함)."""
+    """DART 연결 진단 (STOCKINTO_DEBUG=1 일 때만)."""
+    if not _debug_enabled():
+        return jsonify({"error": "Not Found"}), 404
     key = os.getenv("DART_API_KEY") or ""
     info = {
         "env_key_set": bool(key),
