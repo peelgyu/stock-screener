@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-B1QMCK9002"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-B1QMCK9002');
+    </script>
+
+    <title>StockInto 소개 — 5인 대가 기준 종목 분석 서비스 | 스톡인투</title>
+    <meta name="description" content="StockInto(스톡인투)는 워렌 버핏·벤저민 그레이엄·피터 린치·윌리엄 오닐·필립 피셔의 투자 기준으로 종목을 자동 채점하는 무료 분석 서비스입니다.">
+    <meta name="keywords" content="StockInto 소개, 스톡인투, 주식 분석 서비스, 워렌 버핏 기준, 가치투자, 종목 스크리너">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/about">
+    <meta property="og:title" content="StockInto 소개 — 5인 대가 기준 종목 분석 서비스">
+    <meta property="og:description" content="버핏·그레이엄·린치·오닐·피셔의 투자 기준으로 종목을 자동 채점하는 무료 분석 도구.">
+    <meta property="og:url" content="https://stockinto.com/about">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.8; }
+        .container { max-width: 820px; margin: 0 auto; padding: 30px 20px 60px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,26,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a3e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link { display: flex; align-items: center; text-decoration: none; transition: opacity 0.2s; }
+        .brand-link img { height: 36px; width: auto; display: block; }
+        .brand-link:hover { opacity: 0.8; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid #2a2a3e; transition: all 0.15s; }
+        .nav-home:hover { background: #0D5FD9; color: #fff; border-color: #0D5FD9; }
+        h1 { color: #00d2ff; font-size: 1.9rem; margin-bottom: 8px; letter-spacing: -0.02em; }
+        h2 { color: #1f6feb; font-size: 1.15rem; margin: 32px 0 12px; border-left: 3px solid #1f6feb; padding-left: 12px; }
+        h3 { color: #fff; font-size: 1rem; margin: 20px 0 8px; }
+        p, li { color: #ccc; font-size: 0.92rem; }
+        ul, ol { padding-left: 24px; margin: 8px 0; }
+        li { margin: 6px 0; }
+        .meta { color: #666; font-size: 0.8rem; margin-bottom: 24px; }
+        a { color: #00d2ff; }
+        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 18px 0; }
+        .feature-box { background: #1a1a26; border-radius: 10px; padding: 16px 18px; border: 1px solid #232336; }
+        .feature-box h4 { color: #1f6feb; font-size: 0.85rem; margin-bottom: 6px; font-weight: 700; }
+        .feature-box p { color: #aaa; font-size: 0.85rem; line-height: 1.5; margin: 0; }
+        .investor-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #232336; }
+        .investor-row:last-child { border: 0; }
+        .inv-name { font-weight: 700; color: #fff; min-width: 110px; }
+        .inv-style { color: #1f6feb; font-size: 0.8rem; min-width: 80px; }
+        .inv-desc { color: #aaa; font-size: 0.85rem; }
+        .data-card { background: linear-gradient(135deg, rgba(0,210,255,0.06), rgba(31,111,235,0.06)); border: 1px solid #2a3a55; border-radius: 12px; padding: 18px 22px; margin: 16px 0; }
+        .data-card strong { color: #fff; }
+        .emphasis { background: #2a1a1a; border-left: 4px solid #f44336; padding: 12px 16px; margin: 14px 0; color: #ffcdd2; border-radius: 6px; font-size: 0.88rem; }
+        .back { margin-top: 40px; padding-top: 20px; border-top: 1px solid #2a2a3e; }
+        .cta { display: inline-block; background: #0D5FD9; color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 700; margin-top: 12px; transition: background 0.15s; }
+        .cta:hover { background: #1f6feb; color: #fff; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto" style="height:36px;width:auto;display:block;"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
+            <a href="/contact" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">✉ 문의</a>
+            <a href="/" class="nav-home">🏠 메인</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>StockInto 소개</h1>
+        <p class="meta">스톡인투 — 5인의 전설적 투자자 기준으로 종목을 자동 채점하는 무료 분석 서비스</p>
+
+        <h2>🎯 우리는 어떤 서비스인가요?</h2>
+        <p>
+            <strong>StockInto(스톡인투)</strong>는 개인 투자자가 종목을 결정하기 전, 검증된 투자 철학으로 빠르게 점검할 수 있게 돕는 무료 분석 도구입니다.
+            "이 종목을 워렌 버핏이라면 살까?", "그레이엄의 안전마진 기준에 맞을까?" 같은 질문에 <strong>1초 만에 답</strong>을 드립니다.
+        </p>
+        <p>
+            한국과 미국 상장사 5,000+개 종목에 대해 PER·PBR·ROE·부채비율·매출 성장률 등 30+개 재무 지표를 자동 수집하고,
+            5인 대가의 기준에 맞춰 채점한 뒤 <strong>A~F 등급</strong>으로 한눈에 보여드립니다.
+        </p>
+
+        <h2>💡 왜 만들었나요?</h2>
+        <p>
+            대부분의 개인 투자자가 종목 분석에 어려움을 겪는 이유는 단 하나 — <strong>정보의 산재</strong>입니다.
+            증권사 앱은 시세는 보여주지만 "이 종목이 가치투자 관점에서 어떤지"는 알려주지 않습니다.
+            DART에서 재무제표를 받아 직접 PER을 계산하고, 섹터 평균과 비교하고, 5년 추이를 보는 일은 사실상 불가능에 가깝습니다.
+        </p>
+        <p>
+            StockInto는 그 빈자리를 채웁니다. <strong>대가들의 기준을 코드로 옮겨</strong> 누구나 즉시 활용할 수 있게 만들었습니다.
+        </p>
+
+        <h2>🧠 5인의 투자 대가</h2>
+        <div class="investor-row">
+            <span class="inv-name">워렌 버핏</span>
+            <span class="inv-style">가치투자</span>
+            <span class="inv-desc">9개 기준 + 엄격 등급제 (A+~F): ROE 꾸준함, 해자, FCF, 안전마진</span>
+        </div>
+        <div class="investor-row">
+            <span class="inv-name">벤저민 그레이엄</span>
+            <span class="inv-style">안전마진</span>
+            <span class="inv-desc">PER·PBR 저평가, 유동비율, 배당 — 가치투자의 아버지</span>
+        </div>
+        <div class="investor-row">
+            <span class="inv-name">피터 린치</span>
+            <span class="inv-style">성장주</span>
+            <span class="inv-desc">PEG 1 미만, 매출·EPS 성장률, 부채비율 — 10루타 발굴</span>
+        </div>
+        <div class="investor-row">
+            <span class="inv-name">윌리엄 오닐</span>
+            <span class="inv-style">CAN SLIM</span>
+            <span class="inv-desc">분기 EPS 성장, 52주 신고가, RS Rating, 시장 방향</span>
+        </div>
+        <div class="investor-row">
+            <span class="inv-name">필립 피셔</span>
+            <span class="inv-style">장기 성장</span>
+            <span class="inv-desc">매출 성장, 영업이익률, R&D 투자, 해자 — 텐베거 발굴</span>
+        </div>
+
+        <h2>⚙ 핵심 기능</h2>
+        <div class="feature-grid">
+            <div class="feature-box"><h4>5인 채점</h4><p>대가별 기준으로 자동 채점 + 종합 A/B/C/D/F 등급</p></div>
+            <div class="feature-box"><h4>적정주가 추정</h4><p>DCF·PER·Graham·애널리스트·P/S 5가지 방법 가중 평균</p></div>
+            <div class="feature-box"><h4>5년 재무 추세</h4><p>매출·순이익·EPS·ROE·FCF 차트로 한눈에</p></div>
+            <div class="feature-box"><h4>시장 방향 (CAN SLIM M)</h4><p>S&P500·KOSPI 상승장 여부 자동 판정</p></div>
+            <div class="feature-box"><h4>공포/탐욕 지수</h4><p>RSI·52주 위치·이평선·변동성 가중 평균</p></div>
+            <div class="feature-box"><h4>RS Rating</h4><p>1M/3M/6M/12M 상대강도 — 선도주 식별</p></div>
+            <div class="feature-box"><h4>옵션 체인 분석</h4><p>Max Pain·Put/Call 비율 (미국 주식)</p></div>
+            <div class="feature-box"><h4>종목 카테고리</h4><p>STABLE·DISTRESSED·BUYBACK 자동 분류 + 평가법 차등</p></div>
+        </div>
+
+        <h2>📊 데이터 출처</h2>
+        <div class="data-card">
+            <p>
+                <strong>🇺🇸 미국 주식</strong> — Yahoo Finance API (15~20분 지연)<br>
+                <strong>🇰🇷 한국 주식 공시 재무</strong> — <a href="https://opendart.fss.or.kr" target="_blank" rel="noopener">금융감독원 전자공시시스템(DART) OpenAPI</a><br>
+                <strong>🇰🇷 한국 주식 시세·거래량</strong> — FinanceDataReader (KRX)<br>
+                <strong>시장 지수</strong> — S&P500 (^GSPC), KOSPI (^KS11)
+            </p>
+            <p style="margin-top:10px;color:#888;font-size:0.82rem;">
+                본 서비스는 「공공데이터의 제공 및 이용 활성화에 관한 법률」에 따라 DART 공시자료를 이용하며, <strong style="color:#aaa;">공공누리 제1유형(출처표시)</strong> 라이선스 조건을 준수합니다.
+                삼성전자·SK하이닉스·네이버 등 주요 종목 매출·순이익 값이 DART 공시와 100% 일치함을 검증했습니다.
+            </p>
+        </div>
+
+        <h2>🛠 기술 스택</h2>
+        <ul>
+            <li>백엔드: Python 3.12 + Flask + Gunicorn</li>
+            <li>분석: yfinance·FinanceDataReader·DART OpenAPI·NumPy·Pandas</li>
+            <li>프론트: Vanilla JS + Chart.js + TradingView 위젯 + Pretendard 폰트</li>
+            <li>인프라: Render (PaaS) · Cloudflare (SSL·CDN) · UptimeRobot (모니터링)</li>
+            <li>분석 도구: Google Analytics 4 · Search Console · Naver Search Advisor</li>
+        </ul>
+
+        <h2>👤 운영자</h2>
+        <p>
+            StockInto는 <strong>주식 투자 + 소프트웨어 개발 경험</strong>을 가진 개인 운영자가 만들고 운영합니다.
+            대형 자본·기관 투자가 아닌 개인 투자자의 시점에서, 필요한 분석을 직접 만들어 공유하는 사이드 프로젝트입니다.
+        </p>
+        <p>
+            서비스 개선 제안·오류 신고·제휴 문의는 <a href="/contact">문의 페이지</a>에서 받습니다.
+            이메일: <a href="mailto:stockintokr@gmail.com">stockintokr@gmail.com</a>
+        </p>
+
+        <h2>⚠ 중요한 한계와 고지</h2>
+        <div class="emphasis">
+            <strong>본 서비스는 자본시장법상 투자자문업·유사투자자문업이 아닙니다.</strong><br>
+            제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 <strong>참고 정보</strong>이며,
+            특정 종목의 매수·매도·보유를 권유하거나 보장하지 않습니다.
+            모든 투자 판단과 그에 따른 결과의 책임은 <strong>이용자 본인</strong>에게 있습니다.
+        </div>
+        <ul>
+            <li>대가들의 기준을 기계적으로 적용한 결과이며, 실제 기업 가치·미래 주가와 다를 수 있습니다.</li>
+            <li>데이터는 공시·시세 제공사로부터 수집되어 일정 시간 지연될 수 있습니다.</li>
+            <li>스토리·내러티브 종목(예: 테슬라)의 "꿈값"은 펀더멘털 모델로 측정 불가합니다.</li>
+            <li>본 서비스는 <strong>완전 무료</strong>이며, 향후 광고 또는 프리미엄 기능이 추가될 수 있습니다.</li>
+        </ul>
+
+        <h2>🚀 시작해보세요</h2>
+        <p>회원가입 없이 즉시 사용 가능합니다. 관심 있는 종목을 검색해보세요.</p>
+        <a href="/" class="cta">🔍 종목 분석 시작하기</a>
+
+        <div class="back">
+            <a href="/">← 메인 페이지로 돌아가기</a> ·
+            <a href="/glossary">📚 용어 사전</a> ·
+            <a href="/contact">✉ 문의</a>
+        </div>
+    </div>
+</body>
+</html>
