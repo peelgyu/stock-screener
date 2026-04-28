@@ -13,14 +13,25 @@
       gtag('config', 'G-B1QMCK9002');
     </script>
 
+    {% if stock_ticker %}
+    <title>{{ stock_name|default(stock_ticker) }} 분석 — PER·ROE·적정주가·버핏 기준 | StockInto</title>
+    <meta name="description" content="{{ stock_name|default(stock_ticker) }} 종목 분석. 워렌 버핏·그레이엄·린치·오닐·피셔 5인 기준 자동 채점, PER·PBR·ROE·적정주가·재무 추세까지. 무료 참고용 정보.">
+    <meta name="keywords" content="{{ stock_ticker }}, {{ stock_name|default(stock_ticker) }} 주식, {{ stock_name|default(stock_ticker) }} 분석, {{ stock_name|default(stock_ticker) }} 적정주가, {{ stock_name|default(stock_ticker) }} PER, 스톡인투">
+    {% else %}
     <title>StockInto (스톡인투) - 워렌 버핏이라면 이 주식 살까? 종목 분석 무료</title>
     <meta name="description" content="StockInto(스톡인투) — 워렌 버핏·그레이엄·린치·오닐·피셔 5인 기준으로 종목을 자동 채점. PER·PBR·ROE·적정주가·재무 추세까지 한 번에. 한국·미국 주식 무료 분석.">
     <meta name="keywords" content="스톡인투, StockInto, 스톡인토, stockinto, 주식 분석, 워렌 버핏, 가치투자, 적정주가, PER, PBR, ROE, 종목 스크리너, 한국 주식, 미국 주식, 버핏 기준, 그레이엄, 피터 린치, DART">
+    {% endif %}
     <meta name="author" content="StockInto">
     <meta name="robots" content="index, follow">
     <meta name="google-site-verification" content="LLDkGmwjtDSf2xuJyq2PSEwOtFXZOObU7K0HicLl9pM" />
     <meta name="naver-site-verification" content="92dd12c559228f28cf393399f5ffed65bc1f5541" />
+    {% if stock_ticker %}
+    <link rel="canonical" href="https://stockinto.com/stock/{{ stock_ticker }}">
+    <script>window.__STOCKINTO_AUTO_TICKER = {{ stock_ticker|tojson }};</script>
+    {% else %}
     <link rel="canonical" href="https://stockinto.com/">
+    {% endif %}
 
     <!-- PWA 매니페스트 -->
     <link rel="manifest" href="/static/manifest.json">
@@ -61,6 +72,40 @@
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" },
       "inLanguage": "ko-KR",
       "author": { "@type": "Organization", "name": "StockInto", "url": "https://stockinto.com" }
+    }
+    </script>
+    <!-- FAQ Schema — Featured Snippet 노림 -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "StockInto는 무료로 사용할 수 있나요?",
+          "acceptedAnswer": {"@type": "Answer", "text": "네, 회원가입 없이 모든 종목 분석 기능을 무료로 이용할 수 있습니다. 한국·미국 주식 5천여 종목에 대한 5인 대가 기준 채점·적정주가 추정·5년 재무 추세 등 모든 기능이 무료입니다."}
+        },
+        {
+          "@type": "Question",
+          "name": "어떤 데이터를 사용하나요?",
+          "acceptedAnswer": {"@type": "Answer", "text": "미국 주식은 Yahoo Finance, 한국 주식 시세는 FinanceDataReader(KRX), 한국 주식 재무제표는 금융감독원 전자공시시스템(DART) OpenAPI를 사용합니다. 공공데이터법 공공누리 제1유형(출처표시)을 준수합니다."}
+        },
+        {
+          "@type": "Question",
+          "name": "5인 대가 기준이란 무엇인가요?",
+          "acceptedAnswer": {"@type": "Answer", "text": "워렌 버핏(가치투자), 벤저민 그레이엄(안전마진), 피터 린치(성장주), 윌리엄 오닐(CAN SLIM), 필립 피셔(장기성장)의 투자 기준을 코드로 옮겨 종목을 자동 채점합니다. 워렌 버핏은 9개 기준의 엄격 등급(A+~F)으로 표시됩니다."}
+        },
+        {
+          "@type": "Question",
+          "name": "PER이 높은데 왜 등급이 좋게 나오나요?",
+          "acceptedAnswer": {"@type": "Answer", "text": "PER 외에도 ROE·부채비율·영업이익률·성장률 등 30+ 지표를 종합 평가합니다. 성장주(피터 린치 기준)는 PER이 높아도 PEG가 1 미만이면 통과하며, 섹터별로 적정 PER 기준이 다르게 적용됩니다 (Tech 32 / 금융 12 등)."}
+        },
+        {
+          "@type": "Question",
+          "name": "분석 결과는 매수 추천인가요?",
+          "acceptedAnswer": {"@type": "Answer", "text": "아니요. StockInto는 자본시장법상 투자자문업이 아니며, 모든 분석·등급·점수는 공개 데이터 기반의 참고 정보입니다. 특정 종목의 매수·매도를 권유하지 않으며, 모든 투자 판단과 결과의 책임은 이용자 본인에게 있습니다."}
+        }
+      ]
     }
     </script>
 
@@ -799,8 +844,18 @@
             <div class="autocomplete" id="autocomplete" role="listbox" aria-label="검색 자동완성"></div>
         </div>
 
+        <div class="quick-search-wrap" id="favoritesSection" style="display:none;">
+            <div class="quick-search-label">⭐ 내 관심 종목 <span style="color:#666;font-weight:400;font-size:0.7rem;">— 클릭해서 분석</span></div>
+            <div class="quick-search" id="favoritesList"></div>
+        </div>
+
+        <div class="quick-search-wrap" id="historySection" style="display:none;">
+            <div class="quick-search-label">🕓 최근 본 종목 <button onclick="clearHistory()" style="background:none;border:none;color:#666;font-size:0.7rem;cursor:pointer;font-weight:400;margin-left:6px;">초기화</button></div>
+            <div class="quick-search" id="historyList"></div>
+        </div>
+
         <div class="quick-search-wrap">
-            <div class="quick-search-label">지금 많이 찾는 종목</div>
+            <div class="quick-search-label">🔥 지금 많이 찾는 종목</div>
             <div class="quick-search">
                 <button class="quick-btn" onclick="quickSearch('AAPL')">AAPL</button>
                 <button class="quick-btn" onclick="quickSearch('MSFT')">MSFT</button>
@@ -887,7 +942,107 @@
         let acIndex = -1;
         let chartInstances = [];
         let currentTicker = null;
+        let currentStockName = null;
         let optionsLoaded = false;
+
+        // ========== 관심 종목 + 최근 검색 (localStorage 기반) ==========
+        const FAV_KEY = 'stockinto_favorites_v1';
+        const HIST_KEY = 'stockinto_history_v1';
+        const MAX_FAV = 30;
+        const MAX_HIST = 8;
+
+        function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); } catch(e){ return []; } }
+        function setFavs(list) { localStorage.setItem(FAV_KEY, JSON.stringify(list.slice(0, MAX_FAV))); renderFavorites(); }
+        function getHist() { try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch(e){ return []; } }
+        function setHist(list) { localStorage.setItem(HIST_KEY, JSON.stringify(list.slice(0, MAX_HIST))); renderHistory(); }
+
+        function isFav(ticker) { return getFavs().some(f => f.ticker === ticker); }
+
+        function toggleFavorite() {
+            if (!currentTicker) return;
+            const favs = getFavs();
+            const idx = favs.findIndex(f => f.ticker === currentTicker);
+            if (idx >= 0) { favs.splice(idx, 1); }
+            else { favs.unshift({ ticker: currentTicker, name: currentStockName || currentTicker, ts: Date.now() }); }
+            setFavs(favs);
+            updateFavBtn();
+        }
+
+        function updateFavBtn() {
+            const btn = document.getElementById('favBtn');
+            if (!btn) return;
+            const on = isFav(currentTicker);
+            btn.textContent = on ? '⭐ 관심 종목 해제' : '☆ 관심 종목 추가';
+            btn.style.background = on ? 'rgba(245,158,11,0.15)' : 'transparent';
+            btn.style.color = on ? '#fbbf24' : 'var(--text-secondary)';
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+
+        function pushHistory(ticker, name) {
+            if (!ticker) return;
+            const list = getHist().filter(h => h.ticker !== ticker);
+            list.unshift({ ticker, name: name || ticker, ts: Date.now() });
+            setHist(list);
+        }
+
+        function renderFavorites() {
+            const sec = document.getElementById('favoritesSection');
+            const list = document.getElementById('favoritesList');
+            const favs = getFavs();
+            if (favs.length === 0) { sec.style.display = 'none'; return; }
+            sec.style.display = '';
+            list.innerHTML = favs.map(f =>
+                `<button class="quick-btn" onclick="quickSearch('${f.ticker.replace(/'/g,'')}')" title="${f.name}">⭐ ${f.name}</button>`
+            ).join('');
+        }
+
+        function renderHistory() {
+            const sec = document.getElementById('historySection');
+            const list = document.getElementById('historyList');
+            const hist = getHist();
+            if (hist.length === 0) { sec.style.display = 'none'; return; }
+            sec.style.display = '';
+            list.innerHTML = hist.map(h =>
+                `<button class="quick-btn" onclick="quickSearch('${h.ticker.replace(/'/g,'')}')" title="${h.name}">${h.name}</button>`
+            ).join('');
+        }
+
+        function clearHistory() {
+            if (!confirm('최근 본 종목 기록을 모두 지울까요?')) return;
+            localStorage.removeItem(HIST_KEY);
+            renderHistory();
+        }
+
+        function shareStock() {
+            if (!currentTicker) return;
+            const url = `${location.origin}/?q=${encodeURIComponent(currentTicker)}`;
+            const title = `${currentStockName} 분석 - StockInto`;
+            if (navigator.share) {
+                navigator.share({ title, url, text: `${currentStockName} 종목 분석 결과 보기` }).catch(()=>{});
+            } else {
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('🔗 링크 복사 완료!\n' + url);
+                }).catch(() => {
+                    prompt('링크 복사:', url);
+                });
+            }
+        }
+
+        // 페이지 로드 시 관심·히스토리 표시
+        renderFavorites();
+        renderHistory();
+
+        // URL 쿼리(?q=AAPL) 또는 /stock/{ticker} 라우트로 진입 시 자동 검색
+        (function() {
+            const params = new URLSearchParams(location.search);
+            const q = params.get('q') || params.get('ticker') || (window.__STOCKINTO_AUTO_TICKER || '');
+            if (q) {
+                setTimeout(() => {
+                    const inp = document.getElementById('tickerInput');
+                    if (inp) { inp.value = q; analyze(); }
+                }, 100);
+            }
+        })();
 
         // PWA Service Worker 등록
         if ('serviceWorker' in navigator) {
@@ -1117,6 +1272,9 @@
 
         function renderResults(data) {
             currentTicker = data.ticker;
+            currentStockName = data.stock.name || data.ticker;
+            // 검색 시점에 최근 본 종목에 추가
+            pushHistory(data.ticker, data.stock.name || data.ticker);
             renderMarketBanner(data.marketRegime);
             renderVerdict(data.verdict);
             renderDataWarnings(data.dataWarnings);
@@ -1127,7 +1285,12 @@
                     <span>${data.stock.industry}</span>
                     <span>${data.stock.price}</span>
                     <span>시총 ${data.stock.marketCap}</span>
+                </div>
+                <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
+                    <button id="favBtn" onclick="toggleFavorite()" aria-pressed="false" style="padding:8px 14px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;">☆ 관심 종목 추가</button>
+                    <button onclick="shareStock()" style="padding:8px 14px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;" aria-label="이 종목 분석 링크 공유">🔗 공유</button>
                 </div>`;
+            updateFavBtn();
             renderTVChart(data.ticker);
             renderFairValue(data.fairValue);
             renderRSRating(data.rsRating);

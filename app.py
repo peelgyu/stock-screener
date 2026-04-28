@@ -85,6 +85,10 @@ def _handle_500(e):
 
 @app.errorhandler(Exception)
 def _handle_exc(e):
+    # Flask/Werkzeug HTTP 예외 (404, 400, 405 등)는 그대로 통과 — 정상 라우팅 처리
+    from werkzeug.exceptions import HTTPException
+    if isinstance(e, HTTPException):
+        return e
     if request.path.startswith("/api/"):
         app.logger.exception("API exception")
         # 운영에선 내부 정보 절대 노출 금지 — 일반화된 메시지만 반환
@@ -650,7 +654,55 @@ def robots_txt():
 
 @app.route("/sitemap.xml")
 def sitemap_xml():
-    return send_from_directory("static", "sitemap.xml", mimetype="application/xml")
+    """정적 페이지 + 인기 종목 100여개 동적 sitemap 생성."""
+    static_pages = [
+        ("/", "daily", "1.0"),
+        ("/about", "monthly", "0.9"),
+        ("/glossary", "weekly", "0.8"),
+        ("/install", "monthly", "0.7"),
+        ("/contact", "monthly", "0.6"),
+        ("/terms", "yearly", "0.4"),
+        ("/privacy", "yearly", "0.4"),
+    ]
+    # 인기 종목 (한국 50개 + 미국 50개)
+    pop_us = ["AAPL","MSFT","GOOGL","AMZN","META","TSLA","NVDA","AMD","INTC","NFLX",
+              "JPM","BAC","V","MA","DIS","KO","PEP","WMT","COST","HD","NKE","SBUX","MCD",
+              "PG","JNJ","UNH","XOM","CVX","BA","CAT","GE","F","GM","T","VZ","CRM","ORCL",
+              "ADBE","CSCO","IBM","QCOM","TXN","BRK-B","BLK","GS","MS","C","WFC","PYPL","SQ"]
+    pop_kr = []
+    for kr_name, (ticker, _eng) in list(KR_STOCKS.items())[:50]:
+        pop_kr.append(ticker)
+
+    parts = ['<?xml version="1.0" encoding="UTF-8"?>',
+             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
+    for path, freq, prio in static_pages:
+        parts.append(f'  <url><loc>https://stockinto.com{path}</loc><changefreq>{freq}</changefreq><priority>{prio}</priority></url>')
+    for tk in pop_us + pop_kr:
+        parts.append(f'  <url><loc>https://stockinto.com/stock/{tk}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>')
+    parts.append('</urlset>')
+    from flask import Response
+    return Response("\n".join(parts), mimetype="application/xml")
+
+
+@app.route("/stock/<ticker>")
+def stock_detail(ticker: str):
+    """종목별 정적 SEO 페이지 — `/stock/AAPL`, `/stock/005930.KS`.
+
+    프론트는 메인 페이지 그대로 자동 검색. 차이점은 SEO 메타가 종목 특화.
+    """
+    if not ticker or len(ticker) > 15:
+        return redirect("/", code=302)
+    # 안전한 형식만 허용 (영문·숫자·점·하이픈)
+    if not re.match(r"^[A-Za-z0-9.\-]{1,15}$", ticker):
+        return redirect("/", code=302)
+    ticker = ticker.upper()
+    # 한국 명칭 매핑이 있으면 사용
+    display_name = ticker
+    for kr_name, (tk, eng_name) in KR_STOCKS.items():
+        if tk == ticker:
+            display_name = f"{kr_name} ({ticker})"
+            break
+    return render_template("index.html", stock_ticker=ticker, stock_name=display_name)
 
 
 @app.route("/install")
