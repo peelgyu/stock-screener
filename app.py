@@ -107,6 +107,34 @@ def _rate_limit():
     return None
 
 
+# 허용된 Origin (CSRF 차단 — 외부 도메인 fetch 공격 방지)
+_ALLOWED_ORIGINS = {
+    "https://stockinto.com",
+    "https://www.stockinto.com",
+    "https://stockinto.co.kr",
+    "https://www.stockinto.co.kr",
+    "https://stock-screener-1-mgkv.onrender.com",
+}
+
+
+@app.before_request
+def _csrf_origin_check():
+    """POST API 요청은 Origin/Referer가 자기 도메인이어야 함 (CSRF 차단)."""
+    if request.method != "POST" or not request.path.startswith("/api/"):
+        return None
+    origin = request.headers.get("Origin", "")
+    referer = request.headers.get("Referer", "")
+    # Origin 검사 우선, 없으면 Referer로 폴백
+    if origin:
+        if origin not in _ALLOWED_ORIGINS:
+            return jsonify({"error": "잘못된 요청 출처입니다."}), 403
+    elif referer:
+        if not any(referer.startswith(o) for o in _ALLOWED_ORIGINS):
+            return jsonify({"error": "잘못된 요청 출처입니다."}), 403
+    # Origin·Referer 둘 다 없는 경우는 허용 (curl·서버사이드 호출 등)
+    return None
+
+
 def safe_get(info: dict, key: str, default=None):
     val = info.get(key, default)
     return val if val is not None else default
@@ -561,6 +589,19 @@ def evaluate_fisher(info: dict, sector_t: dict) -> list[dict]:
     return results
 
 
+import re
+
+# 입력 검증 — 안전한 종목 검색어만 허용 (SSRF·Injection 차단)
+# 허용: 영문, 숫자, 한글, 공백, 점, 하이픈. 길이 1~30
+_SAFE_QUERY_RE = re.compile(r"^[\w가-힣\.\-\s]{1,30}$", re.UNICODE)
+
+
+def is_safe_query(query: str) -> bool:
+    if not query or len(query) > 30:
+        return False
+    return bool(_SAFE_QUERY_RE.match(query))
+
+
 def resolve_ticker(query: str) -> str | None:
     q = query.strip()
     if q.isascii() and q.upper() == q and q.replace("-", "").replace(".", "").isalpha() and len(q) <= 6:
@@ -684,6 +725,8 @@ def analyze():
     raw_query = (body.get("ticker") or "").strip()
     if not raw_query:
         return jsonify({"error": "종목명 또는 티커를 입력해주세요."}), 400
+    if not is_safe_query(raw_query):
+        return jsonify({"error": "허용되지 않는 문자가 포함되었습니다. (영문·숫자·한글·점·하이픈만 허용)"}), 400
 
     ticker = resolve_ticker(raw_query)
     if ticker is None:
@@ -1040,6 +1083,8 @@ def analyze_options():
     raw_query = (body.get("ticker") or "").strip()
     if not raw_query:
         return jsonify({"available": False, "error": "티커 필요"}), 400
+    if not is_safe_query(raw_query):
+        return jsonify({"available": False, "error": "허용되지 않는 문자"}), 400
     ticker = resolve_ticker(raw_query) or raw_query.upper()
     data = get_stock_data(ticker)
     if data is None:

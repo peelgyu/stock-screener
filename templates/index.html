@@ -160,14 +160,15 @@
         .topnav-link {
             color: var(--text-secondary); text-decoration: none;
             font-size: 0.8rem; font-weight: 600;
-            padding: 6px 12px; border-radius: var(--radius-pill);
+            padding: 10px 14px; border-radius: var(--radius-pill);
+            min-height: 40px; display: inline-flex; align-items: center;
             transition: all var(--transition-fast);
         }
         .topnav-link:hover { background: var(--accent-bg); color: var(--text-primary); }
         @media (max-width: 480px) {
             .topnav { padding: 10px 14px; }
             .brand-link img { height: 32px; }
-            .topnav-link { font-size: 0.72rem; padding: 4px 8px; }
+            .topnav-link { font-size: 0.72rem; padding: 8px 10px; min-height: 36px; }
         }
 
         /* 히어로 — StockInto 로고 + 캐치 */
@@ -407,7 +408,7 @@
             flex-wrap: wrap;
         }
         .tab-btn {
-            flex: 1; min-width: 88px; padding: 10px 8px;
+            flex: 1; min-width: 88px; min-height: 44px; padding: 12px 10px;
             text-align: center; cursor: pointer;
             background: transparent; color: var(--text-secondary);
             font-size: 0.82rem; font-weight: 600; border: none;
@@ -689,6 +690,44 @@
             .verdict-card { flex-direction: column; text-align: center; gap: 12px; }
             .verdict-badge { min-width: auto; width: 100%; }
         }
+
+        /* ========== 접근성 (a11y) ========== */
+        /* 키보드 포커스 시각화 — 마우스 클릭에선 안 보이고 Tab 네비게이션에서만 표시 */
+        :focus { outline: none; }
+        :focus-visible {
+            outline: 2px solid var(--accent-cyan, #00D9FF);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible,
+        [role="tab"]:focus-visible,
+        [role="button"]:focus-visible {
+            outline: 2px solid var(--accent-cyan, #00D9FF);
+            outline-offset: 2px;
+        }
+
+        /* 색각 이상 대비 — 등급 뱃지에 패턴/아이콘 강화 */
+        .vb-green::before { content: "✓ "; }
+        .vb-yellow::before { content: "● "; }
+        .vb-red::before { content: "⚠ "; }
+
+        /* 모션 줄이기 옵션 존중 (전정 장애·멀미) */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* 스크린리더 전용 텍스트 (시각적으로 숨김) */
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0;
+            margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
+            white-space: nowrap; border: 0;
+        }
     </style>
 </head>
 <body>
@@ -722,9 +761,9 @@
         ⚠ <strong>투자 참고용</strong>이며 투자 권유가 아닙니다. 모든 투자 판단과 결과에 대한 책임은 이용자 본인에게 있습니다.
     </div>
 
-    <div class="consent-overlay" id="consentOverlay">
+    <div class="consent-overlay" id="consentOverlay" role="dialog" aria-modal="true" aria-labelledby="consentTitle">
         <div class="consent-box">
-            <div class="consent-title">StockInto 이용 안내</div>
+            <div class="consent-title" id="consentTitle">StockInto 이용 안내</div>
             <div class="consent-body">
                 본 서비스는 공개 데이터를 기반으로 한 <strong>주식 참고 정보</strong>를 제공합니다.
                 <ul>
@@ -750,11 +789,14 @@
         </div>
 
         <div class="search-wrap">
+            <label for="tickerInput" class="sr-only">종목 검색 입력</label>
             <div class="search-box">
-                <input type="text" id="tickerInput" placeholder="종목명 또는 티커 (예: 애플, 삼성전자, NVDA)" autocomplete="off">
-                <button id="searchBtn" onclick="analyze()">분석</button>
+                <input type="text" id="tickerInput" placeholder="종목명 또는 티커 (예: 애플, 삼성전자, NVDA)" autocomplete="off"
+                       aria-label="종목명 또는 티커 입력" aria-describedby="searchHint" aria-autocomplete="list" aria-controls="autocomplete">
+                <button id="searchBtn" onclick="analyze()" aria-label="종목 분석 시작">분석</button>
             </div>
-            <div class="autocomplete" id="autocomplete"></div>
+            <span id="searchHint" class="sr-only">종목명 또는 티커를 입력하고 분석 버튼을 누르거나 엔터를 치세요. 자동완성 목록이 나타나면 화살표 키로 선택할 수 있습니다.</span>
+            <div class="autocomplete" id="autocomplete" role="listbox" aria-label="검색 자동완성"></div>
         </div>
 
         <div class="quick-search-wrap">
@@ -800,25 +842,25 @@
             <div id="fvCard"></div>
             <div id="rsCard"></div>
 
-            <div class="tabs">
-                <button class="tab-btn active" onclick="switchTab('investors')">🧠 워렌 버핏이라면?</button>
-                <button class="tab-btn" onclick="switchTab('trend')">📆 재무 추세</button>
-                <button class="tab-btn" onclick="switchTab('sentiment')">😱 탐욕지수</button>
-                <button class="tab-btn" onclick="switchTab('positions')">📊 숏/롱</button>
-                <button class="tab-btn" onclick="switchTab('options')">🎯 옵션</button>
+            <div class="tabs" role="tablist" aria-label="분석 결과 탭">
+                <button class="tab-btn active" onclick="switchTab('investors')" role="tab" id="tabbtn-investors" aria-controls="tab-investors" aria-selected="true">🧠 워렌 버핏이라면?</button>
+                <button class="tab-btn" onclick="switchTab('trend')" role="tab" id="tabbtn-trend" aria-controls="tab-trend" aria-selected="false">📆 재무 추세</button>
+                <button class="tab-btn" onclick="switchTab('sentiment')" role="tab" id="tabbtn-sentiment" aria-controls="tab-sentiment" aria-selected="false">😱 탐욕지수</button>
+                <button class="tab-btn" onclick="switchTab('positions')" role="tab" id="tabbtn-positions" aria-controls="tab-positions" aria-selected="false">📊 숏/롱</button>
+                <button class="tab-btn" onclick="switchTab('options')" role="tab" id="tabbtn-options" aria-controls="tab-options" aria-selected="false">🎯 옵션</button>
             </div>
 
-            <div class="tab-content active" id="tab-investors">
+            <div class="tab-content active" id="tab-investors" role="tabpanel" aria-labelledby="tabbtn-investors">
                 <div class="overall-card" id="overallCard"></div>
                 <div id="investorCards"></div>
             </div>
-            <div class="tab-content" id="tab-trend">
+            <div class="tab-content" id="tab-trend" role="tabpanel" aria-labelledby="tabbtn-trend">
                 <div id="qualityCard"></div>
                 <div id="trendCharts"></div>
             </div>
-            <div class="tab-content" id="tab-sentiment"><div class="fg-card" id="fgCard"></div></div>
-            <div class="tab-content" id="tab-positions"><div class="pos-card" id="posCard"></div></div>
-            <div class="tab-content" id="tab-options"><div class="opt-card" id="optCard"></div></div>
+            <div class="tab-content" id="tab-sentiment" role="tabpanel" aria-labelledby="tabbtn-sentiment"><div class="fg-card" id="fgCard"></div></div>
+            <div class="tab-content" id="tab-positions" role="tabpanel" aria-labelledby="tabbtn-positions"><div class="pos-card" id="posCard"></div></div>
+            <div class="tab-content" id="tab-options" role="tabpanel" aria-labelledby="tabbtn-options"><div class="opt-card" id="optCard"></div></div>
 
         </div>
 
@@ -1007,7 +1049,11 @@
 
         function switchTab(tab) {
             const tabs = ['investors', 'trend', 'sentiment', 'positions', 'options'];
-            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', tabs[i] === tab));
+            document.querySelectorAll('.tab-btn').forEach((b, i) => {
+                const isActive = tabs[i] === tab;
+                b.classList.toggle('active', isActive);
+                b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById(`tab-${tab}`).classList.add('active');
             if (tab === 'options' && !optionsLoaded && currentTicker) loadOptionsLazy();
