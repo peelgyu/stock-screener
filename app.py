@@ -615,6 +615,11 @@ def sitemap_xml():
     return send_from_directory("static", "sitemap.xml", mimetype="application/xml")
 
 
+@app.route("/googled19eee0b9c6a7650.html")
+def google_site_verification():
+    return send_from_directory("static", "googled19eee0b9c6a7650.html", mimetype="text/html")
+
+
 @app.route("/install")
 def install_guide():
     return render_template("install.html")
