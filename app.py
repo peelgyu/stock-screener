@@ -605,6 +605,16 @@ def sw_js_root():
     return send_from_directory("static", "sw.js", mimetype="application/javascript")
 
 
+@app.route("/robots.txt")
+def robots_txt():
+    return send_from_directory("static", "robots.txt", mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap_xml():
+    return send_from_directory("static", "sitemap.xml", mimetype="application/xml")
+
+
 @app.route("/install")
 def install_guide():
     return render_template("install.html")
