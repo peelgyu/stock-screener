@@ -1,6 +1,6 @@
-// StockInto Service Worker - v15 (KRX 탭 사라지는 버그 수정 + 재시도 버튼)
+// StockInto Service Worker - v16 (pykrx 의존성 제거, KRX 기능 KIS API 도입까지 보류)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v15';
+const CACHE_NAME = 'stockinto-v16';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

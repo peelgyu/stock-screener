@@ -1264,27 +1264,6 @@ def analyze():
     })
 
 
-@app.route("/api/krx/debug")
-def krx_debug():
-    """KRX 진단 — 임시 공개 (배포 검증 후 제거 예정).
-
-    호출 시 삼성전자(005930)로 한 번 fetch + 결과 + 에러 정보 반환.
-    """
-    import concurrent.futures
-    info = krx_client.get_debug_info()
-    info["test_ticker"] = "005930.KS"
-    try:
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
-            f = ex.submit(krx_client.fetch_all, "005930.KS")
-            info["test_result"] = f.result(timeout=10.0)
-    except concurrent.futures.TimeoutError:
-        info["test_result"] = {"error": "10s timeout"}
-    except Exception as e:
-        info["test_result"] = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
-    info["last_errors_after_test"] = krx_client.get_debug_info()["last_errors"]
-    return jsonify(info)
-
-
 @app.route("/api/krx", methods=["POST"])
 def analyze_krx():
     """한국 종목 수급 정보 — 외국인·기관·공매도. 탭 클릭 시 lazy load."""
