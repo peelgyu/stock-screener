@@ -207,8 +207,9 @@ def resolve_ticker(query: str) -> str | None:
         quotes = data.get("quotes", [])
         if quotes:
             return quotes[0]["symbol"]
-    except Exception:
-        pass
+    except Exception as e:
+        # Yahoo 검색 실패는 자주 발생 (레이트리밋 등) — debug 레벨로만 로깅
+        app.logger.debug(f"Yahoo search resolve failed for '{q}': {type(e).__name__}")
     return None
 
 
@@ -336,8 +337,9 @@ def search_stocks():
                 "exchange": item.get("exchDisp", ""),
                 "sector": item.get("sector", "") or item.get("industry", ""),
             })
-    except Exception:
-        pass
+    except Exception as e:
+        # 외부 검색 실패 — 한국 주식 매핑은 이미 받았으니 그것만 반환
+        app.logger.debug(f"Yahoo /api/search supplemental failed: {type(e).__name__}")
     return jsonify(results[:8])
 
 
@@ -641,21 +643,40 @@ def analyze():
     if isinstance(fair_value, dict):
         fair_value["currency"] = safe_get(info, "currency", "USD")
 
-    # 린치 카테고리 자동 분류 (6 카테고리)
-    lynch_cat = lynch_category(info, history_data=history_data)
+    # 5인 평가자 병렬 실행 — 각 함수는 순수 dict 처리라 GIL 풀림은 적지만,
+    # 향후 외부 호출(예: KIS API) 추가 시 즉시 효과. 현재도 약간 단축.
+    import concurrent.futures as _cf
+    _eval_tasks = {
+        "buffett":  lambda: evaluate_buffett(info, sector_t, history_data=history_data, fair_value=fair_value),
+        "graham":   lambda: evaluate_graham(info, sector_t, history_data=history_data),
+        "lynch":    lambda: evaluate_lynch(info, sector_t, history_data=history_data),
+        "lynch_cat": lambda: lynch_category(info, history_data=history_data),
+        "oneil":    lambda: evaluate_oneil(info, ticker=ticker, hist=hist, rs_data=rs_data, market_data=market_data),
+        "fisher":   lambda: evaluate_fisher(info, sector_t, history_data=history_data),
+    }
+    _eval_results = {}
+    with _cf.ThreadPoolExecutor(max_workers=6) as _ex:
+        _futures = {_ex.submit(fn): name for name, fn in _eval_tasks.items()}
+        for _f in _cf.as_completed(_futures, timeout=15):
+            _name = _futures[_f]
+            try:
+                _eval_results[_name] = _f.result()
+            except Exception:
+                app.logger.exception(f"evaluator '{_name}' failed")
+                _eval_results[_name] = [] if _name != "lynch_cat" else {"code": "UNCLASSIFIED", "label": "분류 불가", "desc": "오류"}
 
     investors = [
         {"name": "워렌 버핏", "label": "워렌 버핏이라면?", "sub": "가치투자", "icon": "buffett",
-         "criteria": evaluate_buffett(info, sector_t, history_data=history_data, fair_value=fair_value)},
+         "criteria": _eval_results.get("buffett", [])},
         {"name": "벤저민 그레이엄", "label": "벤저민 그레이엄이라면?", "sub": "안전마진", "icon": "graham",
-         "criteria": evaluate_graham(info, sector_t, history_data=history_data)},
+         "criteria": _eval_results.get("graham", [])},
         {"name": "피터 린치", "label": "피터 린치라면?", "sub": "성장주", "icon": "lynch",
-         "criteria": evaluate_lynch(info, sector_t, history_data=history_data),
-         "category": lynch_cat},
+         "criteria": _eval_results.get("lynch", []),
+         "category": _eval_results.get("lynch_cat", {"code": "UNCLASSIFIED", "label": "분류 불가", "desc": ""})},
         {"name": "윌리엄 오닐", "label": "윌리엄 오닐이라면?", "sub": "CAN SLIM", "icon": "oneil",
-         "criteria": evaluate_oneil(info, ticker=ticker, hist=hist, rs_data=rs_data, market_data=market_data)},
+         "criteria": _eval_results.get("oneil", [])},
         {"name": "필립 피셔", "label": "필립 피셔라면?", "sub": "장기성장", "icon": "fisher",
-         "criteria": evaluate_fisher(info, sector_t, history_data=history_data)},
+         "criteria": _eval_results.get("fisher", [])},
     ]
 
     total_yes, total_count = 0, 0
