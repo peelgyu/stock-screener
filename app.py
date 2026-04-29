@@ -82,8 +82,12 @@ from analysis.evaluators import (
 app = Flask(__name__)
 app.json = SafeJSONProvider(app)
 
-RATE_LIMIT_PER_MIN = 30
+# Rate limit — 메서드/엔드포인트별 차등 적용
+RATE_LIMIT_POST_PER_MIN = 20   # 분석·옵션·KRX 같은 무거운 POST: 분당 20회
+RATE_LIMIT_GET_PER_MIN = 60    # 검색·캐시 통계 같은 가벼운 GET: 분당 60회
+RATE_LIMIT_BURST_PER_10S = 8   # 10초 내 8회 초과 시 일시 차단 (봇 폭주 방지)
 _rate_bucket: dict = defaultdict(list)
+_rate_bucket_burst: dict = defaultdict(list)
 
 
 CANONICAL_HOST = "stockinto.com"
@@ -124,16 +128,35 @@ def _handle_exc(e):
 
 @app.before_request
 def _rate_limit():
+    """3중 rate limit: 분당(메서드별) + 10초 burst.
+
+    봇·폭주 방어 강화:
+    - POST는 분당 20회 (분석은 무거우니 엄격)
+    - GET은 분당 60회 (검색은 가벼우니 느슨)
+    - 10초 안 8회 초과는 모든 요청 일시 429 (봇 폭주 차단)
+    """
     if not request.path.startswith("/api/"):
         return None
     ip = (request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0]).strip()
     now = time.time()
+
+    # 1) Burst 체크 (10초)
+    burst = [t for t in _rate_bucket_burst[ip] if now - t < 10]
+    if len(burst) >= RATE_LIMIT_BURST_PER_10S:
+        _rate_bucket_burst[ip] = burst
+        return jsonify({"error": "잠시 너무 많은 요청 — 5초 후 다시 시도."}), 429
+
+    # 2) 분당 체크 (메서드별)
     bucket = [t for t in _rate_bucket[ip] if now - t < 60]
-    if len(bucket) >= RATE_LIMIT_PER_MIN:
+    limit = RATE_LIMIT_POST_PER_MIN if request.method == "POST" else RATE_LIMIT_GET_PER_MIN
+    if len(bucket) >= limit:
         _rate_bucket[ip] = bucket
-        return jsonify({"error": "요청이 너무 많습니다. 잠시 후 다시 시도해주세요."}), 429
+        return jsonify({"error": "요청이 너무 많습니다. 1분 뒤 다시 시도해주세요."}), 429
+
     bucket.append(now)
+    burst.append(now)
     _rate_bucket[ip] = bucket
+    _rate_bucket_burst[ip] = burst
     return None
 
 

@@ -1415,18 +1415,13 @@
             const el = document.getElementById('tvChartCard');
             if (!el) return;
             const symbol = tvSymbol(ticker);
-
-            // 1. 기존 위젯 완전 제거 (iframe 포함)
             el.innerHTML = '';
-
-            // 2. 고유 컨테이너 ID (Date.now + random)
             const containerId = 'tvChart_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8);
-
-            // 3. 새 컨테이너 삽입
+            // 보이기 전엔 placeholder (페이지 초기 로딩 빠르게)
             el.innerHTML = `
                 <div class="tv-card">
                     <div class="tv-card-title">📊 주가 차트 · <strong>${symbol}</strong></div>
-                    <div class="tv-chart-wrap"><div id="${containerId}" style="height:100%;width:100%;"></div></div>
+                    <div class="tv-chart-wrap"><div id="${containerId}" style="height:100%;width:100%;display:flex;align-items:center;justify-content:center;color:#888;font-size:0.9rem;">차트 로딩 대기중... (스크롤하면 즉시 표시)</div></div>
                 </div>`;
 
             if (typeof TradingView === 'undefined') {
@@ -1435,9 +1430,13 @@
                 return;
             }
 
-            // 4. DOM 렌더 후 위젯 생성 (race condition 방지)
-            setTimeout(() => {
+            const targetEl = document.getElementById(containerId);
+            if (!targetEl) return;
+
+            // Intersection Observer로 화면에 들어올 때만 위젯 생성
+            const loadWidget = () => {
                 if (!document.getElementById(containerId)) return;
+                targetEl.innerHTML = '';   // placeholder 제거
                 try {
                     new TradingView.widget({
                         autosize: true,
@@ -1460,7 +1459,22 @@
                     const wrap = el.querySelector('.tv-chart-wrap');
                     if (wrap) wrap.innerHTML = '<div style="color:#888;text-align:center;padding:40px;">차트 로드 실패 (종목 미지원)</div>';
                 }
-            }, 80);
+            };
+
+            // 차트가 viewport 안에 있으면 즉시, 아니면 들어올 때 로드
+            if ('IntersectionObserver' in window) {
+                const obs = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            observer.disconnect();
+                            setTimeout(loadWidget, 50);
+                        }
+                    });
+                }, { rootMargin: '200px' });   // 200px 위에서 미리 로드 시작
+                obs.observe(el);
+            } else {
+                setTimeout(loadWidget, 80);   // 구형 브라우저 fallback
+            }
         }
 
         function renderMarketBanner(m) {
