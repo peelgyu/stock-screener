@@ -1,6 +1,6 @@
-// StockInto Service Worker - v17 (1일차 내실: 데이터 시점 표기 + 차트 가독성 + Sentry)
+// StockInto Service Worker - v18 (2일차 내실: pytest 21개 + DCF/Graham 가정 표기 마감)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v17';
+const CACHE_NAME = 'stockinto-v18';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

@@ -1584,7 +1584,7 @@
                         <div class="fv-box"><div class="fv-box-label">${tt('DCF')} ${fv.dcf ? `(성장률 ${(fv.dcf.assumptions.growth_5y*100).toFixed(0)}%)` : ''}</div><div class="fv-box-value">${dcfStr}</div></div>
                         <div class="fv-box"><div class="fv-box-label">${tt('PER')} 기반 ${fv.per_based ? `(PE ${fv.per_based.assumption_pe})` : ''}</div><div class="fv-box-value">${perStr}</div></div>
                         <div class="fv-box"><div class="fv-box-label">애널리스트${fv.analyst_target && fv.analyst_target.num_analysts ? ` (${fv.analyst_target.num_analysts}명)` : ''}</div><div class="fv-box-value">${analystStr}</div></div>
-                        <div class="fv-box"><div class="fv-box-label">${tt('Graham')}</div><div class="fv-box-value">${grahamStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">${tt('Graham')} <span style="font-size:0.66rem;color:#666;">(√(22.5×EPS×BPS))</span></div><div class="fv-box-value">${grahamStr}</div></div>
                         ${extraPSRow}
                     </div>
                     ${weightText ? `<div style="text-align:center;font-size:0.72rem;color:#666;margin-top:8px;">가중치: ${weightText}</div>` : ''}
