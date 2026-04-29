@@ -1,6 +1,6 @@
-// StockInto Service Worker - v12 (DCF 보수화: WACC 할인율 + 영구성장률 1.5%)
+// StockInto Service Worker - v13 (한국 KRX 수급 — 외국인·기관·공매도)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v12';
+const CACHE_NAME = 'stockinto-v13';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

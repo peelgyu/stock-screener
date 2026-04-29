@@ -41,6 +41,7 @@ from kr_stocks import search_kr_stocks, KR_STOCKS, US_STOCKS_KR
 from data.cache import cache, cached
 from data.fetcher import fetch_stock_data, detect_fetch_error_type
 from data import dart_client
+from data import krx_client
 from analysis.sector_baseline import get_sector_thresholds
 from analysis.history import get_historical_metrics
 from analysis.quality import evaluate_earnings_quality
@@ -1181,6 +1182,11 @@ def analyze():
                 if eps and eps > 0:
                     info["payoutRatio"] = dps / eps
 
+    # 한국 주식 추가 — KRX 외국인 보유율 + 투자자별 매매 + 공매도 잔고
+    krx_data = None
+    if is_kr and krx_client.is_available():
+        krx_data = _safe_call(krx_client.fetch_all, None, ticker)
+
     quality_data = _safe_call(evaluate_earnings_quality, {"available": False}, stock, info)
     fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock, history_data)
     if isinstance(fair_value, dict):
@@ -1255,6 +1261,7 @@ def analyze():
         "options": options,
         "investors": investors,
         "overall": overall,
+        "krx": krx_data,
         "dataWarnings": info.get("_data_warnings", []),
     })
 
