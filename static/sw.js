@@ -1,6 +1,6 @@
-// StockInto Service Worker - v16 (pykrx 의존성 제거, KRX 기능 KIS API 도입까지 보류)
+// StockInto Service Worker - v17 (1일차 내실: 데이터 시점 표기 + 차트 가독성 + Sentry)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v16';
+const CACHE_NAME = 'stockinto-v17';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

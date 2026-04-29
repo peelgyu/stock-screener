@@ -1367,6 +1367,8 @@
             renderMarketBanner(data.marketRegime);
             renderVerdict(data.verdict);
             renderDataWarnings(data.dataWarnings);
+            const analyzedAt = new Date();
+            const tsKR = analyzedAt.toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
             document.getElementById('stockCard').innerHTML = `
                 <div class="stock-name">${data.stock.name}<span class="stock-ticker">${data.ticker}</span></div>
                 <div class="stock-meta">
@@ -1374,6 +1376,10 @@
                     <span>${data.stock.industry}</span>
                     <span>${data.stock.price}</span>
                     <span>시총 ${data.stock.marketCap}</span>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:0.7rem;color:#777;margin-top:6px;">
+                    <span title="시세는 거래소 직접 연동이 아닌 무료 데이터 소스 기준 — 거의 모든 무료 주식 사이트가 동일">⏱ 시세 약 15~20분 지연</span>
+                    <span>· 분석 시점 ${tsKR}</span>
                 </div>
                 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
                     <button id="favBtn" onclick="toggleFavorite()" aria-pressed="false" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;">☆ 관심 종목 추가</button>
@@ -1567,9 +1573,11 @@
 
             const extraPSRow = psStr ? `<div class="fv-box"><div class="fv-box-label">${tt('P/S')} 기반 (매출 배수)</div><div class="fv-box-value">${psStr}</div></div>` : '';
 
+            const fvNow = new Date().toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
             el.innerHTML = `
                 <div class="fv-card">
                     <div class="section-title" style="margin-top:0;">적정주가 추정 <span style="font-size:0.7rem;font-weight:400;color:#888;">(${fv.sector || '?'} 섹터)</span>${catBadge}</div>
+                    <div style="font-size:0.7rem;color:#777;margin-bottom:10px;">📅 연간 결산 + 현재가 기준 · 분석 시점 ${fvNow}</div>
                     <div class="fv-grid">
                         <div class="fv-box"><div class="fv-box-label">현재가</div><div class="fv-box-value">${fmtPrice(fv.current_price)}</div></div>
                         <div class="fv-box"><div class="fv-box-label">종합 적정가</div><div class="fv-box-value">${fmtPrice(fv.composite_fair_value)}</div><div class="fv-box-sub">${fv.upside_pct >= 0 ? '+' : ''}${fv.upside_pct}%</div></div>
@@ -1804,7 +1812,9 @@
             if (!h || !h.available) { el.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">재무제표 추이 데이터가 부족합니다.</div>`; return; }
             const isKR = currency === 'KRW';
             const bc = h.roe_consistency || {};
+            const yearsRange = (h.years && h.years.length) ? `${h.years[0]}~${h.years[h.years.length-1]} 결산 기준` : '연간 결산 기준';
             const cagrHTML = `
+                <div style="font-size:0.72rem;color:#888;margin-bottom:8px;text-align:center;">📅 ${yearsRange} · 출처: ${isKR ? 'DART 공시' : 'Yahoo Finance'}</div>
                 <div class="cagr-row">
                     ${h.revenue_cagr != null ? `<div class="cagr-pill">매출 ${tt('CAGR')} <b>${(h.revenue_cagr*100).toFixed(1)}%</b></div>` : ''}
                     ${h.eps_cagr != null ? `<div class="cagr-pill">${tt('EPS')} ${tt('CAGR')} <b>${(h.eps_cagr*100).toFixed(1)}%</b></div>` : ''}
@@ -1823,11 +1833,11 @@
             const epsUnit = isKR ? '원' : '$';
             const scaleArr = arr => arr.map(v => v == null ? null : v / scale);
             const toPct = arr => arr.map(v => v == null ? null : v * 100);
-            makeBarChart('chRevenue', h.years, scaleArr(h.revenue), '#7b2ff7', bigUnit);
-            makeBarChart('chNetIncome', h.years, scaleArr(h.net_income), '#00d2ff', bigUnit);
-            makeLineChart('chEPS', h.years, h.eps, '#4caf50', epsUnit);
-            makeLineChart('chROE', h.years, toPct(h.roe), '#ff9800', '%');
-            makeBarChart('chFCF', h.years, scaleArr(h.fcf), '#8bc34a', bigUnit);
+            makeBarChart('chRevenue', h.years, scaleArr(h.revenue), '#7b2ff7', bigUnit, '매출');
+            makeBarChart('chNetIncome', h.years, scaleArr(h.net_income), '#00d2ff', bigUnit, '순이익');
+            makeLineChart('chEPS', h.years, h.eps, '#4caf50', epsUnit, 'EPS');
+            makeLineChart('chROE', h.years, toPct(h.roe), '#ff9800', '%', 'ROE');
+            makeBarChart('chFCF', h.years, scaleArr(h.fcf), '#8bc34a', bigUnit, 'FCF');
         }
 
         // 한국 주식 KRX 수급 (외국인 보유율 + 투자자별 매매 + 공매도 잔고)
@@ -1961,22 +1971,57 @@
                 ${foreignHTML}${tradingHTML}${shortHTML}${noteHTML}`;
         }
 
-        function baseOpts(unit) {
+        function fmtAxis(v, unit) {
+            if (v == null) return '—';
+            const abs = Math.abs(v);
+            // 큰 수는 K/M 약어 (단, 단위가 %·원·$이면 그대로)
+            if (unit === '%') return v.toFixed(1);
+            if (abs >= 1e9) return (v/1e9).toFixed(1) + 'B';
+            if (abs >= 1e6) return (v/1e6).toFixed(1) + 'M';
+            if (abs >= 1e3) return (v/1e3).toFixed(1) + 'K';
+            return v.toLocaleString(undefined, {maximumFractionDigits: 1});
+        }
+
+        function baseOpts(unit, label) {
             return {
                 responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y != null ? ctx.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 2}) : '—'} ${unit}` } } },
-                scales: { x: { ticks: { color: '#888' }, grid: { color: '#2a2a3e' } }, y: { ticks: { color: '#888' }, grid: { color: '#2a2a3e' } } },
+                plugins: {
+                    legend: { display: !!label, labels: { color: '#bbb', font: { size: 11 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: (ctx) => `${label || '값'}: ${ctx.parsed.y != null ? ctx.parsed.y.toLocaleString(undefined, {maximumFractionDigits: 2}) : '—'} ${unit}`
+                        },
+                        backgroundColor: 'rgba(20,25,38,0.95)',
+                        titleColor: '#fff', bodyColor: '#ddd', borderColor: '#3a3a5c', borderWidth: 1,
+                    },
+                },
+                scales: {
+                    x: { ticks: { color: '#888', font: { size: 10 } }, grid: { color: '#2a2a3e' } },
+                    y: {
+                        ticks: { color: '#888', font: { size: 10 }, callback: (v) => fmtAxis(v, unit) },
+                        grid: { color: '#2a2a3e' },
+                        title: { display: !!unit, text: unit, color: '#888', font: { size: 10 } },
+                    },
+                },
             };
         }
 
-        function makeBarChart(id, labels, data, color, unit) {
+        function makeBarChart(id, labels, data, color, unit, label) {
             const ctx = document.getElementById(id); if (!ctx) return;
-            const chart = new Chart(ctx, { type: 'bar', data: { labels, datasets: [{ data, backgroundColor: color + '99', borderColor: color, borderWidth: 1 }] }, options: baseOpts(unit) });
+            const chart = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets: [{ label: label || '', data, backgroundColor: color + '99', borderColor: color, borderWidth: 1 }] },
+                options: baseOpts(unit, label),
+            });
             chartInstances.push(chart);
         }
-        function makeLineChart(id, labels, data, color, unit) {
+        function makeLineChart(id, labels, data, color, unit, label) {
             const ctx = document.getElementById(id); if (!ctx) return;
-            const chart = new Chart(ctx, { type: 'line', data: { labels, datasets: [{ data, borderColor: color, backgroundColor: color + '33', fill: true, tension: 0.25, pointBackgroundColor: color, pointRadius: 4 }] }, options: baseOpts(unit) });
+            const chart = new Chart(ctx, {
+                type: 'line',
+                data: { labels, datasets: [{ label: label || '', data, borderColor: color, backgroundColor: color + '33', fill: true, tension: 0.25, pointBackgroundColor: color, pointRadius: 4 }] },
+                options: baseOpts(unit, label),
+            });
             chartInstances.push(chart);
         }
     </script>

@@ -14,6 +14,26 @@ try:
 except Exception:
     pass
 
+# Sentry 에러 추적 (SENTRY_DSN 환경변수 있을 때만 활성)
+_SENTRY_DSN = os.getenv("SENTRY_DSN", "").strip()
+if _SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.flask import FlaskIntegration
+        sentry_sdk.init(
+            dsn=_SENTRY_DSN,
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=0.05,           # 트레이스 5%만 (비용 통제)
+            profiles_sample_rate=0.0,
+            send_default_pii=False,            # IP·이메일 등 미전송
+            environment=os.getenv("RENDER_ENV", "production"),
+            release=os.getenv("RENDER_GIT_COMMIT", "unknown")[:7],
+            # 자주 발생하는 무해 에러는 보내지 않음 (노이즈 줄이기)
+            ignore_errors=["KeyboardInterrupt", "SystemExit"],
+        )
+    except Exception:
+        pass
+
 from flask import Flask, render_template, request, jsonify, redirect, send_from_directory
 from flask.json.provider import DefaultJSONProvider
 import yfinance as yf
