@@ -1,6 +1,6 @@
-// StockInto Service Worker - v20 (4일차 내실: except:pass 로깅 + 5인 평가자 병렬화)
+// StockInto Service Worker - v21 (5일차 내실: DART 매핑 검증 테스트 + N/A 일관화)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v20';
+const CACHE_NAME = 'stockinto-v21';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
