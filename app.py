@@ -458,33 +458,43 @@ def evaluate_buffett(info: dict, sector_t: dict, history_data: dict | None = Non
     else:
         results.append({"name": "안전마진 30%+ (저평가)", "passed": None, "value": "데이터 없음"})
 
+    # 10. ROE 20%+ (버핏 선호 — 코카콜라·시즈캔디 수준)
+    if roe is not None:
+        results.append({
+            "name": "ROE 20%+ (버핏 최선호)",
+            "passed": roe >= 0.20,
+            "value": f"{roe*100:.1f}% (기준 20%)"
+        })
+    else:
+        results.append({"name": "ROE 20%+ (버핏 최선호)", "passed": None, "value": "데이터 없음"})
+
     return results
 
 
 def buffett_strict_grade(yes: int, total: int) -> dict:
-    """버핏 전용 점수 등급 (9기준 통과 수). 정량 점수만 표시 — 매수·매도 권유 아님.
-
-    9/9 = 완전 충족, 0/9 = 미충족. 등급은 참고용 분류이며 투자 판단 아님.
-    """
+    """버핏 전용 점수 등급 (10기준 통과 수). 정량 점수만 표시 — 매수·매도 권유 아님."""
     if total == 0:
-        return {"grade": "N/A", "text": "데이터 부족", "color": "gray", "score": "—/9"}
-    if yes >= 9:
-        return {"grade": "A+", "text": "버핏 기준 9/9 충족", "color": "green", "score": f"{yes}/9"}
-    if yes >= 8:
-        return {"grade": "A", "text": f"버핏 기준 {yes}/9 충족", "color": "green", "score": f"{yes}/9"}
-    if yes >= 7:
-        return {"grade": "B", "text": f"버핏 기준 {yes}/9 충족", "color": "green", "score": f"{yes}/9"}
-    if yes >= 5:
-        return {"grade": "C", "text": f"버핏 기준 {yes}/9 부분 충족", "color": "yellow", "score": f"{yes}/9"}
-    if yes >= 3:
-        return {"grade": "D", "text": f"버핏 기준 {yes}/9 충족 — 미달 항목 다수", "color": "red", "score": f"{yes}/9"}
-    return {"grade": "F", "text": f"버핏 기준 {yes}/9 충족 — 대부분 미충족", "color": "red", "score": f"{yes}/9"}
+        return {"grade": "N/A", "text": "데이터 부족", "color": "gray", "score": "—/10"}
+    pct = yes / total * 100
+    score_str = f"{yes}/{total}"
+    if pct >= 90:
+        return {"grade": "A+", "text": f"버핏 기준 {score_str} 충족 (90%+)", "color": "green", "score": score_str}
+    if pct >= 80:
+        return {"grade": "A", "text": f"버핏 기준 {score_str} 충족", "color": "green", "score": score_str}
+    if pct >= 70:
+        return {"grade": "B", "text": f"버핏 기준 {score_str} 충족", "color": "green", "score": score_str}
+    if pct >= 50:
+        return {"grade": "C", "text": f"버핏 기준 {score_str} 부분 충족", "color": "yellow", "score": score_str}
+    if pct >= 30:
+        return {"grade": "D", "text": f"버핏 기준 {score_str} 충족 — 미달 항목 다수", "color": "red", "score": score_str}
+    return {"grade": "F", "text": f"버핏 기준 {score_str} 충족 — 대부분 미충족", "color": "red", "score": score_str}
 
 
-def evaluate_graham(info: dict, sector_t: dict) -> list[dict]:
+def evaluate_graham(info: dict, sector_t: dict, history_data: dict | None = None) -> list[dict]:
+    """그레이엄 7기준 — 원전 'The Intelligent Investor' Defensive Investor 기준."""
     results = []
     per = safe_get(info, "trailingPE")
-    per_max = min(15, sector_t["per_max"])  # Graham은 보수적이라 섹터 최대치와 15 중 작은 값
+    per_max = min(15, sector_t["per_max"])
     if per is not None:
         results.append({"name": f"PER <= {per_max}", "passed": 0 < per <= per_max, "value": f"{per:.1f}"})
     else:
@@ -509,16 +519,109 @@ def evaluate_graham(info: dict, sector_t: dict) -> list[dict]:
     else:
         results.append({"name": "유동비율 >= 200%", "passed": None, "value": "데이터 없음"})
 
+    # 신규 #5: 5년 연속 흑자 (그레이엄 "수익 안정성" 기준)
+    if history_data and history_data.get("available"):
+        ni_list = history_data.get("net_income") or []
+        valid_ni = [v for v in ni_list if v is not None]
+        if len(valid_ni) >= 3:
+            positive_years = sum(1 for v in valid_ni if v > 0)
+            results.append({
+                "name": "수익 안정성 (5년 연속 흑자)",
+                "passed": positive_years == len(valid_ni),
+                "value": f"{positive_years}/{len(valid_ni)}년 흑자"
+            })
+        else:
+            results.append({"name": "수익 안정성 (5년 연속 흑자)", "passed": None, "value": "데이터 부족"})
+    else:
+        results.append({"name": "수익 안정성 (5년 연속 흑자)", "passed": None, "value": "데이터 없음"})
+
+    # 신규 #6: 배당 + 배당 수익률 1%+
     dy = safe_get(info, "dividendYield")
     if dy is not None:
-        results.append({"name": "배당 지급", "passed": dy > 0, "value": f"{dy*100:.2f}%"})
+        # 그레이엄 원전: "20년 연속 배당" 요구 → 현실적으로 배당 + 1% 수익률로 근사
+        results.append({
+            "name": "배당 1%+ (인플레 헤지)",
+            "passed": dy >= 0.01,
+            "value": f"{dy*100:.2f}%"
+        })
     else:
-        results.append({"name": "배당 지급", "passed": None, "value": "데이터 없음"})
+        results.append({"name": "배당 1%+ (인플레 헤지)", "passed": None, "value": "데이터 없음"})
+
+    # 신규 #7: 매출 성장 (그레이엄 EPS 33%/10년 ≈ 연 3% — 인플레 이상)
+    if history_data and history_data.get("revenue_cagr") is not None:
+        cagr = history_data["revenue_cagr"]
+        results.append({
+            "name": "매출 CAGR >= 3% (장기 인플레 이상)",
+            "passed": cagr >= 0.03,
+            "value": f"{cagr*100:.1f}%/년"
+        })
+    else:
+        results.append({"name": "매출 CAGR >= 3%", "passed": None, "value": "데이터 없음"})
 
     return results
 
 
-def evaluate_lynch(info: dict, sector_t: dict) -> list[dict]:
+def lynch_category(info: dict, history_data: dict | None = None) -> dict:
+    """피터 린치 6 카테고리 자동 분류 — 'One Up On Wall Street' (1989).
+
+    카테고리: SLOW_GROWER / STALWART / FAST_GROWER / CYCLICAL / TURNAROUND / ASSET_PLAY
+    """
+    rg = safe_get(info, "revenueGrowth")
+    eg = safe_get(info, "earningsGrowth")
+    sector = info.get("sector", "") or ""
+    pbr = safe_get(info, "priceToBook")
+    de = safe_get(info, "debtToEquity")
+
+    # CYCLICAL: 경기민감 섹터
+    cyclical_sectors = ("Consumer Cyclical", "Energy", "Basic Materials", "Industrials", "Financial Services")
+
+    # 다년도 매출/이익 변동성 — 사이클성 신호
+    is_volatile = False
+    if history_data and history_data.get("available"):
+        ni = [v for v in (history_data.get("net_income") or []) if v is not None]
+        if len(ni) >= 3:
+            avg_ni = sum(ni) / len(ni)
+            if avg_ni != 0:
+                ni_cv = (sum((v - avg_ni)**2 for v in ni) / len(ni)) ** 0.5 / abs(avg_ni)
+                is_volatile = ni_cv > 0.5  # 변동계수 50%+ 면 사이클성
+
+    # ASSET_PLAY: PBR 1 미만 (자산가치 < 시총)
+    if pbr is not None and 0 < pbr < 1.0:
+        return {"code": "ASSET_PLAY", "label": "자산주 (Asset Play)",
+                "desc": "장부가 미만 거래 — 숨은 자산가치 노림"}
+
+    # TURNAROUND: 부채 높지만 최근 흑자 전환
+    if de is not None and de > 200 and eg is not None and eg > 0.5:
+        return {"code": "TURNAROUND", "label": "회생주 (Turnaround)",
+                "desc": "고부채 + 급격한 이익 회복 — 위험·고수익"}
+
+    # CYCLICAL: 경기민감 섹터 + 변동성
+    if sector in cyclical_sectors and is_volatile:
+        return {"code": "CYCLICAL", "label": "경기 순환주 (Cyclical)",
+                "desc": "경기 사이클에 따라 매출·이익 큰 변동"}
+
+    # FAST_GROWER: 매출 20%+ AND EPS 25%+
+    if rg is not None and rg > 0.20 and eg is not None and eg > 0.25:
+        return {"code": "FAST_GROWER", "label": "고성장주 (Fast Grower)",
+                "desc": "매출·이익 모두 20%+ 성장 — 텐베거 후보"}
+
+    # STALWART: 매출 5~15%, 안정적 (대형 우량주)
+    if rg is not None and 0.05 <= rg <= 0.20:
+        return {"code": "STALWART", "label": "우량 안정주 (Stalwart)",
+                "desc": "꾸준한 성장 + 큰 시가총액 — 30~50% 수익 노림"}
+
+    # SLOW_GROWER: 매출 0~5% (대형 성숙기업)
+    if rg is not None and 0 <= rg < 0.05:
+        return {"code": "SLOW_GROWER", "label": "저성장주 (Slow Grower)",
+                "desc": "성숙기업 — 배당 위주, 자본 차익 기대 낮음"}
+
+    # 분류 불가
+    return {"code": "UNCLASSIFIED", "label": "분류 불가",
+            "desc": "데이터 부족으로 카테고리 판정 어려움"}
+
+
+def evaluate_lynch(info: dict, sector_t: dict, history_data: dict | None = None) -> list[dict]:
+    """피터 린치 5기준 — 'One Up On Wall Street' (1989)."""
     results = []
     peg = safe_get(info, "pegRatio")
     if peg is not None:
@@ -553,8 +656,14 @@ def evaluate_lynch(info: dict, sector_t: dict) -> list[dict]:
     return results
 
 
-def evaluate_fisher(info: dict, sector_t: dict) -> list[dict]:
+def evaluate_fisher(info: dict, sector_t: dict, history_data: dict | None = None) -> list[dict]:
+    """필립 피셔 6기준 — 'Common Stocks and Uncommon Profits' (1958).
+
+    원전 15-Point 중 정량 가능한 항목 + Scuttlebutt 정신 (애널리스트 컨센서스 무시)
+    피셔는 컨센서스를 무시하고 직접 조사를 강조 — '애널리스트 목표가' 항목 제거.
+    """
     results = []
+
     rg = safe_get(info, "revenueGrowth")
     if rg is not None:
         results.append({"name": "매출 성장률 > 10%", "passed": rg > 0.10, "value": f"{rg*100:.1f}%"})
@@ -582,13 +691,27 @@ def evaluate_fisher(info: dict, sector_t: dict) -> list[dict]:
     else:
         results.append({"name": "순이익률 (섹터 기준)", "passed": None, "value": "데이터 없음"})
 
-    price = safe_get(info, "currentPrice") or safe_get(info, "regularMarketPrice")
-    target = safe_get(info, "targetMeanPrice")
-    if price and target and price > 0:
-        upside = (target - price) / price
-        results.append({"name": "애널리스트 목표가 10%+ 상승여력", "passed": upside > 0.10, "value": f"{upside*100:.1f}%"})
+    # 신규 #5: 장기 매출 CAGR (충분한 시장 잠재력)
+    if history_data and history_data.get("revenue_cagr") is not None:
+        cagr = history_data["revenue_cagr"]
+        results.append({
+            "name": "매출 CAGR >= 7% (장기 성장)",
+            "passed": cagr >= 0.07,
+            "value": f"{cagr*100:.1f}%/년"
+        })
     else:
-        results.append({"name": "애널리스트 목표가 10%+ 상승여력", "passed": None, "value": "데이터 없음"})
+        results.append({"name": "매출 CAGR >= 7% (장기 성장)", "passed": None, "value": "데이터 없음"})
+
+    # 신규 #6: 장기 EPS 성장 (피셔 '15-Point #12 — 장기 이익 전망')
+    if history_data and history_data.get("eps_cagr") is not None:
+        eps_cagr = history_data["eps_cagr"]
+        results.append({
+            "name": "EPS CAGR >= 10% (5년 복리)",
+            "passed": eps_cagr >= 0.10,
+            "value": f"{eps_cagr*100:.1f}%/년"
+        })
+    else:
+        results.append({"name": "EPS CAGR >= 10% (5년 복리)", "passed": None, "value": "데이터 없음"})
 
     return results
 
@@ -902,6 +1025,11 @@ def analyze():
         rf, rl, ry = _endpoints(rev)
         hist["revenue_cagr"] = _cagr(rf, rl, ry)
 
+        # EPS CAGR도 계산
+        eps_for_cagr = hist.get("eps") or []
+        ef, el, ey = _endpoints(eps_for_cagr)
+        hist["eps_cagr"] = _cagr(ef, el, ey)
+
         # ROE 일관성 재계산
         valid_roe = [r for r in roe if r is not None]
         years_above_15 = sum(1 for r in valid_roe if r >= 0.15)
@@ -1057,14 +1185,21 @@ def analyze():
     if isinstance(fair_value, dict):
         fair_value["currency"] = safe_get(info, "currency", "USD")
 
+    # 린치 카테고리 자동 분류 (6 카테고리)
+    lynch_cat = lynch_category(info, history_data=history_data)
+
     investors = [
         {"name": "워렌 버핏", "label": "워렌 버핏이라면?", "sub": "가치투자", "icon": "buffett",
          "criteria": evaluate_buffett(info, sector_t, history_data=history_data, fair_value=fair_value)},
-        {"name": "벤저민 그레이엄", "label": "벤저민 그레이엄이라면?", "sub": "안전마진", "icon": "graham", "criteria": evaluate_graham(info, sector_t)},
-        {"name": "피터 린치", "label": "피터 린치라면?", "sub": "성장주", "icon": "lynch", "criteria": evaluate_lynch(info, sector_t)},
+        {"name": "벤저민 그레이엄", "label": "벤저민 그레이엄이라면?", "sub": "안전마진", "icon": "graham",
+         "criteria": evaluate_graham(info, sector_t, history_data=history_data)},
+        {"name": "피터 린치", "label": "피터 린치라면?", "sub": "성장주", "icon": "lynch",
+         "criteria": evaluate_lynch(info, sector_t, history_data=history_data),
+         "category": lynch_cat},
         {"name": "윌리엄 오닐", "label": "윌리엄 오닐이라면?", "sub": "CAN SLIM", "icon": "oneil",
          "criteria": evaluate_oneil(info, ticker=ticker, hist=hist, rs_data=rs_data, market_data=market_data)},
-        {"name": "필립 피셔", "label": "필립 피셔라면?", "sub": "장기성장", "icon": "fisher", "criteria": evaluate_fisher(info, sector_t)},
+        {"name": "필립 피셔", "label": "필립 피셔라면?", "sub": "장기성장", "icon": "fisher",
+         "criteria": evaluate_fisher(info, sector_t, history_data=history_data)},
     ]
 
     total_yes, total_count = 0, 0

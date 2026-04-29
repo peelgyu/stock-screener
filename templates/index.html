@@ -1616,6 +1616,28 @@
                     </div>`;
                 }
 
+                // 린치 전용: 6 카테고리 자동 분류 표시
+                let categoryBadge = '';
+                if (inv.category) {
+                    const cat = inv.category;
+                    const catColorMap = {
+                        'FAST_GROWER':  '#4caf50',
+                        'STALWART':     '#3B82F6',
+                        'SLOW_GROWER':  '#888',
+                        'ASSET_PLAY':   '#a78bfa',
+                        'TURNAROUND':   '#f59e0b',
+                        'CYCLICAL':     '#ec4899',
+                        'UNCLASSIFIED': '#666',
+                    };
+                    const catCol = catColorMap[cat.code] || '#888';
+                    categoryBadge = `<div style="margin-top:10px;padding:10px 14px;background:rgba(59,130,246,0.08);border-left:3px solid ${catCol};border-radius:8px;font-size:0.82rem;">
+                        <strong style="color:${catCol};font-size:0.95rem;">📂 카테고리: ${cat.label}</strong>
+                        <div style="color:#aaa;margin-top:3px;font-size:0.78rem;">${cat.desc}</div>
+                    </div>`;
+                }
+                // 통합: 버핏 strictBadge 또는 린치 categoryBadge
+                const extraBadge = strictBadge || categoryBadge;
+
                 html += `
                     <div class="investor-card">
                         <div class="investor-header" onclick="toggleCard(${i})">
@@ -1629,7 +1651,7 @@
                             </div>
                         </div>
                         <div class="progress-bar"><div class="progress-fill" style="width:${inv.rate}%;background:${pc};"></div></div>
-                        <div class="criteria-list" id="criteria-${i}">${cHTML}${strictBadge ? '<div style="padding:0 20px 14px;">' + strictBadge + '</div>' : ''}</div>
+                        <div class="criteria-list" id="criteria-${i}">${cHTML}${extraBadge ? '<div style="padding:0 20px 14px;">' + extraBadge + '</div>' : ''}</div>
                     </div>`;
             });
             document.getElementById('investorCards').innerHTML = html;
