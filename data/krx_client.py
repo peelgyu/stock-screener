@@ -67,15 +67,42 @@ def _throttle():
         _LAST_CALL = time.time()
 
 
+_LAST_ERRORS: dict[str, str] = {}  # 최근 호출 에러 메시지 (진단용)
+
+
 def _safe_call(fn, *args, **kwargs):
-    """pykrx 호출 보호 — 네트워크/파싱 실패 시 None 반환."""
+    """pykrx 호출 보호 — 네트워크/파싱 실패 시 None 반환. 에러는 _LAST_ERRORS에 기록."""
     if not _KRX_AVAILABLE:
+        _LAST_ERRORS[fn.__name__ if fn else "unknown"] = "pykrx import 실패"
         return None
     try:
         _throttle()
-        return fn(*args, **kwargs)
-    except Exception:
+        result = fn(*args, **kwargs)
+        if result is None or (hasattr(result, "empty") and result.empty):
+            _LAST_ERRORS[fn.__name__] = "응답 빈 DataFrame (KRX 차단 의심)"
+        else:
+            _LAST_ERRORS.pop(fn.__name__, None)
+        return result
+    except Exception as e:
+        _LAST_ERRORS[fn.__name__ if fn else "unknown"] = f"{type(e).__name__}: {str(e)[:200]}"
         return None
+
+
+def get_debug_info() -> dict:
+    """최근 호출 진단 정보 반환 (운영 노출은 주의)."""
+    import sys
+    info = {
+        "pykrx_available": _KRX_AVAILABLE,
+        "last_errors": dict(_LAST_ERRORS),
+        "python_version": sys.version.split()[0],
+    }
+    if _KRX_AVAILABLE:
+        try:
+            import pykrx
+            info["pykrx_version"] = getattr(pykrx, "__version__", "unknown")
+        except Exception:
+            info["pykrx_version"] = "import_error"
+    return info
 
 
 def fetch_foreign_ownership(ticker: str) -> Optional[dict]:
