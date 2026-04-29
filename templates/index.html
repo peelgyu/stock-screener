@@ -1003,6 +1003,7 @@
         let currentTicker = null;
         let currentStockName = null;
         let optionsLoaded = false;
+        let krxLoaded = false;
 
         // ========== 용어 툴팁 헬퍼 ==========
         // tt('PER') → '<span class="term-tooltip" data-term="PER">PER</span>'
@@ -1269,15 +1270,19 @@
         function quickSearch(ticker) { input.value = ticker; acBox.classList.remove('show'); analyze(); }
 
         function switchTab(tab) {
-            const tabs = ['investors', 'trend', 'sentiment', 'positions', 'options'];
-            document.querySelectorAll('.tab-btn').forEach((b, i) => {
-                const isActive = tabs[i] === tab;
+            // tab-btn 순서: investors, trend, krx(숨김 가능), sentiment, positions, options
+            // 탭 활성화는 id로 직접 매핑 (인덱스 의존 제거)
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                const id = b.id || '';
+                const isActive = id === `tabbtn-${tab}`;
                 b.classList.toggle('active', isActive);
                 b.setAttribute('aria-selected', isActive ? 'true' : 'false');
             });
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
+            const target = document.getElementById(`tab-${tab}`);
+            if (target) target.classList.add('active');
             if (tab === 'options' && !optionsLoaded && currentTicker) loadOptionsLazy();
+            if (tab === 'krx' && !krxLoaded && currentTicker) loadKRXLazy();
         }
 
         async function loadOptionsLazy() {
@@ -1294,6 +1299,20 @@
             }
         }
 
+        async function loadKRXLazy() {
+            krxLoaded = true;
+            const el = document.getElementById('krxCard');
+            el.innerHTML = `<div style="text-align:center;padding:40px;color:#888;"><div class="spinner" style="margin:0 auto 12px;"></div>KRX 수급 데이터 로딩... (최대 8초)</div>`;
+            try {
+                const res = await fetch('/api/krx', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker: currentTicker }) });
+                const krx = await res.json();
+                renderKRX(krx, true);
+            } catch (e) {
+                el.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">KRX 데이터 로드 실패 — 잠시 후 다시 시도</div>`;
+                krxLoaded = false;
+            }
+        }
+
         async function analyze() {
             const query = input.value.trim();
             if (!query) return;
@@ -1304,6 +1323,7 @@
             chartInstances.forEach(c => { try { c.destroy(); } catch(e){} });
             chartInstances = [];
             optionsLoaded = false;
+            krxLoaded = false;
             try {
                 const res = await fetch('/api/analyze?_=' + Date.now(), {
                     method: 'POST',
@@ -1811,6 +1831,12 @@
         function renderKRX(krx, isKR) {
             const tabBtn = document.getElementById('tabbtn-krx');
             const card = document.getElementById('krxCard');
+            // lazy 플래그면 탭만 보이고 데이터는 탭 클릭 시 로드
+            if (isKR && krx && krx.lazy) {
+                if (tabBtn) tabBtn.style.display = '';
+                if (card) card.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">🇰🇷 수급 탭을 클릭하면 데이터를 불러옵니다.</div>`;
+                return;
+            }
             if (!isKR || !krx || !krx.available) {
                 if (tabBtn) tabBtn.style.display = 'none';
                 if (card) card.innerHTML = '';

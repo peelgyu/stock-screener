@@ -1182,10 +1182,8 @@ def analyze():
                 if eps and eps > 0:
                     info["payoutRatio"] = dps / eps
 
-    # 한국 주식 추가 — KRX 외국인 보유율 + 투자자별 매매 + 공매도 잔고
-    krx_data = None
-    if is_kr and krx_client.is_available():
-        krx_data = _safe_call(krx_client.fetch_all, None, ticker)
+    # 한국 주식 KRX 수급 — lazy load (별도 /api/krx 엔드포인트, 탭 클릭 시 fetch)
+    krx_data = {"available": None, "lazy": True} if (is_kr and krx_client.is_available()) else None
 
     quality_data = _safe_call(evaluate_earnings_quality, {"available": False}, stock, info)
     fair_value = _safe_call(calculate_fair_value, {"available": False}, info, stock, history_data)
@@ -1264,6 +1262,36 @@ def analyze():
         "krx": krx_data,
         "dataWarnings": info.get("_data_warnings", []),
     })
+
+
+@app.route("/api/krx", methods=["POST"])
+def analyze_krx():
+    """한국 종목 수급 정보 — 외국인·기관·공매도. 탭 클릭 시 lazy load."""
+    import concurrent.futures
+    body = request.get_json(force=True, silent=True) or {}
+    raw_query = (body.get("ticker") or "").strip()
+    if not raw_query:
+        return jsonify({"available": False, "error": "티커 필요"}), 400
+    if not is_safe_query(raw_query):
+        return jsonify({"available": False, "error": "허용되지 않는 문자"}), 400
+    ticker = resolve_ticker(raw_query) or raw_query.upper()
+    if not (ticker.endswith(".KS") or ticker.endswith(".KQ")):
+        return jsonify({"available": False, "error": "한국 종목만 지원"}), 400
+    if not krx_client.is_available():
+        return jsonify({"available": False, "error": "KRX 클라이언트 미설치"}), 503
+
+    # 외부 호출 timeout 방어 — 8초 안에 못 받으면 None
+    try:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+            future = ex.submit(krx_client.fetch_all, ticker)
+            result = future.result(timeout=8.0)
+            return jsonify(result)
+    except concurrent.futures.TimeoutError:
+        app.logger.warning(f"KRX timeout for {ticker}")
+        return jsonify({"available": False, "error": "KRX 응답 지연 — 잠시 후 다시 시도"}), 200
+    except Exception:
+        app.logger.exception("krx fail")
+        return jsonify({"available": False, "error": "KRX 데이터 일시 불가"}), 200
 
 
 @app.route("/api/options", methods=["POST"])

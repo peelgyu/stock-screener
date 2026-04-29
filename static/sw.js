@@ -1,6 +1,6 @@
-// StockInto Service Worker - v13 (한국 KRX 수급 — 외국인·기관·공매도)
+// StockInto Service Worker - v14 (KRX lazy load 분리, /api/analyze timeout 수정)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v13';
+const CACHE_NAME = 'stockinto-v14';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
