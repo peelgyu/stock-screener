@@ -1,6 +1,6 @@
-// StockInto Service Worker - v14 (KRX lazy load 분리, /api/analyze timeout 수정)
+// StockInto Service Worker - v15 (KRX 탭 사라지는 버그 수정 + 재시도 버튼)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v14';
+const CACHE_NAME = 'stockinto-v15';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

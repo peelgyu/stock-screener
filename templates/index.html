@@ -1306,9 +1306,12 @@
             try {
                 const res = await fetch('/api/krx', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker: currentTicker }) });
                 const krx = await res.json();
+                // renderKRX는 available:false 응답도 탭 유지하면서 에러 카드 표시
                 renderKRX(krx, true);
+                // 응답 자체가 실패면 다음에 다시 시도할 수 있게 플래그 리셋
+                if (!krx || !krx.available) krxLoaded = false;
             } catch (e) {
-                el.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">KRX 데이터 로드 실패 — 잠시 후 다시 시도</div>`;
+                renderKRX({available: false, error: '네트워크 오류 — 다시 시도해 주세요.'}, true);
                 krxLoaded = false;
             }
         }
@@ -1831,18 +1834,31 @@
         function renderKRX(krx, isKR) {
             const tabBtn = document.getElementById('tabbtn-krx');
             const card = document.getElementById('krxCard');
-            // lazy 플래그면 탭만 보이고 데이터는 탭 클릭 시 로드
-            if (isKR && krx && krx.lazy) {
-                if (tabBtn) tabBtn.style.display = '';
-                if (card) card.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">🇰🇷 수급 탭을 클릭하면 데이터를 불러옵니다.</div>`;
-                return;
-            }
-            if (!isKR || !krx || !krx.available) {
+            // 미국 종목이면 탭 숨김
+            if (!isKR) {
                 if (tabBtn) tabBtn.style.display = 'none';
                 if (card) card.innerHTML = '';
                 return;
             }
-            tabBtn.style.display = '';
+            // 한국 종목이면 탭은 항상 표시
+            if (tabBtn) tabBtn.style.display = '';
+            // lazy 플래그면 placeholder
+            if (krx && krx.lazy) {
+                if (card) card.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">🇰🇷 수급 탭을 클릭하면 데이터를 불러옵니다.</div>`;
+                return;
+            }
+            // 데이터 없거나 실패 응답 — 탭은 유지, 카드에 에러/재시도 표시
+            if (!krx || !krx.available) {
+                const errMsg = (krx && krx.error) ? krx.error : 'KRX 데이터를 받지 못했습니다.';
+                if (card) card.innerHTML = `
+                    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center;">
+                        <div style="font-size:1.4rem;margin-bottom:10px;">😅</div>
+                        <div style="color:#ddd;margin-bottom:12px;font-weight:600;">${errMsg}</div>
+                        <div style="color:#888;font-size:0.82rem;margin-bottom:18px;">한국거래소 응답이 지연되거나 일시적으로 막혔을 수 있습니다.</div>
+                        <button onclick="krxLoaded=false; loadKRXLazy();" style="padding:10px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--accent-cyan);cursor:pointer;font-size:0.85rem;font-weight:600;font-family:inherit;">🔄 다시 시도</button>
+                    </div>`;
+                return;
+            }
 
             // 금액 포맷터: 억원 단위 (절대값 1조 이상이면 조원)
             function fmtKRW(v) {
