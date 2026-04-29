@@ -1517,6 +1517,28 @@
                 ? `<details style="margin-top:8px;font-size:0.72rem;color:#888;"><summary style="cursor:pointer;">제외된 평가법 ${fv.excluded_methods.length}개</summary><ul style="padding-left:18px;margin-top:4px;">${fv.excluded_methods.map(e=>`<li>${e.method}: ${e.reason}</li>`).join('')}</ul></details>`
                 : '';
 
+            // WACC 산출 내역 (회계사 자문 반영)
+            let waccHTML = '';
+            if (fv.dcf && fv.dcf.assumptions && fv.dcf.assumptions.wacc_breakdown) {
+                const wb = fv.dcf.assumptions.wacc_breakdown;
+                const tg = (fv.dcf.assumptions.terminal_growth * 100).toFixed(1);
+                const wacc = (wb.wacc * 100).toFixed(2);
+                const re = (wb.cost_of_equity * 100).toFixed(2);
+                const rd = (wb.cost_of_debt * 100).toFixed(2);
+                const we = (wb.weight_equity * 100).toFixed(0);
+                const wd = (wb.weight_debt * 100).toFixed(0);
+                waccHTML = `<details style="margin-top:8px;font-size:0.72rem;color:#888;">
+                    <summary style="cursor:pointer;">DCF 할인율 ${wacc}% 산출 내역 (${tt('WACC')})</summary>
+                    <div style="padding:8px 12px;margin-top:4px;background:#0f0f1a;border-radius:6px;line-height:1.7;">
+                        ${tt('WACC')} = (자기자본비중 × ${tt('CAPM')} 자본비용) + (부채비중 × 차입이자율 × (1−법인세))<br>
+                        • 자본비용 ${re}% = 무위험률 ${(wb.rf*100).toFixed(1)}% + 베타 ${wb.beta} × 시장프리미엄 5.5%<br>
+                        • 차입이자율 ${rd}% (재무제표 추정 또는 BBB급 스프레드)<br>
+                        • 자본구조: 자기자본 ${we}% / 부채 ${wd}%<br>
+                        • 영구성장률 ${tg}% (인플레 이하 보수 가정)
+                    </div>
+                </details>`;
+            }
+
             const extraPSRow = psStr ? `<div class="fv-box"><div class="fv-box-label">${tt('P/S')} 기반 (매출 배수)</div><div class="fv-box-value">${psStr}</div></div>` : '';
 
             el.innerHTML = `
@@ -1535,6 +1557,7 @@
                     ${warningsHTML}
                     ${noteHTML}
                     <div class="fv-verdict ${cls}">${fv.verdict}</div>
+                    ${waccHTML}
                     ${excludedHTML}
                 </div>`;
         }

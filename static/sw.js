@@ -1,6 +1,6 @@
-// StockInto Service Worker - v11 (용어 툴팁 가시성 강화 + 모바일 터치 반응)
+// StockInto Service Worker - v12 (DCF 보수화: WACC 할인율 + 영구성장률 1.5%)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v11';
+const CACHE_NAME = 'stockinto-v12';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

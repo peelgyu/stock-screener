@@ -21,9 +21,101 @@ SECTOR_PS_MEDIAN = {
 }
 
 
-def _dcf_fair_value(fcf, shares, growth_5y=0.10, terminal_growth=0.04, discount=0.08):
+# DCF 보수화 상수 — 회계사 자문 반영 (2026-04-29)
+# - 영구성장률 1.5%: 인플레 이하의 매우 보수적 가정 (현재 운영 정책)
+# - 할인율: WACC 동적 산출 (CAPM 자기자본비용 + 차입이자율 가중평균)
+TERMINAL_GROWTH = 0.015
+
+# 무위험수익률 (10년물 국채 근사)
+RF_US = 0.043   # 미국 10Y Treasury ~4.3%
+RF_KR = 0.033   # 한국 10년물 국채 ~3.3%
+ERP = 0.055     # Damodaran 글로벌 주식 위험 프리미엄
+
+# 할인율 안전 범위 (이상치 보호)
+WACC_MIN = 0.075
+WACC_MAX = 0.140
+
+
+def _calc_wacc(info: dict, ticker: str | None = None) -> dict:
+    """WACC 산출 — CAPM 자기자본비용과 차입이자율의 시가 가중평균.
+
+    공식:
+      WACC = (E/V) * Re + (D/V) * Rd * (1 - Tc)
+      Re   = Rf + β * ERP                      (CAPM)
+      Rd   = 이자비용 / 총부채                 (재무제표 추정)
+
+    누락 시 안전한 기본값으로 폴백 후 안전 범위([7.5%, 14%]) 클램프.
+    """
+    is_kr = bool(ticker and (ticker.endswith(".KS") or ticker.endswith(".KQ")))
+    rf = RF_KR if is_kr else RF_US
+    tax_rate = 0.22 if is_kr else 0.21
+
+    # 1) 자기자본비용 Re — CAPM
+    beta = info.get("beta")
+    try:
+        beta = float(beta) if beta is not None else 1.0
+    except (TypeError, ValueError):
+        beta = 1.0
+    # 비정상 베타 클램프
+    if beta < 0.3:
+        beta = 0.8
+    elif beta > 2.5:
+        beta = 2.0
+    re = rf + beta * ERP
+
+    # 2) 차입이자율 Rd — 이자비용/총부채, 없으면 Rf + 1.5%p (BBB급 회사채 스프레드 근사)
+    interest_expense = info.get("interestExpense")
+    total_debt = info.get("totalDebt")
+    rd = None
+    if interest_expense and total_debt and total_debt > 0:
+        try:
+            rd = abs(float(interest_expense)) / float(total_debt)
+        except (TypeError, ValueError):
+            rd = None
+    if rd is None or rd <= 0 or rd > 0.20:
+        rd = rf + 0.015
+
+    # 3) 자본구조 가중치 (시가총액 vs 부채 장부가)
+    market_cap = info.get("marketCap")
+    try:
+        equity_v = float(market_cap) if market_cap and market_cap > 0 else None
+    except (TypeError, ValueError):
+        equity_v = None
+    try:
+        debt_v = float(total_debt) if total_debt and total_debt > 0 else 0.0
+    except (TypeError, ValueError):
+        debt_v = 0.0
+
+    if not equity_v or equity_v <= 0:
+        # 시총 정보 없으면 자기자본비용만 사용 (보수적)
+        wacc_raw = re
+        we, wd = 1.0, 0.0
+    else:
+        v = equity_v + debt_v
+        we = equity_v / v
+        wd = debt_v / v
+        wacc_raw = we * re + wd * rd * (1 - tax_rate)
+
+    wacc = max(WACC_MIN, min(WACC_MAX, wacc_raw))
+    return {
+        "wacc": round(wacc, 4),
+        "wacc_raw": round(wacc_raw, 4),
+        "cost_of_equity": round(re, 4),
+        "cost_of_debt": round(rd, 4),
+        "beta": round(beta, 2),
+        "weight_equity": round(we, 3),
+        "weight_debt": round(wd, 3),
+        "rf": rf,
+        "tax_rate": tax_rate,
+    }
+
+
+def _dcf_fair_value(fcf, shares, growth_5y=0.10, terminal_growth=TERMINAL_GROWTH, discount=0.10):
     if not fcf or fcf <= 0 or not shares or shares <= 0:
         return None
+    # 안전장치: 할인율이 영구성장률보다 충분히 커야 영구가치 발산 안 함
+    if discount - terminal_growth < 0.01:
+        discount = terminal_growth + 0.01
     pv = 0.0
     current_fcf = fcf
     for yr in range(1, 6):
@@ -84,18 +176,33 @@ def calculate_fair_value(info: dict, stock, history_data: dict | None = None) ->
     elif eg is not None:
         dynamic_growth = min(0.25, max(0.02, eg))
 
+    # WACC 동적 산출 — 회계사 자문 (자본비용 + 차입이자율 가중평균)
+    ticker_str = None
+    try:
+        ticker_str = getattr(stock, "ticker", None) if stock else None
+    except Exception:
+        ticker_str = None
+    wacc_info = _calc_wacc(info, ticker_str)
+    discount_rate = wacc_info["wacc"]
+
     enable = quality_class["enable"]
     methods = {}
     excluded = []
 
-    # 1) DCF
+    # 1) DCF — WACC 할인율 + 영구성장률 1.5% (보수)
     if enable["dcf"]:
-        dcf_fv = _dcf_fair_value(fcf, shares, growth_5y=dynamic_growth, discount=0.08, terminal_growth=0.04)
+        dcf_fv = _dcf_fair_value(fcf, shares, growth_5y=dynamic_growth,
+                                 discount=discount_rate, terminal_growth=TERMINAL_GROWTH)
         if dcf_fv is not None:
             methods["dcf"] = {
                 "fair_value": round(dcf_fv, 2),
                 "upside_pct": round((dcf_fv - current_price) / current_price * 100, 1),
-                "assumptions": {"growth_5y": round(dynamic_growth, 3), "terminal_growth": 0.04, "discount_rate": 0.08},
+                "assumptions": {
+                    "growth_5y": round(dynamic_growth, 3),
+                    "terminal_growth": TERMINAL_GROWTH,
+                    "discount_rate": discount_rate,
+                    "wacc_breakdown": wacc_info,
+                },
             }
         else:
             excluded.append({"method": "DCF", "reason": "FCF 음수 또는 데이터 부족"})
