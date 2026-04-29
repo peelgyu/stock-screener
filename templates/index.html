@@ -111,6 +111,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <script src="/static/glossary-terms.js"></script>
+    <script src="/static/tooltip.js" defer></script>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
     <style>
         /* ========== 디자인 시스템 v2 (토스 DNA) ========== */
@@ -166,7 +168,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: hidden; }
         body {
             font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-primary);
@@ -174,7 +176,11 @@
             min-height: 100vh;
             font-feature-settings: "ss06";
             letter-spacing: -0.01em;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
         }
+        img, svg, video, iframe { max-width: 100%; }
 
         /* 숫자 폭 고정 (가격·퍼센트 정렬) */
         .tnum, .stock-ticker, .fg-score, .fv-box-value, .rs-composite,
@@ -182,7 +188,7 @@
             font-feature-settings: "tnum" 1;
             font-variant-numeric: tabular-nums;
         }
-        .container { max-width: 800px; margin: 0 auto; padding: 20px 16px; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px 16px; width: 100%; }
 
         /* 상단 sticky 네비 (모든 페이지 공통) */
         .topnav {
@@ -256,9 +262,9 @@
         }
 
         .search-wrap { position: relative; margin: 20px 0 24px; }
-        .search-box { display: flex; gap: 10px; }
+        .search-box { display: flex; gap: 10px; width: 100%; }
         .search-box input {
-            flex: 1; padding: 16px 20px; border-radius: var(--radius-lg);
+            flex: 1 1 0; min-width: 0; padding: 16px 20px; border-radius: var(--radius-lg);
             border: 1.5px solid var(--border);
             background: var(--bg-card); color: var(--text-primary);
             font-size: 1rem; font-weight: 500; outline: none;
@@ -285,7 +291,7 @@
         .search-box button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .search-box button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .autocomplete { position: absolute; top: 100%; left: 0; right: 70px; background: #1e1e3a; border: 1px solid #3a2a5e; border-radius: 12px; margin-top: 4px; z-index: 100; overflow: hidden; display: none; max-height: 400px; overflow-y: auto; }
+        .autocomplete { position: absolute; top: 100%; left: 0; right: 0; background: #1e1e3a; border: 1px solid #3a2a5e; border-radius: 12px; margin-top: 4px; z-index: 100; overflow: hidden; display: none; max-height: 400px; overflow-y: auto; }
         .autocomplete.show { display: block; }
         .ac-item { padding: 12px 16px; cursor: pointer; transition: background 0.15s; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2a3e; gap: 8px; }
         .ac-item:last-child { border-bottom: none; }
@@ -672,7 +678,7 @@
             margin-bottom: 4px;
         }
         .quick-btn {
-            padding: 9px 16px; border-radius: var(--radius-pill);
+            padding: 11px 18px; min-height: 44px; border-radius: var(--radius-pill);
             border: 1px solid var(--border);
             background: var(--bg-card); color: var(--text-secondary);
             font-size: 0.82rem; font-weight: 600; cursor: pointer;
@@ -722,10 +728,13 @@
         .install-promo { display: none; }
 
         @media (max-width: 480px) {
+            .container { padding: 16px 12px; }
             .header h1 { font-size: 1.4rem; }
             .stock-name { font-size: 1.2rem; }
             .criteria-value { min-width: 60px; font-size: 0.78rem; }
-            .search-box button { padding: 14px 18px; }
+            .search-box { gap: 8px; }
+            .search-box input { padding: 14px 14px; font-size: 0.95rem; }
+            .search-box button { padding: 14px 16px; font-size: 0.9rem; }
             .fg-gauge-wrap { width: 180px; height: 100px; }
             .fg-gauge-bg { width: 180px; height: 180px; }
             .fg-needle { height: 65px; }
@@ -734,6 +743,15 @@
             .opt-summary, .fv-grid { grid-template-columns: 1fr; }
             .verdict-card { flex-direction: column; text-align: center; gap: 12px; }
             .verdict-badge { min-width: auto; width: 100%; }
+        }
+        /* 초소형 화면 (320~360px 구형 안드로이드) */
+        @media (max-width: 360px) {
+            .container { padding: 14px 10px; }
+            .search-box { gap: 6px; }
+            .search-box input { padding: 13px 12px; font-size: 0.92rem; }
+            .search-box button { padding: 13px 12px; font-size: 0.85rem; }
+            .topnav { padding: 8px 10px; }
+            .topnav-link { padding: 6px 8px; font-size: 0.7rem; }
         }
 
         /* ========== 접근성 (a11y) ========== */
@@ -772,6 +790,45 @@
             position: absolute; width: 1px; height: 1px; padding: 0;
             margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
             white-space: nowrap; border: 0;
+        }
+
+        /* 인라인 용어 툴팁 — PER/ROE 등 클릭/호버로 정의 표시 */
+        .term-tooltip {
+            border-bottom: 1.5px dashed var(--accent-cyan, #00D9FF);
+            color: var(--accent-cyan, #00D9FF);
+            cursor: help; padding: 1px 3px; border-radius: 4px;
+            background: rgba(0, 217, 255, 0.06);
+            transition: background 0.15s, color 0.15s, transform 0.1s;
+            -webkit-tap-highlight-color: rgba(0, 217, 255, 0.25);
+            user-select: none; -webkit-user-select: none;
+            display: inline-block; line-height: 1.3;
+        }
+        .term-tooltip:hover, .term-tooltip:focus, .term-tooltip.term-active {
+            background: rgba(0, 217, 255, 0.18);
+            color: #fff; outline: none;
+        }
+        .term-tooltip:active { transform: scale(0.95); }
+        .term-tooltip-popup {
+            position: absolute; z-index: 99999; max-width: 300px;
+            background: #1a1a2e; color: #f0f0f0;
+            border: 1px solid #3a3a5c; border-radius: 12px;
+            padding: 14px 16px; font-size: 0.85rem; line-height: 1.55;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+            font-family: inherit; pointer-events: auto;
+        }
+        .term-tooltip-popup .ttp-head {
+            font-size: 1rem; color: var(--accent-cyan, #00D9FF); margin-bottom: 6px; font-weight: 700;
+        }
+        .term-tooltip-popup .ttp-body { color: #d8d8d8; }
+        .term-tooltip-popup .ttp-link {
+            display: inline-block; margin-top: 10px;
+            font-size: 0.78rem; color: var(--accent-cyan, #00D9FF);
+            text-decoration: none; border-bottom: 1px solid transparent;
+        }
+        .term-tooltip-popup .ttp-link:hover { border-bottom-color: var(--accent-cyan, #00D9FF); }
+        @media (max-width: 480px) {
+            .term-tooltip { padding: 2px 5px; font-weight: 600; }
+            .term-tooltip-popup { max-width: calc(100vw - 24px); font-size: 0.9rem; padding: 16px; }
         }
     </style>
 </head>
@@ -850,7 +907,7 @@
         </div>
 
         <div class="quick-search-wrap" id="historySection" style="display:none;">
-            <div class="quick-search-label">🕓 최근 본 종목 <button onclick="clearHistory()" style="background:none;border:none;color:#666;font-size:0.7rem;cursor:pointer;font-weight:400;margin-left:6px;">초기화</button></div>
+            <div class="quick-search-label">🕓 최근 본 종목 <button onclick="clearHistory()" aria-label="최근 본 종목 초기화" style="background:none;border:none;color:#666;font-size:0.75rem;cursor:pointer;font-weight:400;margin-left:6px;padding:10px 12px;min-height:44px;min-width:44px;">초기화</button></div>
             <div class="quick-search" id="historyList"></div>
         </div>
 
@@ -944,6 +1001,13 @@
         let currentTicker = null;
         let currentStockName = null;
         let optionsLoaded = false;
+
+        // ========== 용어 툴팁 헬퍼 ==========
+        // tt('PER') → '<span class="term-tooltip" data-term="PER">PER</span>'
+        // tt('FCF / 순이익') → 텍스트 안의 모든 등록된 용어를 자동 마킹
+        function tt(text) {
+            return (window.StockIntoTooltip && text != null) ? window.StockIntoTooltip.markup(String(text)) : text;
+        }
 
         // ========== 관심 종목 + 최근 검색 (localStorage 기반) ==========
         const FAV_KEY = 'stockinto_favorites_v1';
@@ -1287,8 +1351,8 @@
                     <span>시총 ${data.stock.marketCap}</span>
                 </div>
                 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-                    <button id="favBtn" onclick="toggleFavorite()" aria-pressed="false" style="padding:8px 14px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;">☆ 관심 종목 추가</button>
-                    <button onclick="shareStock()" style="padding:8px 14px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;" aria-label="이 종목 분석 링크 공유">🔗 공유</button>
+                    <button id="favBtn" onclick="toggleFavorite()" aria-pressed="false" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;">☆ 관심 종목 추가</button>
+                    <button onclick="shareStock()" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;" aria-label="이 종목 분석 링크 공유">🔗 공유</button>
                 </div>`;
             updateFavBtn();
             renderTVChart(data.ticker);
@@ -1453,7 +1517,7 @@
                 ? `<details style="margin-top:8px;font-size:0.72rem;color:#888;"><summary style="cursor:pointer;">제외된 평가법 ${fv.excluded_methods.length}개</summary><ul style="padding-left:18px;margin-top:4px;">${fv.excluded_methods.map(e=>`<li>${e.method}: ${e.reason}</li>`).join('')}</ul></details>`
                 : '';
 
-            const extraPSRow = psStr ? `<div class="fv-box"><div class="fv-box-label">P/S 기반 (매출 배수)</div><div class="fv-box-value">${psStr}</div></div>` : '';
+            const extraPSRow = psStr ? `<div class="fv-box"><div class="fv-box-label">${tt('P/S')} 기반 (매출 배수)</div><div class="fv-box-value">${psStr}</div></div>` : '';
 
             el.innerHTML = `
                 <div class="fv-card">
@@ -1461,10 +1525,10 @@
                     <div class="fv-grid">
                         <div class="fv-box"><div class="fv-box-label">현재가</div><div class="fv-box-value">${fmtPrice(fv.current_price)}</div></div>
                         <div class="fv-box"><div class="fv-box-label">종합 적정가</div><div class="fv-box-value">${fmtPrice(fv.composite_fair_value)}</div><div class="fv-box-sub">${fv.upside_pct >= 0 ? '+' : ''}${fv.upside_pct}%</div></div>
-                        <div class="fv-box"><div class="fv-box-label">DCF ${fv.dcf ? `(성장률 ${(fv.dcf.assumptions.growth_5y*100).toFixed(0)}%)` : ''}</div><div class="fv-box-value">${dcfStr}</div></div>
-                        <div class="fv-box"><div class="fv-box-label">PER 기반 ${fv.per_based ? `(PE ${fv.per_based.assumption_pe})` : ''}</div><div class="fv-box-value">${perStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">${tt('DCF')} ${fv.dcf ? `(성장률 ${(fv.dcf.assumptions.growth_5y*100).toFixed(0)}%)` : ''}</div><div class="fv-box-value">${dcfStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">${tt('PER')} 기반 ${fv.per_based ? `(PE ${fv.per_based.assumption_pe})` : ''}</div><div class="fv-box-value">${perStr}</div></div>
                         <div class="fv-box"><div class="fv-box-label">애널리스트${fv.analyst_target && fv.analyst_target.num_analysts ? ` (${fv.analyst_target.num_analysts}명)` : ''}</div><div class="fv-box-value">${analystStr}</div></div>
-                        <div class="fv-box"><div class="fv-box-label">Graham</div><div class="fv-box-value">${grahamStr}</div></div>
+                        <div class="fv-box"><div class="fv-box-label">${tt('Graham')}</div><div class="fv-box-value">${grahamStr}</div></div>
                         ${extraPSRow}
                     </div>
                     ${weightText ? `<div style="text-align:center;font-size:0.72rem;color:#666;margin-top:8px;">가중치: ${weightText}</div>` : ''}
@@ -1494,7 +1558,7 @@
             el.innerHTML = `
                 <div class="rs-card">
                     <div class="rs-header">
-                        <div class="rs-title">RS Rating (${rs.benchmark} 대비)</div>
+                        <div class="rs-title">${tt('RS')} Rating (${rs.benchmark} 대비)</div>
                         <div><span class="rs-composite" style="color:${compColor};">${rs.rs_composite ?? '—'}</span><span class="rs-label">${rs.label}</span></div>
                     </div>
                     <div class="rs-bars">${bars}</div>
@@ -1597,7 +1661,8 @@
                     if (c.passed === true) { bc = 'badge-yes'; bt = 'YES'; }
                     else if (c.passed === false) { bc = 'badge-no'; bt = 'NO'; }
                     else { bc = 'badge-na'; bt = 'N/A'; }
-                    cHTML += `<div class="criteria-item"><div class="criteria-name">${c.name}</div><div class="criteria-value">${c.value}</div><div class="badge ${bc}">${bt}</div></div>`;
+                    const nameHTML = window.StockIntoTooltip ? window.StockIntoTooltip.markup(c.name) : c.name;
+                    cHTML += `<div class="criteria-item"><div class="criteria-name">${nameHTML}</div><div class="criteria-value">${c.value}</div><div class="badge ${bc}">${bt}</div></div>`;
                 });
 
                 // 버핏 전용: 엄격 등급 배지
@@ -1643,7 +1708,7 @@
                         <div class="investor-header" onclick="toggleCard(${i})">
                             <div class="investor-left">
                                 <div class="investor-icon icon-${inv.icon}">${icons[inv.icon]}</div>
-                                <div><div class="investor-name">${inv.label || inv.name + '이라면?'}</div><div class="investor-sub">${inv.sub}</div></div>
+                                <div><div class="investor-name">${inv.label || inv.name + '이라면?'}</div><div class="investor-sub">${tt(inv.sub)}</div></div>
                             </div>
                             <div class="investor-right">
                                 <span class="pass-rate ${rc}">${inv.yes}/${inv.total} (${inv.rate}%)</span>
@@ -1672,7 +1737,7 @@
                 {label: '매출채권 - 매출 증가율', v: q.ar_growth_vs_rev},
                 {label: '재고 - 매출 증가율', v: q.inventory_growth_vs_rev},
             ].filter(m => m.v !== null && m.v !== undefined);
-            const metricsHTML = metrics.length ? `<div class="quality-metrics">${metrics.map(m => `<div class="quality-metric"><div class="qm-label">${m.label}</div><div class="qm-value">${m.v}</div></div>`).join('')}</div>` : '';
+            const metricsHTML = metrics.length ? `<div class="quality-metrics">${metrics.map(m => `<div class="quality-metric"><div class="qm-label">${tt(m.label)}</div><div class="qm-value">${m.v}</div></div>`).join('')}</div>` : '';
             el.innerHTML = `
                 <div class="quality-card">
                     <div class="section-title" style="margin-top:0;">재무 품질 (Earnings Quality)</div>
@@ -1692,16 +1757,16 @@
             const bc = h.roe_consistency || {};
             const cagrHTML = `
                 <div class="cagr-row">
-                    ${h.revenue_cagr != null ? `<div class="cagr-pill">매출 CAGR <b>${(h.revenue_cagr*100).toFixed(1)}%</b></div>` : ''}
-                    ${h.eps_cagr != null ? `<div class="cagr-pill">EPS CAGR <b>${(h.eps_cagr*100).toFixed(1)}%</b></div>` : ''}
-                    ${bc.passed_buffett_10yr_proxy ? `<div class="cagr-pill" style="color:#4caf50;">✓ ROE 꾸준히 15%+ (${bc.years_above_15pct}/${bc.total_measured}년)</div>` : bc.total_measured ? `<div class="cagr-pill">ROE 15%+ ${bc.years_above_15pct}/${bc.total_measured}년</div>` : ''}
+                    ${h.revenue_cagr != null ? `<div class="cagr-pill">매출 ${tt('CAGR')} <b>${(h.revenue_cagr*100).toFixed(1)}%</b></div>` : ''}
+                    ${h.eps_cagr != null ? `<div class="cagr-pill">${tt('EPS')} ${tt('CAGR')} <b>${(h.eps_cagr*100).toFixed(1)}%</b></div>` : ''}
+                    ${bc.passed_buffett_10yr_proxy ? `<div class="cagr-pill" style="color:#4caf50;">✓ ${tt('ROE')} 꾸준히 15%+ (${bc.years_above_15pct}/${bc.total_measured}년)</div>` : bc.total_measured ? `<div class="cagr-pill">${tt('ROE')} 15%+ ${bc.years_above_15pct}/${bc.total_measured}년</div>` : ''}
                 </div>`;
             el.innerHTML = `
                 <div class="chart-card"><div class="chart-title">매출 (Revenue)</div><div class="chart-canvas-wrap"><canvas id="chRevenue"></canvas></div></div>
                 <div class="chart-card"><div class="chart-title">순이익 (Net Income)</div><div class="chart-canvas-wrap"><canvas id="chNetIncome"></canvas></div></div>
-                <div class="chart-card"><div class="chart-title">EPS (주당순이익)</div><div class="chart-canvas-wrap"><canvas id="chEPS"></canvas></div></div>
-                <div class="chart-card"><div class="chart-title">ROE (%)</div><div class="chart-canvas-wrap"><canvas id="chROE"></canvas></div></div>
-                <div class="chart-card"><div class="chart-title">FCF (Free Cash Flow)</div><div class="chart-canvas-wrap"><canvas id="chFCF"></canvas></div></div>
+                <div class="chart-card"><div class="chart-title">${tt('EPS')} (주당순이익)</div><div class="chart-canvas-wrap"><canvas id="chEPS"></canvas></div></div>
+                <div class="chart-card"><div class="chart-title">${tt('ROE')} (%)</div><div class="chart-canvas-wrap"><canvas id="chROE"></canvas></div></div>
+                <div class="chart-card"><div class="chart-title">${tt('FCF')} (Free Cash Flow)</div><div class="chart-canvas-wrap"><canvas id="chFCF"></canvas></div></div>
                 ${cagrHTML}`;
             // 원화: /1e12 (조원), USD: /1e6 (백만$)
             const scale = isKR ? 1e12 : 1e6;

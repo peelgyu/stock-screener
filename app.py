@@ -220,8 +220,9 @@ def get_stock_data(ticker: str) -> dict | None:
                     ni_prev = inc.iloc[:, 1].get("Net Income") or inc.iloc[:, 1].get("Net Income Common Stockholders")
                     if ni_curr is not None and ni_prev is not None and ni_prev != 0:
                         info["earningsGrowth"] = float((ni_curr - ni_prev) / abs(ni_prev))
-        except Exception as e:
-            warnings.append(f"재무제표 로드 실패: {type(e).__name__}")
+        except Exception:
+            warnings.append("재무제표 로드 실패")
+            app.logger.warning("재무제표 로드 실패", exc_info=True)
 
         try:
             q_inc = stock.quarterly_income_stmt
