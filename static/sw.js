@@ -1,6 +1,6 @@
-// StockInto Service Worker - v18 (2일차 내실: pytest 21개 + DCF/Graham 가정 표기 마감)
+// StockInto Service Worker - v19 (3일차 내실: app.py 1,429→855줄, evaluators.py 분리)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v18';
+const CACHE_NAME = 'stockinto-v19';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
