@@ -1,6 +1,6 @@
-// StockInto Service Worker - v22 (6일차 내실: rate limit 3중 + TradingView lazy load)
+// StockInto Service Worker - v23 (7일차 내실 마감: config 외부화 + 진행상황 갱신)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v22';
+const CACHE_NAME = 'stockinto-v23';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

@@ -1,4 +1,28 @@
-"""섹터별 상대 기준값. 고정 테이블(시장 중앙값 근사)."""
+"""섹터별 상대 기준값. 고정 테이블(시장 중앙값 근사).
+
+기본 테이블은 config/sector_defaults.json에서 로드. 파일 없거나 깨지면 아래 하드코딩 폴백.
+운영 중 임계값 조정은 config/sector_defaults.json만 바꾸고 재배포.
+"""
+import os
+import json as _json
+
+_CONFIG_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "sector_defaults.json")
+
+
+def _load_config_overrides():
+    """config 파일이 있으면 로드 → SECTOR_THRESHOLDS·SECTOR_WEIGHTS·DEFAULT_* 갱신."""
+    try:
+        with open(_CONFIG_PATH, encoding="utf-8") as f:
+            cfg = _json.load(f)
+        return {
+            "thresholds": cfg.get("thresholds") or {},
+            "default_thresholds": cfg.get("default_thresholds"),
+            "weights": cfg.get("weights") or {},
+            "default_weights": cfg.get("default_weights"),
+        }
+    except Exception:
+        return None
+
 
 SECTOR_THRESHOLDS = {
     "Technology": {
@@ -80,6 +104,19 @@ SECTOR_WEIGHTS = {
     "Real Estate":            {"dcf": 0.15, "per": 0.20, "graham": 0.45, "analyst": 0.20},
 }
 DEFAULT_WEIGHTS = {"dcf": 0.30, "per": 0.30, "graham": 0.15, "analyst": 0.25}
+
+
+# ── config/sector_defaults.json 오버라이드 적용 (있으면)
+_overrides = _load_config_overrides()
+if _overrides:
+    if _overrides["thresholds"]:
+        SECTOR_THRESHOLDS = _overrides["thresholds"]
+    if _overrides["default_thresholds"]:
+        DEFAULT_THRESHOLDS = _overrides["default_thresholds"]
+    if _overrides["weights"]:
+        SECTOR_WEIGHTS = _overrides["weights"]
+    if _overrides["default_weights"]:
+        DEFAULT_WEIGHTS = _overrides["default_weights"]
 
 
 def get_sector_thresholds(sector: str | None) -> dict:
