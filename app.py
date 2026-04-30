@@ -109,7 +109,12 @@ def _canonical_redirect():
 def _handle_500(e):
     if request.path.startswith("/api/"):
         app.logger.exception("API 500 error")
-        return jsonify({"error": "서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
+        msg = "서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
+        # 임시 진단 모드 — STOCKINTO_DEBUG=1 환경변수 있으면 traceback 노출
+        if os.getenv("STOCKINTO_DEBUG") == "1":
+            import traceback
+            return jsonify({"error": msg, "_debug": traceback.format_exc()[:2000]}), 500
+        return jsonify({"error": msg}), 500
     return "Internal Server Error", 500
 
 
@@ -121,6 +126,14 @@ def _handle_exc(e):
         return e
     if request.path.startswith("/api/"):
         app.logger.exception("API exception")
+        # 임시 진단 — STOCKINTO_DEBUG=1 일 때만 traceback 응답에 포함
+        if os.getenv("STOCKINTO_DEBUG") == "1":
+            import traceback
+            return jsonify({
+                "error": "요청 처리 중 오류가 발생했습니다.",
+                "_debug": f"{type(e).__name__}: {str(e)[:500]}",
+                "_tb": traceback.format_exc()[:2000],
+            }), 500
         # 운영에선 내부 정보 절대 노출 금지 — 일반화된 메시지만 반환
         return jsonify({"error": "요청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}), 500
     raise e
