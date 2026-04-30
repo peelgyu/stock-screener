@@ -217,6 +217,15 @@ def _csrf_origin_check():
 # evaluators 함수들은 analysis/evaluators.py로 이동 (3일차 분리)
 
 
+@cached(ttl=1800)  # 30분 캐시 — Yahoo 레이트리밋 완화
+def get_stock_data(ticker: str) -> dict | None:
+    """yfinance·FDR 통합 fetch + 30분 캐시. 분석 핵심 진입점."""
+    fetched = fetch_stock_data(ticker)
+    if fetched is None:
+        return None
+    return fetched
+
+
 
 import re
 
