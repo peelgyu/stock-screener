@@ -1,6 +1,6 @@
-// StockInto Service Worker - v24 (HOTFIX: 분석 시 NameError get_stock_data 복원)
+// StockInto Service Worker - v25 (HOTFIX2: evaluate_positions 복원 + 통합 테스트 + 의존성 고정)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v24';
+const CACHE_NAME = 'stockinto-v25';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

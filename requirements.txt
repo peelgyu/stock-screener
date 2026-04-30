@@ -1,9 +1,11 @@
-flask
-yfinance
-finance-datareader
-numpy
-pandas
-gunicorn
-python-dotenv
-requests
-sentry-sdk[flask]
+# 핵심 의존성 — 자동 업데이트로 깨지는 사고 방지 위해 메이저 버전 상한 고정
+# (마이너 패치는 허용, 호환성 유지하면서 보안 패치 받음)
+flask>=3.0,<4.0
+yfinance>=0.2.40,<0.3
+finance-datareader>=0.9,<1.0
+numpy>=1.26,<3.0
+pandas>=2.0,<3.0
+gunicorn>=21.0,<23.0
+python-dotenv>=1.0,<2.0
+requests>=2.31,<3.0
+sentry-sdk[flask]>=2.0,<3.0

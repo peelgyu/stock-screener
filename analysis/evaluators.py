@@ -38,6 +38,83 @@ def fmt_money(amount: float, info: dict = None) -> str:
     return f"${amount:,.0f}"
 
 
+def evaluate_positions(data: dict) -> dict:
+    """공매도·기관 보유 등 시장 포지션 정보를 short/long으로 정리."""
+    info = data.get("info") or {}
+    short_data, long_data = [], []
+
+    shares_short = safe_get(info, "sharesShort")
+    if shares_short is not None:
+        if shares_short >= 1e9:
+            val = f"{shares_short/1e9:.2f}B"
+        elif shares_short >= 1e6:
+            val = f"{shares_short/1e6:.1f}M"
+        else:
+            val = f"{shares_short/1e3:.0f}K"
+        short_data.append({"name": "공매도 수량", "value": val})
+
+    short_pct = safe_get(info, "shortPercentOfFloat")
+    if short_pct is not None:
+        if short_pct >= 0.20:
+            level = " (매우 높음 - 숏스퀴즈 주의)"
+        elif short_pct >= 0.10:
+            level = " (높음)"
+        elif short_pct >= 0.05:
+            level = " (보통)"
+        else:
+            level = " (낮음)"
+        short_data.append({"name": "공매도 비율 (유통주식 대비)", "value": f"{short_pct*100:.1f}%{level}"})
+
+    short_ratio = safe_get(info, "shortRatio")
+    if short_ratio is not None:
+        if short_ratio >= 10:
+            level = " (숏커버 어려움)"
+        elif short_ratio >= 5:
+            level = " (높음)"
+        else:
+            level = " (보통)"
+        short_data.append({"name": "숏 커버 일수 (Days to Cover)", "value": f"{short_ratio:.1f}일{level}"})
+
+    shares_short_prev = safe_get(info, "sharesShortPriorMonth")
+    if shares_short is not None and shares_short_prev is not None and shares_short_prev > 0:
+        change = (shares_short - shares_short_prev) / shares_short_prev * 100
+        direction = "증가" if change > 0 else "감소"
+        short_data.append({"name": "전월 대비 공매도 변화", "value": f"{change:+.1f}% ({direction})"})
+
+    inst_pct = safe_get(info, "heldPercentInstitutions")
+    if inst_pct is not None:
+        long_data.append({"name": "기관 보유 비율", "value": f"{inst_pct*100:.1f}%"})
+
+    insider_pct = safe_get(info, "heldPercentInsiders")
+    if insider_pct is not None:
+        long_data.append({"name": "내부자 보유 비율", "value": f"{insider_pct*100:.1f}%"})
+
+    for key, name in [("floatShares", "유통 주식수"), ("sharesOutstanding", "총 발행 주식수")]:
+        v = safe_get(info, key)
+        if v is not None:
+            if v >= 1e9:
+                val = f"{v/1e9:.2f}B"
+            elif v >= 1e6:
+                val = f"{v/1e6:.0f}M"
+            else:
+                val = f"{v/1e3:.0f}K"
+            long_data.append({"name": name, "value": val})
+
+    sentiment = "중립"
+    sentiment_detail = ""
+    if short_pct is not None:
+        if short_pct >= 0.20:
+            sentiment, sentiment_detail = "강한 약세 베팅", "공매도 비율이 매우 높아 숏스퀴즈 가능성 있음"
+        elif short_pct >= 0.10:
+            sentiment, sentiment_detail = "약세 베팅 우세", "공매도가 상당히 잡혀있어 하락 압력 존재"
+        elif short_pct >= 0.05:
+            sentiment, sentiment_detail = "소폭 약세", "적당한 수준의 공매도"
+        else:
+            sentiment, sentiment_detail = "강세 우세", "공매도가 적어 시장이 낙관적"
+
+    return {"short": short_data, "long": long_data, "sentiment": sentiment, "sentimentDetail": sentiment_detail}
+
+
 def evaluate_buffett(info: dict, sector_t: dict, history_data: dict | None = None, fair_value: dict | None = None) -> list[dict]:
     """버핏 9대 기준 — 원조 5개 + 개선 4개 (다년도 ROE·해자·안전마진)."""
     results = []

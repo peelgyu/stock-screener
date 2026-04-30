@@ -75,6 +75,7 @@ from analysis.verdict import generate_verdict
 from analysis.most_active import get_most_active
 from analysis.evaluators import (
     safe_get, fmt_money,
+    evaluate_positions,
     evaluate_buffett, buffett_strict_grade,
     evaluate_graham, lynch_category, evaluate_lynch, evaluate_fisher,
 )
