@@ -106,7 +106,9 @@ def _canonical_redirect():
     return None
 
 
-_DIAG_TOKEN = "stockinto-diag-2026-04-30"  # 임시 진단 토큰 — 진단 끝나면 제거
+def _diag_enabled() -> bool:
+    """진단 모드 활성 — env STOCKINTO_DEBUG=1 일 때만 (헤더 토큰은 진단 끝나면서 제거)."""
+    return os.getenv("STOCKINTO_DEBUG") == "1"
 
 
 @app.errorhandler(500)
@@ -114,22 +116,11 @@ def _handle_500(e):
     if request.path.startswith("/api/"):
         app.logger.exception("API 500 error")
         msg = "서버에 일시적인 문제가 발생했습니다. 잠시 후 다시 시도해주세요."
-        try:
-            diag = (os.getenv("STOCKINTO_DEBUG") == "1") or (request.headers.get("X-Diag-Token") == _DIAG_TOKEN)
-        except Exception:
-            diag = False
-        if diag:
+        if _diag_enabled():
             import traceback
             return jsonify({"error": msg, "_debug": traceback.format_exc()[:2500]}), 500
         return jsonify({"error": msg}), 500
     return "Internal Server Error", 500
-
-
-def _diag_enabled() -> bool:
-    """진단 모드 활성 — env STOCKINTO_DEBUG=1 또는 X-Diag-Token 헤더 일치."""
-    if os.getenv("STOCKINTO_DEBUG") == "1":
-        return True
-    return request.headers.get("X-Diag-Token") == _DIAG_TOKEN
 
 
 @app.errorhandler(Exception)
@@ -140,7 +131,6 @@ def _handle_exc(e):
         return e
     if request.path.startswith("/api/"):
         app.logger.exception("API exception")
-        # 임시 진단 — env 또는 토큰 헤더 있으면 traceback 노출
         if _diag_enabled():
             import traceback
             return jsonify({
