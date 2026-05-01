@@ -302,3 +302,188 @@ def get_kr_description(ticker: str) -> str | None:
         return None
     code = ticker.split(".")[0]
     return KR_DESCRIPTIONS.get(code)
+
+
+# ────────────────── 미국 인기 종목 한국어 사업 설명 ──────────────────
+# yfinance longBusinessSummary는 영문이라 한국 사용자에게 답답.
+# 인기 종목 100+개 직접 한국어 작성.
+US_DESCRIPTIONS = {
+    # ── Magnificent 7
+    "AAPL":  "아이폰·맥·아이패드 등 글로벌 1위 가전·소프트웨어 생태계.",
+    "MSFT":  "윈도우·오피스·Azure 클라우드 글로벌 빅테크.",
+    "GOOGL": "구글 검색·유튜브·안드로이드·클라우드 알파벳 모회사.",
+    "GOOG":  "구글 클래스 C 주식 (의결권 없음, 알파벳).",
+    "AMZN":  "글로벌 1위 이커머스 + AWS 클라우드 1위.",
+    "META":  "페이스북·인스타그램·왓츠앱·VR 메타버스.",
+    "NVDA":  "AI·게이밍 GPU 글로벌 1위. CUDA 생태계 지배.",
+    "TSLA":  "전기차 1위 + 자율주행·로봇·에너지저장.",
+    # ── 빅테크·반도체
+    "AMD":   "CPU·GPU 글로벌 2위. 데이터센터 점유율 급성장.",
+    "INTC":  "x86 CPU 전통 강자. 파운드리 사업 재기 중.",
+    "AVGO":  "통신·네트워크 반도체. VMware 인수 후 소프트웨어 확장.",
+    "QCOM":  "스마트폰 모뎀·SoC 1위 (스냅드래곤).",
+    "TXN":   "아날로그 반도체 1위.",
+    "MU":    "메모리 반도체 글로벌 3위 (DRAM·NAND).",
+    "TSM":   "TSMC. 세계 최대 반도체 파운드리 (애플·엔비디아 위탁생산).",
+    "ASML":  "EUV 노광장비 독점 — 반도체 미세공정 핵심.",
+    "AMAT":  "반도체 장비 글로벌 3위.",
+    "LRCX":  "반도체 식각·증착 장비 (Lam Research).",
+    "KLAC":  "반도체 검사장비.",
+    "NFLX":  "글로벌 1위 OTT 스트리밍 — 자체 콘텐츠 강자.",
+    "CRM":   "Salesforce. 클라우드 CRM 1위 (B2B SaaS).",
+    "ORCL":  "엔터프라이즈 데이터베이스·클라우드.",
+    "ADBE":  "포토샵·일러스트·PDF — 크리에이티브 SaaS 1위.",
+    "CSCO":  "네트워크 장비·보안 글로벌 1위.",
+    "IBM":   "클라우드·AI(Watson)·컨설팅. 전통 빅테크.",
+    "DELL":  "PC·서버·스토리지.",
+    "HPQ":   "PC·프린터.",
+    "PANW":  "Palo Alto Networks. 사이버 보안 1위.",
+    "CRWD":  "CrowdStrike. 클라우드 엔드포인트 보안.",
+    "ZS":    "Zscaler. 클라우드 네트워크 보안.",
+    "DDOG":  "Datadog. 클라우드 모니터링 SaaS.",
+    "SNOW":  "Snowflake. 클라우드 데이터 웨어하우스.",
+    "PLTR":  "Palantir. 정부·기업용 빅데이터 분석 (AI 플랫폼).",
+    "NET":   "Cloudflare. CDN·DDoS 방어 글로벌 1위.",
+    "MDB":   "MongoDB. NoSQL 데이터베이스 1위.",
+    "TEAM":  "Atlassian. Jira·Confluence 협업 도구.",
+    "NOW":   "ServiceNow. 기업 IT 워크플로 SaaS.",
+    "INTU":  "Intuit. TurboTax·QuickBooks 회계 SaaS.",
+    "SHOP":  "Shopify. 이커머스 플랫폼 SaaS.",
+    "U":     "Unity. 게임 엔진 (모바일 게임 50%+ 점유).",
+    "RBLX":  "Roblox. 청소년 게임·메타버스 플랫폼.",
+    # ── 금융
+    "JPM":   "JP모건체이스. 미국 1위 종합금융.",
+    "BAC":   "뱅크오브아메리카. 미국 2위 은행.",
+    "WFC":   "웰스파고. 미국 4위 은행.",
+    "C":     "씨티그룹. 글로벌 투자은행.",
+    "GS":    "골드만삭스. 글로벌 투자은행 1위.",
+    "MS":    "모건스탠리. 글로벌 투자은행·자산관리.",
+    "V":     "비자. 글로벌 카드 결제 네트워크 1위.",
+    "MA":    "마스터카드. 글로벌 카드 결제 네트워크 2위.",
+    "AXP":   "아메리칸 익스프레스. 프리미엄 카드.",
+    "BLK":   "블랙록. 세계 최대 자산운용사 (10조달러+ AUM).",
+    "BRK.B": "버크셔 해서웨이 B주. 워렌 버핏 지주회사.",
+    "BRK-B": "버크셔 해서웨이 B주. 워렌 버핏 지주회사.",
+    "BX":    "블랙스톤. 글로벌 사모펀드 1위.",
+    "SCHW":  "찰스슈왑. 미국 최대 증권사.",
+    "PYPL":  "페이팔. 글로벌 온라인 결제.",
+    # ── 소비재 (일상)
+    "WMT":   "월마트. 미국 1위 대형마트.",
+    "COST":  "코스트코. 회원제 창고형 매장 글로벌 1위.",
+    "HD":    "홈디포. 미국 1위 DIY·홈인테리어.",
+    "LOW":   "Lowe's. 홈디포 경쟁사.",
+    "TGT":   "타겟. 미국 대형 유통업체.",
+    "KO":    "코카콜라. 글로벌 음료 1위 (워렌 버핏 보유).",
+    "PEP":   "펩시코. 음료·과자 글로벌 톱.",
+    "MCD":   "맥도날드. 글로벌 패스트푸드 1위.",
+    "SBUX":  "스타벅스. 글로벌 커피 체인 1위.",
+    "NKE":   "나이키. 글로벌 스포츠웨어 1위.",
+    "ADDYY": "아디다스. 글로벌 스포츠웨어 2위.",
+    "PG":    "P&G. 일용품 글로벌 톱 (타이드·질레트).",
+    "JNJ":   "존슨앤존슨. 의약품·의료기기 글로벌 톱.",
+    "UNH":   "UnitedHealth. 미국 1위 의료보험.",
+    "DIS":   "디즈니. 콘텐츠·테마파크·스트리밍.",
+    "ULTA":  "Ulta Beauty. 미국 1위 뷰티 유통.",
+    "EL":    "에스티로더. 글로벌 화장품.",
+    "LVMH":  "루이비통 모회사. 글로벌 럭셔리 1위.",
+    # ── 자동차·산업
+    "F":     "포드. 미국 전통 자동차.",
+    "GM":    "제너럴모터스. 미국 1위 완성차.",
+    "RIVN":  "리비안. 전기 픽업트럭 신생.",
+    "LCID":  "루시드. 프리미엄 전기차 신생.",
+    "BA":    "보잉. 글로벌 항공기 메이커.",
+    "LMT":   "록히드마틴. 미국 1위 방산.",
+    "RTX":   "RTX. 항공우주·방산 (Raytheon).",
+    "GE":    "GE Aerospace. 항공기 엔진 글로벌 톱.",
+    "CAT":   "캐터필러. 건설중장비 글로벌 1위.",
+    "DE":    "디어. 농업기계 글로벌 1위.",
+    "HON":   "허니웰. 산업·항공 다국적.",
+    "ETN":   "이튼. 전력관리 솔루션.",
+    "EMR":   "Emerson. 산업 자동화.",
+    # ── 에너지
+    "XOM":   "엑손모빌. 미국 1위 정유.",
+    "CVX":   "쉐브론. 미국 2위 정유.",
+    "COP":   "코노코필립스. 미국 셰일 정유.",
+    "OXY":   "옥시덴탈. 워렌 버핏 보유 정유.",
+    "SLB":   "Schlumberger. 유전 서비스 1위.",
+    # ── 헬스케어·바이오
+    "LLY":   "Eli Lilly. 비만치료제(Mounjaro/Zepbound) 글로벌 핫.",
+    "PFE":   "화이자. 글로벌 톱 제약 (코로나 백신).",
+    "MRK":   "Merck. 글로벌 톱 제약 (Keytruda 등).",
+    "ABBV":  "AbbVie. 휴미라·릭슈마 글로벌 제약.",
+    "BMY":   "브리스톨마이어스스큅.",
+    "AMGN":  "암젠. 바이오 의약품.",
+    "GILD":  "Gilead. HIV·간염 치료제.",
+    "REGN":  "Regeneron. 안과·아토피 신약.",
+    "VRTX":  "Vertex. 낭포성 섬유증·통증 신약.",
+    "MRNA":  "Moderna. mRNA 백신·치료제 (코로나 백신).",
+    "BNTX":  "BioNTech. mRNA 백신.",
+    "NVAX":  "노바백스. 단백질 기반 코로나 백신 (재정 위기).",
+    "TMO":   "Thermo Fisher. 생명과학 장비·시약.",
+    "DHR":   "Danaher. 의료·산업 진단장비.",
+    "ISRG":  "Intuitive Surgical. 수술용 로봇(다빈치) 글로벌 1위.",
+    # ── 통신·미디어
+    "T":     "AT&T. 미국 최대 통신.",
+    "VZ":    "버라이즌. 미국 통신.",
+    "TMUS":  "T-Mobile. 미국 무선통신 3위.",
+    "CHTR":  "차터커뮤니케이션. 케이블·인터넷.",
+    "CMCSA": "컴캐스트. 케이블·NBC.",
+    # ── 부동산·리츠
+    "AMT":   "American Tower. 통신탑 리츠 글로벌 1위.",
+    "PLD":   "Prologis. 물류 부동산 리츠 1위.",
+    "CCI":   "Crown Castle. 통신탑 리츠.",
+    "EQIX":  "에퀴닉스. 데이터센터 리츠 1위.",
+    "DLR":   "디지털리얼티. 데이터센터 리츠.",
+    # ── 핀테크·기타
+    "SQ":    "Block (스퀘어). 모바일 결제·크립토.",
+    "COIN":  "코인베이스. 미국 최대 암호화폐 거래소.",
+    "MSTR":  "MicroStrategy. 비트코인 대량 보유 (BI 소프트웨어).",
+    # ── ETF (주요)
+    "SPY":   "SPDR S&P500 ETF. 미국 대표 지수 추종.",
+    "QQQ":   "Invesco NASDAQ-100 ETF. 미국 빅테크 100.",
+    "VOO":   "Vanguard S&P500 ETF (저비용).",
+    "VTI":   "Vanguard 전체시장 ETF.",
+    "IVV":   "iShares S&P500 ETF.",
+    "DIA":   "SPDR 다우존스 ETF.",
+    "ARKK":  "ARK Innovation ETF (Cathie Wood).",
+    "TQQQ":  "QQQ 3배 레버리지 ETF (위험).",
+    "SQQQ":  "QQQ 3배 인버스 ETF (하락 베팅).",
+    "SOXX":  "iShares 반도체 ETF.",
+    "SMH":   "VanEck 반도체 ETF.",
+    "XLF":   "SPDR 금융 섹터 ETF.",
+    "XLK":   "SPDR 기술 섹터 ETF.",
+    "XLE":   "SPDR 에너지 섹터 ETF.",
+    "XLV":   "SPDR 헬스케어 섹터 ETF.",
+}
+
+
+# ────────────────── 섹터 한국어 매핑 ──────────────────
+# yfinance가 영문으로 주는 sector를 한국어로 변환 (industry는 너무 다양해서 패스).
+SECTOR_KR = {
+    "Technology":             "기술",
+    "Healthcare":             "헬스케어",
+    "Financial Services":     "금융",
+    "Consumer Cyclical":      "경기소비재",
+    "Consumer Defensive":     "필수소비재",
+    "Communication Services": "커뮤니케이션",
+    "Industrials":            "산업재",
+    "Energy":                 "에너지",
+    "Utilities":              "유틸리티",
+    "Real Estate":            "부동산",
+    "Basic Materials":        "기초소재",
+}
+
+
+def get_us_description(ticker: str) -> str | None:
+    """미국 티커 → 한국어 사업 설명. 없으면 None."""
+    if not ticker:
+        return None
+    t = ticker.upper().split(".")[0]
+    return US_DESCRIPTIONS.get(t)
+
+
+def sector_kr(sector_en: str) -> str:
+    """yfinance 영문 sector → 한국어. 매핑 없으면 원문 그대로."""
+    if not sector_en:
+        return sector_en or ""
+    return SECTOR_KR.get(sector_en, sector_en)

@@ -57,7 +57,8 @@ class SafeJSONProvider(DefaultJSONProvider):
         kwargs.setdefault("allow_nan", False)
         return json_lib.dumps(clean(obj), **kwargs)
 
-from kr_stocks import search_kr_stocks, KR_STOCKS, US_STOCKS_KR, get_kr_description
+from kr_stocks import search_kr_stocks, KR_STOCKS, US_STOCKS_KR, get_kr_description, get_us_description, sector_kr
+from data.fx import get_usd_krw
 from data.cache import cache, cached
 from data.fetcher import fetch_stock_data, detect_fetch_error_type
 from data import dart_client
@@ -478,33 +479,52 @@ def analyze():
 
     is_kr = ticker.endswith(".KS") or ticker.endswith(".KQ")
 
-    # 사업 한 줄 설명 — 한국 종목은 직접 매핑, 미국은 yfinance 영문 첫 문장
+    # 사업 한 줄 설명 — 4단 폴백 (한국 매핑 → 미국 매핑 → 한국어 sector·industry → 영문)
     description = None
     if is_kr:
         description = get_kr_description(ticker)
+    else:
+        description = get_us_description(ticker)  # 신규: 미국 종목 한국어 매핑
     if not description:
-        # yfinance longBusinessSummary 첫 문장 (보통 영문)
+        # 한국어 sector·industry 조합 폴백 (영문보다 친화적)
+        ind = safe_get(info, "industry", "")
+        sector_ko = sector_kr(sector) if sector and sector != "N/A" else ""
+        if sector_ko and ind:
+            description = f"{sector_ko} · {ind}"
+        elif sector_ko:
+            description = sector_ko
+    if not description:
+        # 마지막 폴백: yfinance longBusinessSummary 첫 문장 (영문)
         summary = safe_get(info, "longBusinessSummary", "") or ""
         if summary:
-            # 첫 마침표까지, 너무 길면 200자 컷
             first_sentence = summary.split(". ")[0].strip()
             if len(first_sentence) > 200:
                 first_sentence = first_sentence[:200].rsplit(" ", 1)[0] + "..."
             description = first_sentence + "." if first_sentence and not first_sentence.endswith(".") else first_sentence
-    if not description:
-        # 폴백: 섹터·산업
-        ind = safe_get(info, "industry", "")
-        if sector and ind:
-            description = f"{sector} · {ind}"
-        elif sector:
-            description = sector
+
+    # 미국 종목 시총에 원화 환산 추가 표시
+    cap_str_full = cap_str
+    if not is_kr and market_cap and market_cap > 0:
+        try:
+            usd_krw = get_usd_krw()
+            krw_cap = market_cap * usd_krw
+            if krw_cap >= 1e12:
+                krw_str = f"₩{krw_cap/1e12:,.1f}조"
+            elif krw_cap >= 1e8:
+                krw_str = f"₩{krw_cap/1e8:,.0f}억"
+            else:
+                krw_str = f"₩{krw_cap:,.0f}"
+            cap_str_full = f"{cap_str} (≈ {krw_str})"
+        except Exception:
+            pass  # 환율 실패해도 영향 없음
 
     stock_info = {
         "name": safe_get(info, "longName", ticker),
-        "sector": sector,
+        "sector": sector_kr(sector) if sector and sector != "N/A" else sector,  # 섹터 한국어
+        "sectorEn": sector,  # 영문 sector도 보존 (분석 로직용)
         "industry": safe_get(info, "industry", "N/A"),
         "price": price_str,
-        "marketCap": cap_str,
+        "marketCap": cap_str_full,  # 원화 환산 포함
         "logo": safe_get(info, "logo_url", ""),
         "description": description or "",
     }

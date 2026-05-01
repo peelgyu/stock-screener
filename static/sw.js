@@ -1,6 +1,6 @@
-// StockInto Service Worker - v29 (HOTFIX: Render 메모리 폭주 + 공포탐욕 hist 폴백)
+// StockInto Service Worker - v30 (미국 종목 한국어 설명 135개 + 시총 원화 환산 + 섹터 한글화)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v29';
+const CACHE_NAME = 'stockinto-v30';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
