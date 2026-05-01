@@ -88,7 +88,7 @@
         {
           "@type": "Question",
           "name": "어떤 데이터를 사용하나요?",
-          "acceptedAnswer": {"@type": "Answer", "text": "미국 주식은 Yahoo Finance, 한국 주식 시세는 FinanceDataReader(KRX), 한국 주식 재무제표는 금융감독원 전자공시시스템(DART) OpenAPI를 사용합니다. 공공데이터법 공공누리 제1유형(출처표시)을 준수합니다."}
+          "acceptedAnswer": {"@type": "Answer", "text": "미국 상장사 공시 재무는 미국 증권거래위원회(SEC) EDGAR(Public Domain), 미국 시세는 Yahoo Finance(백업), 한국 시세는 FinanceDataReader(KRX), 한국 재무제표는 금융감독원 전자공시시스템(DART) OpenAPI를 사용합니다. SEC 데이터는 17 USC §105에 따라 Public Domain, DART 데이터는 공공데이터법 공공누리 제1유형(출처표시)을 준수합니다."}
         },
         {
           "@type": "Question",
@@ -984,8 +984,8 @@
             본 서비스는 자본시장법상 투자자문업·유사투자자문업이 아니며, 인가된 금융투자업자가 아닙니다.<br>
             제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 참고 정보이며,<br>
             <strong>투자 판단과 그에 따른 결과의 책임은 이용자 본인</strong>에게 있습니다.<br>
-            데이터 출처: Yahoo Finance (미국 주식 시세 · 15~20분 지연) · <a href="https://opendart.fss.or.kr" target="_blank" rel="noopener" style="color:#888;">금융감독원 DART</a> (한국 주식 공시 재무) · <a href="https://finance.naver.com" target="_blank" rel="noopener" style="color:#888;">FinanceDataReader</a> (KRX 한국 주식 시세)<br>
-            <small style="color:#666;">본 서비스는 공공데이터법에 따라 DART 공시자료를 이용합니다 (공공누리 제1유형, 출처표시).</small><br><br>
+            데이터 출처: <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener" style="color:#888;">SEC EDGAR</a> (미국 상장사 공시 재무 · Public Domain) · Yahoo Finance (미국 시세 · 15~20분 지연) · <a href="https://opendart.fss.or.kr" target="_blank" rel="noopener" style="color:#888;">금융감독원 DART</a> (한국 공시 재무) · <a href="https://finance.naver.com" target="_blank" rel="noopener" style="color:#888;">FinanceDataReader</a> (KRX 한국 시세)<br>
+            <small style="color:#666;">SEC EDGAR 데이터는 17 USC §105에 따라 Public Domain. DART 공시자료는 공공누리 제1유형(출처표시) 준수.</small><br><br>
             <a href="/about" target="_blank">ℹ 소개</a> · <a href="/glossary" target="_blank">📚 용어 사전</a> · <a href="/install" target="_blank">📱 앱 설치</a> · <a href="/contact" target="_blank">✉ 문의</a> · <a href="/terms" target="_blank">이용약관</a> · <a href="/privacy" target="_blank">개인정보처리방침</a>
         </div>
     </div>
@@ -1834,7 +1834,7 @@
             const bc = h.roe_consistency || {};
             const yearsRange = (h.years && h.years.length) ? `${h.years[0]}~${h.years[h.years.length-1]} 결산 기준` : '연간 결산 기준';
             const cagrHTML = `
-                <div style="font-size:0.72rem;color:#888;margin-bottom:8px;text-align:center;">📅 ${yearsRange} · 출처: ${isKR ? 'DART 공시' : 'Yahoo Finance'}</div>
+                <div style="font-size:0.72rem;color:#888;margin-bottom:8px;text-align:center;">📅 ${yearsRange} · 출처: ${isKR ? 'DART 공시' : 'SEC EDGAR'}</div>
                 <div class="cagr-row">
                     ${h.revenue_cagr != null ? `<div class="cagr-pill">매출 ${tt('CAGR')} <b>${(h.revenue_cagr*100).toFixed(1)}%</b></div>` : ''}
                     ${h.eps_cagr != null ? `<div class="cagr-pill">${tt('EPS')} ${tt('CAGR')} <b>${(h.eps_cagr*100).toFixed(1)}%</b></div>` : ''}

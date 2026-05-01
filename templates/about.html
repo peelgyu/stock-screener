@@ -135,13 +135,15 @@
         <h2>📊 데이터 출처</h2>
         <div class="data-card">
             <p>
-                <strong>🇺🇸 미국 주식</strong> — Yahoo Finance API (15~20분 지연)<br>
+                <strong>🇺🇸 미국 상장사 공시 재무</strong> — <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener">미국 증권거래위원회(SEC) EDGAR</a> (10-K, 10-Q, XBRL companyfacts API)<br>
+                <strong>🇺🇸 미국 주식 시세 (백업)</strong> — Yahoo Finance API (15~20분 지연)<br>
                 <strong>🇰🇷 한국 주식 공시 재무</strong> — <a href="https://opendart.fss.or.kr" target="_blank" rel="noopener">금융감독원 전자공시시스템(DART) OpenAPI</a><br>
                 <strong>🇰🇷 한국 주식 시세·거래량</strong> — FinanceDataReader (KRX)<br>
                 <strong>시장 지수</strong> — S&P500 (^GSPC), KOSPI (^KS11)
             </p>
             <p style="margin-top:10px;color:#888;font-size:0.82rem;">
-                본 서비스는 「공공데이터의 제공 및 이용 활성화에 관한 법률」에 따라 DART 공시자료를 이용하며, <strong style="color:#aaa;">공공누리 제1유형(출처표시)</strong> 라이선스 조건을 준수합니다.
+                <strong style="color:#aaa;">SEC EDGAR 데이터</strong>는 미국 저작권법 <strong>17 U.S.C. §105</strong>에 따라 미국 정부 저작물로서 <strong style="color:#aaa;">Public Domain</strong>이며, 본 서비스는 자율적으로 출처를 표기합니다. 본 서비스는 SEC와 무관하며, SEC·EDGAR 트레이드마크를 도메인·회사명에 사용하지 않습니다.<br>
+                <strong style="color:#aaa;">DART 공시자료</strong>는 「공공데이터의 제공 및 이용 활성화에 관한 법률」에 따라 이용하며 <strong style="color:#aaa;">공공누리 제1유형(출처표시)</strong> 라이선스 조건을 준수합니다.
                 삼성전자·SK하이닉스·네이버 등 주요 종목 매출·순이익 값이 DART 공시와 100% 일치함을 검증했습니다.
             </p>
         </div>
@@ -149,7 +151,7 @@
         <h2>🛠 기술 스택</h2>
         <ul>
             <li>백엔드: Python 3.12 + Flask + Gunicorn</li>
-            <li>분석: yfinance·FinanceDataReader·DART OpenAPI·NumPy·Pandas</li>
+            <li>분석: yfinance·FinanceDataReader·DART OpenAPI·SEC EDGAR API·NumPy·Pandas</li>
             <li>프론트: Vanilla JS + Chart.js + TradingView 위젯 + Pretendard 폰트</li>
             <li>인프라: Render (PaaS) · Cloudflare (SSL·CDN) · UptimeRobot (모니터링)</li>
             <li>분석 도구: Google Analytics 4 · Search Console · Naver Search Advisor</li>
