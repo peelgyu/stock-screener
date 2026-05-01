@@ -179,15 +179,20 @@ def _rate_limit():
 
 
 # 허용된 Origin (CSRF 차단 — 외부 도메인 fetch 공격 방지)
-# 추가 origin은 환경변수 ALLOWED_ORIGINS_EXTRA로 콤마구분 등록 가능
-# (예: Railway/Vercel 임시 URL 같은 임시 도메인 테스트용)
+import re as _re_origin
 _ALLOWED_ORIGINS = {
     "https://stockinto.com",
     "https://www.stockinto.com",
     "https://stockinto.co.kr",
     "https://www.stockinto.co.kr",
     "https://stock-screener-1-mgkv.onrender.com",
+    # Railway 임시 URL — 도메인 전환 후엔 제거 권장
+    "https://web-production-2c5e2.up.railway.app",
 }
+# Railway 임시 도메인 패턴 자동 허용 (web-production-XXXX.up.railway.app)
+# 도메인 전환 후 이 줄 + 위 임시 URL 두 줄 모두 제거 가능
+_RAILWAY_TEMP_PATTERN = _re_origin.compile(r"^https://[\w\-]+\.up\.railway\.app$")
+# 환경변수 ALLOWED_ORIGINS_EXTRA로 추가 origin도 콤마구분 등록 가능
 _extra = (os.getenv("ALLOWED_ORIGINS_EXTRA") or "").strip()
 if _extra:
     for o in _extra.split(","):
@@ -196,19 +201,41 @@ if _extra:
             _ALLOWED_ORIGINS.add(o)
 
 
+def _is_origin_allowed(origin: str) -> bool:
+    """Origin 허용 여부 — 화이트리스트 또는 Railway 임시 URL 패턴."""
+    if not origin:
+        return False
+    o = origin.rstrip("/")
+    if o in _ALLOWED_ORIGINS:
+        return True
+    if _RAILWAY_TEMP_PATTERN.match(o):
+        return True
+    return False
+
+
 @app.before_request
 def _csrf_origin_check():
-    """POST API 요청은 Origin/Referer가 자기 도메인이어야 함 (CSRF 차단)."""
+    """POST API 요청은 Origin/Referer가 자기 도메인이어야 함 (CSRF 차단).
+
+    검사 순서: 화이트리스트 + Railway 임시 도메인 패턴 모두 허용.
+    """
     if request.method != "POST" or not request.path.startswith("/api/"):
         return None
     origin = request.headers.get("Origin", "")
     referer = request.headers.get("Referer", "")
     # Origin 검사 우선, 없으면 Referer로 폴백
     if origin:
-        if origin not in _ALLOWED_ORIGINS:
+        if not _is_origin_allowed(origin):
             return jsonify({"error": "잘못된 요청 출처입니다."}), 403
     elif referer:
-        if not any(referer.startswith(o) for o in _ALLOWED_ORIGINS):
+        # Referer는 path까지 포함되니 origin 부분만 추출해서 비교
+        try:
+            from urllib.parse import urlparse
+            p = urlparse(referer)
+            ref_origin = f"{p.scheme}://{p.netloc}"
+            if not _is_origin_allowed(ref_origin):
+                return jsonify({"error": "잘못된 요청 출처입니다."}), 403
+        except Exception:
             return jsonify({"error": "잘못된 요청 출처입니다."}), 403
     # Origin·Referer 둘 다 없는 경우는 허용 (curl·서버사이드 호출 등)
     return None
