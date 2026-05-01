@@ -33,8 +33,20 @@ def evaluate_fear_greed(data: dict) -> dict:
     hist = data.get("hist")
     indicators = []
 
+    # hist 없으면 yfinance Ticker.history()로 직접 받기 시도 (Yahoo 부실 응답 대비)
+    if (hist is None or (hasattr(hist, "empty") and hist.empty) or (hist is not None and len(hist) < 20)):
+        stock = data.get("stock")
+        if stock is not None:
+            try:
+                import pandas as _pd
+                fetched = stock.history(period="1y", interval="1d")
+                if fetched is not None and not fetched.empty and len(fetched) >= 20:
+                    hist = fetched
+            except Exception:
+                pass
+
     if hist is None or hist.empty or len(hist) < 20:
-        return {"score": None, "label": "데이터 부족", "indicators": []}
+        return {"score": None, "label": "데이터 부족 (가격 시계열 미확보)", "indicators": []}
 
     close = hist["Close"]
     volume = hist["Volume"]

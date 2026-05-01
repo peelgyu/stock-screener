@@ -1,14 +1,21 @@
-"""Thread-safe in-memory TTL cache."""
+"""Thread-safe in-memory TTL cache + LRU 사이즈 제한 (메모리 폭주 방지)."""
 import threading
 import time
+from collections import OrderedDict
 from functools import wraps
 
 
+# 메모리 한도 — Render 무료 512MB 환경에서 안전 마진
+# 종목당 캐시 평균 5~50KB라 가정 → 1500개 = 약 30~75MB
+MAX_ENTRIES = 1500
+
+
 class TTLCache:
-    def __init__(self, default_ttl: int = 300):
-        self._store: dict = {}
+    def __init__(self, default_ttl: int = 300, max_entries: int = MAX_ENTRIES):
+        self._store: "OrderedDict" = OrderedDict()
         self._lock = threading.Lock()
         self._default_ttl = default_ttl
+        self._max_entries = max_entries
         self._hits = 0
         self._misses = 0
 
@@ -23,6 +30,8 @@ class TTLCache:
                 del self._store[key]
                 self._misses += 1
                 return None
+            # LRU — 최근 접근을 끝으로 이동
+            self._store.move_to_end(key)
             self._hits += 1
             return value
 
@@ -30,6 +39,10 @@ class TTLCache:
         with self._lock:
             ttl = ttl if ttl is not None else self._default_ttl
             self._store[key] = (value, time.time() + ttl)
+            self._store.move_to_end(key)
+            # 한도 초과 시 가장 오래 안 쓰인 항목부터 제거 (LRU eviction)
+            while len(self._store) > self._max_entries:
+                self._store.popitem(last=False)
 
     def clear(self):
         with self._lock:

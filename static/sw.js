@@ -1,6 +1,6 @@
-// StockInto Service Worker - v28 (SEC EDGAR 출처 표기 추가 — index/contact/terms/about 4곳)
+// StockInto Service Worker - v29 (HOTFIX: Render 메모리 폭주 + 공포탐욕 hist 폴백)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v28';
+const CACHE_NAME = 'stockinto-v29';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

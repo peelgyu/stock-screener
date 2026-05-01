@@ -162,11 +162,15 @@ _FIELD_CONCEPTS = {
 
 
 def _fetch_company_facts(cik: str) -> Optional[dict]:
-    """SEC companyfacts JSON — 한 회사의 모든 XBRL 데이터를 한 번에. 24h 캐시."""
-    cache_key = f"sec_facts:{cik}"
-    hit = cache.get(cache_key)
-    if hit is not None:
-        return hit if hit else None  # False도 캐시되니 None 변환
+    """SEC companyfacts JSON — 한 회사의 모든 XBRL 데이터를 한 번에.
+
+    주의: 응답 1~5MB라 메모리 캐시 X (메모리 폭주 방지).
+    fetch_financials가 즉시 파싱·작은 결과만 24h 캐시함.
+    음성(실패)만 1시간 캐시 — 재호출 폭주 차단.
+    """
+    neg_key = f"sec_facts_fail:{cik}"
+    if cache.get(neg_key):
+        return None
 
     try:
         _throttle()
@@ -176,13 +180,12 @@ def _fetch_company_facts(cik: str) -> Optional[dict]:
             timeout=20,
         )
         if r.status_code != 200:
-            cache.set(cache_key, False, ttl=3600)  # 1시간 음성 캐시
+            cache.set(neg_key, True, ttl=3600)  # 실패만 1시간 캐시
             return None
-        data = r.json()
-        cache.set(cache_key, data, ttl=24 * 3600)
-        return data
+        # 원본 JSON은 캐시하지 않고 즉시 반환 (호출자가 파싱 후 폐기)
+        return r.json()
     except Exception:
-        cache.set(cache_key, False, ttl=3600)
+        cache.set(neg_key, True, ttl=3600)
         return None
 
 
@@ -316,6 +319,9 @@ def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
         "eps_basic": col("eps_basic"),
         "source": "sec_edgar",
     }
+    # 명시적 메모리 해제 — 원본 facts(1~5MB) 폐기
+    facts = None
+    by_year = None
     cache.set(cache_key, result, ttl=24 * 3600)
     return result
 
