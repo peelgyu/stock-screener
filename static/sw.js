@@ -1,6 +1,6 @@
-// StockInto Service Worker - v30 (미국 종목 한국어 설명 135개 + 시총 원화 환산 + 섹터 한글화)
+// StockInto Service Worker - v31 (적정주가 평가법 제외 사유 명시 표시)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v30';
+const CACHE_NAME = 'stockinto-v31';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
