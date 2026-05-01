@@ -179,6 +179,8 @@ def _rate_limit():
 
 
 # 허용된 Origin (CSRF 차단 — 외부 도메인 fetch 공격 방지)
+# 추가 origin은 환경변수 ALLOWED_ORIGINS_EXTRA로 콤마구분 등록 가능
+# (예: Railway/Vercel 임시 URL 같은 임시 도메인 테스트용)
 _ALLOWED_ORIGINS = {
     "https://stockinto.com",
     "https://www.stockinto.com",
@@ -186,6 +188,12 @@ _ALLOWED_ORIGINS = {
     "https://www.stockinto.co.kr",
     "https://stock-screener-1-mgkv.onrender.com",
 }
+_extra = (os.getenv("ALLOWED_ORIGINS_EXTRA") or "").strip()
+if _extra:
+    for o in _extra.split(","):
+        o = o.strip().rstrip("/")
+        if o:
+            _ALLOWED_ORIGINS.add(o)
 
 
 @app.before_request
