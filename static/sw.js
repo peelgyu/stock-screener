@@ -1,6 +1,6 @@
-// StockInto Service Worker - v31 (적정주가 평가법 제외 사유 명시 표시)
+// StockInto Service Worker - v32 (Google AdSense 코드 7페이지 + ads.txt)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v31';
+const CACHE_NAME = 'stockinto-v32';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

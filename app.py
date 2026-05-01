@@ -310,6 +310,12 @@ def sw_js_root():
     return send_from_directory("static", "sw.js", mimetype="application/javascript")
 
 
+@app.route("/ads.txt")
+def ads_txt():
+    """Google AdSense ads.txt — 광고 사기 방지 표준."""
+    return send_from_directory("static", "ads.txt", mimetype="text/plain")
+
+
 @app.route("/robots.txt")
 def robots_txt():
     return send_from_directory("static", "robots.txt", mimetype="text/plain")
