@@ -62,6 +62,7 @@ from data.cache import cache, cached
 from data.fetcher import fetch_stock_data, detect_fetch_error_type
 from data import dart_client
 from data import krx_client
+from data import sec_client
 from analysis.sector_baseline import get_sector_thresholds
 from analysis.history import get_historical_metrics
 from analysis.quality import evaluate_earnings_quality
@@ -587,7 +588,8 @@ def analyze():
             "latest": rd_ratios[-1] if rd_ratios else None,
             "average": sum(valid_rd) / len(valid_rd) if valid_rd else None,
         }
-        hist["source"] = "dart"
+        # source 라벨은 입력 데이터에서 받음 (DART/SEC EDGAR 등)
+        hist["source"] = dart.get("source", "filings")
         return hist
 
     def _populate_info_from_dart(info: dict, dart: dict) -> None:
@@ -705,6 +707,26 @@ def analyze():
                 eps = info.get("trailingEps")
                 if eps and eps > 0:
                     info["payoutRatio"] = dps / eps
+
+    # 미국 주식은 SEC EDGAR 공시 데이터로 재무 history 보강 (yfinance 부실 응답 보완)
+    # SEC EDGAR = Public Domain (17 USC §105) → 상업 이용 무제한
+    if (not is_kr) and sec_client.is_available():
+        sec_fin = _safe_call(sec_client.fetch_financials, None, ticker, years=6)
+        if sec_fin and sec_fin.get("years"):
+            history_data = _merge_dart_into_history(history_data, sec_fin)  # 일반화된 병합
+            info["_data_source_sec"] = True
+            _populate_info_from_dart(info, sec_fin)  # 동일 인터페이스 — 미국에도 적용
+            # SEC EPS·shares도 info에 보강
+            eps_diluted = sec_fin.get("eps_diluted") or []
+            shares = sec_fin.get("shares_outstanding") or []
+            if eps_diluted:
+                last_eps = next((v for v in reversed(eps_diluted) if v is not None), None)
+                if last_eps and info.get("trailingEps") in (None, 0):
+                    info["trailingEps"] = last_eps
+            if shares:
+                last_shares = next((v for v in reversed(shares) if v is not None), None)
+                if last_shares and info.get("sharesOutstanding") in (None, 0):
+                    info["sharesOutstanding"] = last_shares
 
     # 한국 주식 KRX 수급 — lazy load (별도 /api/krx 엔드포인트, 탭 클릭 시 fetch)
     krx_data = {"available": None, "lazy": True} if (is_kr and krx_client.is_available()) else None

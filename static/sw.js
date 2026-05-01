@@ -1,6 +1,6 @@
-// StockInto Service Worker - v26 (종목 카드에 사업 한 줄 설명 추가)
+// StockInto Service Worker - v27 (SEC EDGAR 통합 — 미국 종목 N/A 이슈 해결, yfinance 백업)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v26';
+const CACHE_NAME = 'stockinto-v27';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
