@@ -1369,6 +1369,11 @@
             renderDataWarnings(data.dataWarnings);
             const analyzedAt = new Date();
             const tsKR = analyzedAt.toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+            // HTML escape (description은 외부 데이터 — XSS 방어)
+            const escHTML = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            const descHTML = data.stock.description
+                ? `<div style="margin-top:6px;font-size:0.85rem;line-height:1.5;color:#bbb;">📝 ${escHTML(data.stock.description)}</div>`
+                : '';
             document.getElementById('stockCard').innerHTML = `
                 <div class="stock-name">${data.stock.name}<span class="stock-ticker">${data.ticker}</span></div>
                 <div class="stock-meta">
@@ -1377,6 +1382,7 @@
                     <span>${data.stock.price}</span>
                     <span>시총 ${data.stock.marketCap}</span>
                 </div>
+                ${descHTML}
                 <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:0.7rem;color:#777;margin-top:6px;">
                     <span title="시세는 거래소 직접 연동이 아닌 무료 데이터 소스 기준 — 거의 모든 무료 주식 사이트가 동일">⏱ 시세 약 15~20분 지연</span>
                     <span>· 분석 시점 ${tsKR}</span>

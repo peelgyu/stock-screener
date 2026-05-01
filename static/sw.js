@@ -1,6 +1,6 @@
-// StockInto Service Worker - v25 (HOTFIX2: evaluate_positions 복원 + 통합 테스트 + 의존성 고정)
+// StockInto Service Worker - v26 (종목 카드에 사업 한 줄 설명 추가)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v25';
+const CACHE_NAME = 'stockinto-v26';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

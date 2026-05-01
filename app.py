@@ -57,7 +57,7 @@ class SafeJSONProvider(DefaultJSONProvider):
         kwargs.setdefault("allow_nan", False)
         return json_lib.dumps(clean(obj), **kwargs)
 
-from kr_stocks import search_kr_stocks, KR_STOCKS, US_STOCKS_KR
+from kr_stocks import search_kr_stocks, KR_STOCKS, US_STOCKS_KR, get_kr_description
 from data.cache import cache, cached
 from data.fetcher import fetch_stock_data, detect_fetch_error_type
 from data import dart_client
@@ -440,6 +440,29 @@ def analyze():
     else:
         price_str = f"${price:,.2f}"
 
+    is_kr = ticker.endswith(".KS") or ticker.endswith(".KQ")
+
+    # 사업 한 줄 설명 — 한국 종목은 직접 매핑, 미국은 yfinance 영문 첫 문장
+    description = None
+    if is_kr:
+        description = get_kr_description(ticker)
+    if not description:
+        # yfinance longBusinessSummary 첫 문장 (보통 영문)
+        summary = safe_get(info, "longBusinessSummary", "") or ""
+        if summary:
+            # 첫 마침표까지, 너무 길면 200자 컷
+            first_sentence = summary.split(". ")[0].strip()
+            if len(first_sentence) > 200:
+                first_sentence = first_sentence[:200].rsplit(" ", 1)[0] + "..."
+            description = first_sentence + "." if first_sentence and not first_sentence.endswith(".") else first_sentence
+    if not description:
+        # 폴백: 섹터·산업
+        ind = safe_get(info, "industry", "")
+        if sector and ind:
+            description = f"{sector} · {ind}"
+        elif sector:
+            description = sector
+
     stock_info = {
         "name": safe_get(info, "longName", ticker),
         "sector": sector,
@@ -447,9 +470,8 @@ def analyze():
         "price": price_str,
         "marketCap": cap_str,
         "logo": safe_get(info, "logo_url", ""),
+        "description": description or "",
     }
-
-    is_kr = ticker.endswith(".KS") or ticker.endswith(".KQ")
 
     def _safe_call(fn, default, *args, **kwargs):
         try:
