@@ -750,9 +750,16 @@ def analyze():
         if len(ni_vals) >= 2 and ni_vals[-2] != 0:
             _set_if_missing("earningsGrowth", (ni_vals[-1] - ni_vals[-2]) / abs(ni_vals[-2]))
 
-        # EPS / PER / PBR / PEG — FDR에서 받은 sharesOutstanding + 현재가 기반
-        shares = info.get("sharesOutstanding")
+        # EPS / PER / PBR / PEG — sharesOutstanding 우선, 없으면 marketCap/price 역산
+        shares = info.get("sharesOutstanding") or info.get("impliedSharesOutstanding") or info.get("floatShares")
         price = info.get("currentPrice") or info.get("regularMarketPrice")
+        # yfinance가 한국 종목에 sharesOutstanding 안 주는 경우 — 시가총액에서 역산
+        if (not shares or shares <= 0) and price and price > 0:
+            mcap = info.get("marketCap")
+            if mcap and mcap > 0:
+                shares = mcap / price
+                # info에도 박아둠 (다른 곳에서 재사용)
+                info["sharesOutstanding"] = shares
         if shares and shares > 0:
             if ni_l is not None:
                 eps = ni_l / shares

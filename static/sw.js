@@ -1,6 +1,6 @@
-// StockInto Service Worker - v33 (KRX 전체 2,700개 검색 + TradingView 한국 차트 강화)
+// StockInto Service Worker - v34 (한국 종목 sharesOutstanding 폴백 — EPS/PER/PBR 계산 정상화)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v33';
+const CACHE_NAME = 'stockinto-v34';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
