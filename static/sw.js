@@ -1,6 +1,6 @@
-// StockInto Service Worker - v32 (Google AdSense 코드 7페이지 + ads.txt)
+// StockInto Service Worker - v33 (KRX 전체 2,700개 검색 + TradingView 한국 차트 강화)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v32';
+const CACHE_NAME = 'stockinto-v33';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

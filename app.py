@@ -64,6 +64,7 @@ from data.fetcher import fetch_stock_data, detect_fetch_error_type
 from data import dart_client
 from data import krx_client
 from data import sec_client
+from data import kr_listing
 from analysis.sector_baseline import get_sector_thresholds
 from analysis.history import get_historical_metrics
 from analysis.quality import evaluate_earnings_quality
@@ -273,7 +274,17 @@ def resolve_ticker(query: str) -> str | None:
     if q.isascii() and q.upper() == q and q.replace("-", "").replace(".", "").isalpha() and len(q) <= 6:
         return q.upper()
     if q.isdigit() and len(q) == 6:
-        return q + ".KS"
+        # 6자리 숫자만 입력 시 KOSPI 우선 → 없으면 KOSDAQ
+        full_kospi = q + ".KS"
+        full_kosdaq = q + ".KQ"
+        # KRX 전체 리스트에서 정확한 거래소 확인
+        for item in kr_listing.get_all_listings():
+            if item["symbol"] == full_kospi:
+                return full_kospi
+            if item["symbol"] == full_kosdaq:
+                return full_kosdaq
+        return full_kospi  # 폴백
+    # 1) 친근 별명 매핑 (89개)
     if q in KR_STOCKS:
         return KR_STOCKS[q][0]
     if q in US_STOCKS_KR:
@@ -284,6 +295,11 @@ def resolve_ticker(query: str) -> str | None:
     for kr_name, ticker in US_STOCKS_KR.items():
         if q in kr_name:
             return ticker
+    # 2) KRX 전체 리스트 (~2,500개) 정식 종목명 매칭
+    kr_match = kr_listing.find_by_name(q)
+    if kr_match:
+        return kr_match
+    # 3) Yahoo 검색 fallback (미국 종목·해외 ETF 등)
     try:
         encoded = urllib.parse.quote(q)
         url = f"https://query2.finance.yahoo.com/v1/finance/search?q={encoded}&quotesCount=1&newsCount=0&listsCount=0"
@@ -294,7 +310,6 @@ def resolve_ticker(query: str) -> str | None:
         if quotes:
             return quotes[0]["symbol"]
     except Exception as e:
-        # Yahoo 검색 실패는 자주 발생 (레이트리밋 등) — debug 레벨로만 로깅
         app.logger.debug(f"Yahoo search resolve failed for '{q}': {type(e).__name__}")
     return None
 
@@ -406,32 +421,53 @@ def about():
 
 @app.route("/api/search", methods=["GET"])
 def search_stocks():
+    """검색 우선순위:
+    1) 친근 별명 (KR_STOCKS 89개) — 정확 일치 + 부분 일치
+    2) KRX 전체 상장 종목 (~2,500개) — 정식 종목명·코드 매칭
+    3) Yahoo Finance 검색 — 미국·해외 ETF 등
+    """
     q = request.args.get("q", "").strip()
     if len(q) < 1:
         return jsonify([])
     results = []
-    kr_results = search_kr_stocks(q)
-    results.extend(kr_results)
-    try:
-        encoded = urllib.parse.quote(q)
-        url = f"https://query2.finance.yahoo.com/v1/finance/search?q={encoded}&quotesCount=6&newsCount=0&listsCount=0"
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        resp = urllib.request.urlopen(req, timeout=5)
-        data = json_lib.loads(resp.read())
-        for item in data.get("quotes", []):
-            symbol = item.get("symbol", "")
-            if any(r["symbol"] == symbol for r in results):
-                continue
-            results.append({
-                "symbol": symbol,
-                "name": item.get("shortname", "") or item.get("longname", ""),
-                "engName": item.get("longname", ""),
-                "exchange": item.get("exchDisp", ""),
-                "sector": item.get("sector", "") or item.get("industry", ""),
-            })
-    except Exception as e:
-        # 외부 검색 실패 — 한국 주식 매핑은 이미 받았으니 그것만 반환
-        app.logger.debug(f"Yahoo /api/search supplemental failed: {type(e).__name__}")
+    seen = set()
+
+    def _add(item):
+        if item["symbol"] not in seen:
+            seen.add(item["symbol"])
+            results.append(item)
+
+    # 1) 친근 별명 매핑 우선
+    for r in search_kr_stocks(q):
+        _add(r)
+
+    # 2) KRX 전체 종목 (정식 종목명) — 잡주·중소형주 커버
+    if len(results) < 8:
+        for r in kr_listing.search_listings(q, limit=8):
+            _add(r)
+
+    # 3) Yahoo 검색 — 미국·해외 (위 둘에서 8개 안 채워졌을 때)
+    if len(results) < 6:
+        try:
+            encoded = urllib.parse.quote(q)
+            url = f"https://query2.finance.yahoo.com/v1/finance/search?q={encoded}&quotesCount=6&newsCount=0&listsCount=0"
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            resp = urllib.request.urlopen(req, timeout=5)
+            data = json_lib.loads(resp.read())
+            for item in data.get("quotes", []):
+                symbol = item.get("symbol", "")
+                if not symbol:
+                    continue
+                _add({
+                    "symbol": symbol,
+                    "name": item.get("shortname", "") or item.get("longname", ""),
+                    "engName": item.get("longname", ""),
+                    "exchange": item.get("exchDisp", ""),
+                    "sector": item.get("sector", "") or item.get("industry", ""),
+                })
+        except Exception as e:
+            app.logger.debug(f"Yahoo /api/search supplemental failed: {type(e).__name__}")
+
     return jsonify(results[:8])
 
 

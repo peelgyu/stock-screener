@@ -1417,9 +1417,15 @@
 
         function tvSymbol(ticker) {
             // TradingView 심볼 변환
-            if (/\.KS$/.test(ticker)) return 'KRX:' + ticker.replace(/\.KS$/, '');
-            if (/\.KQ$/.test(ticker)) return 'KOSDAQ:' + ticker.replace(/\.KQ$/, '');
-            return ticker;  // US는 TradingView가 거래소 자동 인식
+            // 한국 코스피: KRX:005930 (TradingView가 KRX 거래소 코드로 인식)
+            // 한국 코스닥: KOSDAQ:240810 (별도 거래소 식별자)
+            // 미국·해외: 그대로 (TradingView가 자동 인식)
+            if (!ticker) return 'NASDAQ:AAPL';  // 빈 값 폴백 (안전망)
+            const t = String(ticker).trim().toUpperCase();
+            if (t.endsWith('.KS')) return 'KRX:' + t.replace(/\.KS$/, '');
+            if (t.endsWith('.KQ')) return 'KOSDAQ:' + t.replace(/\.KQ$/, '');
+            if (/^\d{6}$/.test(t)) return 'KRX:' + t;  // 6자리 숫자만 들어왔을 때
+            return t;
         }
 
         function renderTVChart(ticker) {
