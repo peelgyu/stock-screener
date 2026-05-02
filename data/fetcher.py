@@ -1,7 +1,11 @@
-"""데이터 fetcher — yfinance 우선, 실패 시 FinanceDataReader 등으로 fallback.
+"""데이터 fetcher — 한국·미국 분기.
 
-Yahoo Finance가 레이트리밋하거나 일시 장애인 경우 한국 주식은 FDR로 자동 전환.
-US 주식은 재시도 후 실패하면 명확한 에러 메시지 반환.
+한국 종목(.KS/.KQ): FDR(시세) + DART(재무, app.py에서) 조합 — yfinance 호출 X
+  - yfinance가 한국 종목에 부실 응답 빈발 (sharesOutstanding·trailingPE 등 None)
+  - DART가 정확한 재무 공시값 제공 → 한국은 yfinance 불필요
+  - 베타는 KOSPI 대비 5년 주봉 회귀로 자체 계산 (data/beta_calc.py)
+
+미국 종목: yfinance 우선 + SEC EDGAR(재무 보강, app.py에서)
 """
 
 import time
@@ -102,9 +106,8 @@ def _fetch_fdr_korean(ticker: str):
             "fiftyTwoWeekLow": float(df["Close"].tail(252).min()),
             "currency": "KRW",
             "symbol": ticker,
-            "_data_warnings": [
-                "yfinance 일시 제한 — FinanceDataReader 대체 데이터 사용 (재무제표 등 일부 지표 누락)"
-            ],
+            # 한국 종목은 yfinance 미사용 — DART(재무) + FDR(시세) + 자체 계산(베타) 조합
+            "_data_source_kr": "FDR + DART",
         }
 
         if meta is not None:
@@ -156,26 +159,14 @@ def fetch_stock_data(ticker: str) -> dict | None:
     is_kr = _is_kr_ticker(ticker)
 
     if is_kr:
-        # 한국: FDR 먼저 → 재무는 DART가 app.py에서 덮어씀
+        # 한국: FDR(시세) + DART(재무, app.py에서 보강) — yfinance 호출 X
+        # yfinance가 한국 종목에 sharesOutstanding·trailingPE·trailingEps 등을 None으로 자주 줘서
+        # 사용해봐야 충돌만 일으킴. 정부 공식 DART가 정확한 재무 데이터 제공.
         result = _fetch_fdr_korean(ticker)
         if result is not None:
-            # yfinance로 info 보강 시도 (실패해도 무시)
-            yf_result = _fetch_yfinance(ticker, retries=1, delay=0.5)
-            if yf_result is not None:
-                # yfinance info를 FDR info 위에 병합 (yfinance가 더 많은 필드)
-                merged_info = {**result["info"], **yf_result["info"]}
-                # FDR의 필수 필드는 유지
-                for k in ("regularMarketPrice", "currentPrice", "volume", "currency"):
-                    if yf_result["info"].get(k) is None and result["info"].get(k) is not None:
-                        merged_info[k] = result["info"][k]
-                result["info"] = merged_info
-                result["stock"] = yf_result["stock"]  # stock 객체는 DART/history용
-                result["source"] = "fdr+yfinance"
             return result
-        # FDR도 실패 → yfinance 시도
-        result = _fetch_yfinance(ticker, retries=2, delay=1.5)
-        if result is not None:
-            return result
+        # FDR 실패 = 진짜 존재 안 하는 한국 종목 (또는 매우 신생)
+        return None
     else:
         # 미국·기타: yfinance 먼저
         result = _fetch_yfinance(ticker, retries=2, delay=1.5)

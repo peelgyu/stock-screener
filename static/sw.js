@@ -1,6 +1,6 @@
-// StockInto Service Worker - v34 (한국 종목 sharesOutstanding 폴백 — EPS/PER/PBR 계산 정상화)
+// StockInto Service Worker - v35 (한국 종목 yfinance 완전 분리 — FDR + DART + 베타 자체 계산)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v34';
+const CACHE_NAME = 'stockinto-v35';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

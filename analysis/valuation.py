@@ -52,6 +52,15 @@ def _calc_wacc(info: dict, ticker: str | None = None) -> dict:
 
     # 1) 자기자본비용 Re — CAPM
     beta = info.get("beta")
+    # 한국 종목은 yfinance.beta가 None이면 KOSPI 대비 자체 계산
+    if (beta is None or beta == 0) and is_kr and ticker:
+        try:
+            from data.beta_calc import calc_kr_beta
+            calc = calc_kr_beta(ticker)
+            if calc is not None:
+                beta = calc
+        except Exception:
+            pass
     try:
         beta = float(beta) if beta is not None else 1.0
     except (TypeError, ValueError):
