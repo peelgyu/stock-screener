@@ -65,6 +65,7 @@ from data import dart_client
 from data import krx_client
 from data import sec_client
 from data import kr_listing
+from data import naver_news
 from analysis.sector_baseline import get_sector_thresholds
 from analysis.history import get_historical_metrics
 from analysis.quality import evaluate_earnings_quality
@@ -933,38 +934,66 @@ def analyze():
     })
 
 
-@app.route("/api/_diag/dart")
-def _diag_dart():
-    """임시 진단 — DART 동작 상태 확인."""
-    import traceback
-    info = {
-        "is_available": dart_client.is_available(),
-        "api_key_set": bool(os.getenv("DART_API_KEY")),
-        "api_key_len": len(os.getenv("DART_API_KEY") or ""),
-    }
-    # corp_map 로드 시도
-    try:
-        m = dart_client._load_corp_map()
-        info["corp_map_size"] = len(m)
-        info["sample_005930"] = m.get("005930", "NOT_FOUND")
-    except Exception as e:
-        info["corp_map_error"] = f"{type(e).__name__}: {str(e)[:200]}"
-        info["corp_map_tb"] = traceback.format_exc()[:500]
-    # 삼성전자 financials 시도
-    try:
-        fin = dart_client.fetch_financials("005930.KS", years=3)
-        if fin:
-            info["fetch_ok"] = True
-            info["years"] = fin.get("years")
-            info["revenue_latest"] = (fin.get("revenue") or [None])[-1]
-            info["net_income_latest"] = (fin.get("net_income") or [None])[-1]
-        else:
-            info["fetch_ok"] = False
-            info["fetch_result"] = "None"
-    except Exception as e:
-        info["fetch_error"] = f"{type(e).__name__}: {str(e)[:200]}"
-        info["fetch_tb"] = traceback.format_exc()[:500]
-    return jsonify(info)
+@app.route("/api/news", methods=["POST"])
+def analyze_news():
+    """종목 관련 뉴스 — 네이버 검색 API. 탭 클릭 시 lazy load.
+
+    회사명을 query로 사용 (티커보다 매칭 잘됨). 한국 종목은 longName,
+    미국 종목은 longName 또는 한국어 매핑 우선.
+    제목·요약·링크만 반환 (저작권 안전 — 본문은 원본 사이트로).
+    """
+    body = request.get_json(force=True, silent=True) or {}
+    raw_query = (body.get("ticker") or "").strip()
+    if not raw_query:
+        return jsonify({"available": False, "error": "티커 필요"}), 400
+    if not is_safe_query(raw_query):
+        return jsonify({"available": False, "error": "허용되지 않는 문자"}), 400
+    if not naver_news.is_available():
+        return jsonify({"available": False, "error": "뉴스 API 미설정 (NAVER_CLIENT_ID 환경변수 필요)"}), 200
+
+    ticker = resolve_ticker(raw_query) or raw_query.upper()
+    is_kr = ticker.endswith(".KS") or ticker.endswith(".KQ")
+
+    # 검색어 결정 — 회사명 우선, 없으면 티커
+    search_query = ""
+    if is_kr:
+        # 한국: KR_STOCKS reverse lookup ("005930.KS" → "삼성전자")
+        for name, (tk, _eng) in KR_STOCKS.items():
+            if tk == ticker:
+                search_query = name
+                break
+        if not search_query:
+            # KRX listing fallback
+            try:
+                code = ticker.split(".")[0]
+                listings = kr_listing.get_listings() if hasattr(kr_listing, "get_listings") else []
+                for item in (listings or []):
+                    if item.get("code") == code:
+                        search_query = item.get("name") or ""
+                        break
+            except Exception:
+                pass
+    else:
+        # 미국: US_STOCKS_KR reverse lookup ("AAPL" → "애플"), 없으면 티커
+        for kr_name, tk in US_STOCKS_KR.items():
+            if tk == ticker:
+                search_query = kr_name
+                break
+
+    if not search_query:
+        search_query = ticker
+
+    items = naver_news.fetch_news(search_query, display=8, sort="date")
+    if items is None:
+        return jsonify({"available": False, "error": "뉴스 일시 불가"}), 200
+
+    return jsonify({
+        "available": True,
+        "query": search_query,
+        "ticker": ticker,
+        "items": items,
+        "source": "네이버 검색 API",
+    })
 
 
 @app.route("/api/krx", methods=["POST"])

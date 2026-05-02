@@ -963,6 +963,7 @@
                 <button class="tab-btn active" onclick="switchTab('investors')" role="tab" id="tabbtn-investors" aria-controls="tab-investors" aria-selected="true">🧠 워렌 버핏이라면?</button>
                 <button class="tab-btn" onclick="switchTab('trend')" role="tab" id="tabbtn-trend" aria-controls="tab-trend" aria-selected="false">📆 재무 추세</button>
                 <button class="tab-btn" id="tabbtn-krx" style="display:none;" onclick="switchTab('krx')" role="tab" aria-controls="tab-krx" aria-selected="false">🇰🇷 수급</button>
+                <button class="tab-btn" onclick="switchTab('news')" role="tab" id="tabbtn-news" aria-controls="tab-news" aria-selected="false">📰 관련 뉴스</button>
                 <button class="tab-btn" onclick="switchTab('sentiment')" role="tab" id="tabbtn-sentiment" aria-controls="tab-sentiment" aria-selected="false">😱 탐욕지수</button>
                 <button class="tab-btn" onclick="switchTab('positions')" role="tab" id="tabbtn-positions" aria-controls="tab-positions" aria-selected="false">📊 숏/롱</button>
                 <button class="tab-btn" onclick="switchTab('options')" role="tab" id="tabbtn-options" aria-controls="tab-options" aria-selected="false">🎯 옵션</button>
@@ -977,6 +978,7 @@
                 <div id="trendCharts"></div>
             </div>
             <div class="tab-content" id="tab-krx" role="tabpanel" aria-labelledby="tabbtn-krx"><div id="krxCard"></div></div>
+            <div class="tab-content" id="tab-news" role="tabpanel" aria-labelledby="tabbtn-news"><div id="newsCard"></div></div>
             <div class="tab-content" id="tab-sentiment" role="tabpanel" aria-labelledby="tabbtn-sentiment"><div class="fg-card" id="fgCard"></div></div>
             <div class="tab-content" id="tab-positions" role="tabpanel" aria-labelledby="tabbtn-positions"><div class="pos-card" id="posCard"></div></div>
             <div class="tab-content" id="tab-options" role="tabpanel" aria-labelledby="tabbtn-options"><div class="opt-card" id="optCard"></div></div>
@@ -1009,6 +1011,7 @@
         let currentStockName = null;
         let optionsLoaded = false;
         let krxLoaded = false;
+        let newsLoaded = false;
 
         // ========== 용어 툴팁 헬퍼 ==========
         // tt('PER') → '<span class="term-tooltip" data-term="PER">PER</span>'
@@ -1288,6 +1291,7 @@
             if (target) target.classList.add('active');
             if (tab === 'options' && !optionsLoaded && currentTicker) loadOptionsLazy();
             if (tab === 'krx' && !krxLoaded && currentTicker) loadKRXLazy();
+            if (tab === 'news' && !newsLoaded && currentTicker) loadNewsLazy();
         }
 
         async function loadOptionsLazy() {
@@ -1302,6 +1306,86 @@
                 el.innerHTML = `<div style="color:#888;padding:40px;text-align:center;">옵션 데이터 로드 실패</div>`;
                 optionsLoaded = false;
             }
+        }
+
+        async function loadNewsLazy() {
+            newsLoaded = true;
+            const el = document.getElementById('newsCard');
+            el.innerHTML = `<div style="text-align:center;padding:40px;color:#888;"><div class="spinner" style="margin:0 auto 12px;"></div>관련 뉴스 검색 중...</div>`;
+            try {
+                const res = await fetch('/api/news', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ticker: currentTicker }) });
+                const news = await res.json();
+                renderNews(news);
+                if (!news || !news.available) newsLoaded = false;
+            } catch (e) {
+                renderNews({available: false, error: '네트워크 오류 — 다시 시도해 주세요.'});
+                newsLoaded = false;
+            }
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function timeAgoKR(rfc822) {
+            try {
+                const d = new Date(rfc822);
+                if (isNaN(d.getTime())) return '';
+                const diffMs = Date.now() - d.getTime();
+                const m = Math.floor(diffMs / 60000);
+                if (m < 1) return '방금 전';
+                if (m < 60) return `${m}분 전`;
+                const h = Math.floor(m / 60);
+                if (h < 24) return `${h}시간 전`;
+                const dd = Math.floor(h / 24);
+                if (dd < 7) return `${dd}일 전`;
+                return d.toLocaleDateString('ko-KR');
+            } catch (e) { return ''; }
+        }
+
+        function renderNews(news) {
+            const el = document.getElementById('newsCard');
+            if (!news || !news.available) {
+                const errMsg = (news && news.error) ? news.error : '뉴스 데이터를 받지 못했습니다.';
+                el.innerHTML = `
+                    <div style="color:#888;padding:36px 20px;text-align:center;">
+                        <div style="font-size:1.05rem;margin-bottom:8px;">📰 뉴스 일시 불가</div>
+                        <div style="font-size:0.85rem;color:#666;margin-bottom:18px;">${escapeHtml(errMsg)}</div>
+                        <button onclick="newsLoaded=false; loadNewsLazy();" style="padding:10px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--accent-cyan);cursor:pointer;font-size:0.85rem;font-weight:600;font-family:inherit;">🔄 다시 시도</button>
+                    </div>`;
+                return;
+            }
+            const items = news.items || [];
+            if (items.length === 0) {
+                el.innerHTML = `<div style="color:#888;padding:36px 20px;text-align:center;">관련 뉴스가 없습니다.</div>`;
+                return;
+            }
+            const list = items.map(it => {
+                const link = it.link || it.originalLink || '#';
+                const title = escapeHtml(it.title);
+                const desc = escapeHtml(it.description);
+                const source = escapeHtml(it.source || '');
+                const ago = escapeHtml(timeAgoKR(it.pubDate));
+                return `
+                    <a href="${escapeHtml(link)}" target="_blank" rel="noopener noreferrer"
+                       style="display:block;padding:14px 16px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;text-decoration:none;color:inherit;background:var(--card);transition:transform .12s ease, border-color .12s ease;">
+                        <div style="font-size:0.95rem;font-weight:600;line-height:1.45;margin-bottom:6px;color:var(--text);">${title}</div>
+                        <div style="font-size:0.82rem;color:#888;line-height:1.5;margin-bottom:8px;">${desc}</div>
+                        <div style="font-size:0.72rem;color:#666;display:flex;gap:8px;align-items:center;">
+                            <span style="color:var(--accent-cyan);font-weight:600;">${source}</span>
+                            <span>·</span>
+                            <span>${ago}</span>
+                        </div>
+                    </a>`;
+            }).join('');
+            const note = `
+                <div style="font-size:0.7rem;color:#666;text-align:center;margin-top:14px;line-height:1.6;font-style:italic;">
+                    검색어: "${escapeHtml(news.query || '')}" · 출처: 네이버 검색 API · 6시간 캐시<br>
+                    뉴스 본문 저작권은 각 언론사에 있으며, 클릭 시 원문 사이트로 이동합니다.
+                </div>`;
+            el.innerHTML = `<div class="section-title" style="margin-top:0;">📰 관련 뉴스 (최신순 ${items.length}건)</div>${list}${note}`;
         }
 
         async function loadKRXLazy() {
@@ -1332,6 +1416,7 @@
             chartInstances = [];
             optionsLoaded = false;
             krxLoaded = false;
+            newsLoaded = false;
             try {
                 const res = await fetch('/api/analyze?_=' + Date.now(), {
                     method: 'POST',

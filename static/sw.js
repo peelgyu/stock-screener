@@ -1,6 +1,6 @@
-// StockInto Service Worker - v36 (HOTFIX: 한국 종목 history·5인 채점 복구 — yfinance Ticker 객체 옵셔널 보강)
+// StockInto Service Worker - v38 (📰 종목별 관련 뉴스 — 네이버 검색 API 통합)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v36';
+const CACHE_NAME = 'stockinto-v38';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
