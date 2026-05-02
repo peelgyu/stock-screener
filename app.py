@@ -933,6 +933,40 @@ def analyze():
     })
 
 
+@app.route("/api/_diag/dart")
+def _diag_dart():
+    """임시 진단 — DART 동작 상태 확인."""
+    import traceback
+    info = {
+        "is_available": dart_client.is_available(),
+        "api_key_set": bool(os.getenv("DART_API_KEY")),
+        "api_key_len": len(os.getenv("DART_API_KEY") or ""),
+    }
+    # corp_map 로드 시도
+    try:
+        m = dart_client._load_corp_map()
+        info["corp_map_size"] = len(m)
+        info["sample_005930"] = m.get("005930", "NOT_FOUND")
+    except Exception as e:
+        info["corp_map_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+        info["corp_map_tb"] = traceback.format_exc()[:500]
+    # 삼성전자 financials 시도
+    try:
+        fin = dart_client.fetch_financials("005930.KS", years=3)
+        if fin:
+            info["fetch_ok"] = True
+            info["years"] = fin.get("years")
+            info["revenue_latest"] = (fin.get("revenue") or [None])[-1]
+            info["net_income_latest"] = (fin.get("net_income") or [None])[-1]
+        else:
+            info["fetch_ok"] = False
+            info["fetch_result"] = "None"
+    except Exception as e:
+        info["fetch_error"] = f"{type(e).__name__}: {str(e)[:200]}"
+        info["fetch_tb"] = traceback.format_exc()[:500]
+    return jsonify(info)
+
+
 @app.route("/api/krx", methods=["POST"])
 def analyze_krx():
     """한국 종목 수급 정보 — 외국인·기관·공매도. 탭 클릭 시 lazy load."""
