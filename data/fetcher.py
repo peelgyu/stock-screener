@@ -159,14 +159,34 @@ def fetch_stock_data(ticker: str) -> dict | None:
     is_kr = _is_kr_ticker(ticker)
 
     if is_kr:
-        # 한국: FDR(시세) + DART(재무, app.py에서 보강) — yfinance 호출 X
-        # yfinance가 한국 종목에 sharesOutstanding·trailingPE·trailingEps 등을 None으로 자주 줘서
-        # 사용해봐야 충돌만 일으킴. 정부 공식 DART가 정확한 재무 데이터 제공.
+        # 한국: FDR(시세) + DART(재무, app.py에서 보강)
+        # yfinance도 시도해서 stock 객체 + 부가 정보 보강 (실패해도 무시)
+        # — yfinance Ticker 객체는 history.py가 사용
+        # — yfinance가 부실 응답 줘도 DART가 덮어써서 정확한 데이터로 됨
         result = _fetch_fdr_korean(ticker)
-        if result is not None:
-            return result
-        # FDR 실패 = 진짜 존재 안 하는 한국 종목 (또는 매우 신생)
-        return None
+        if result is None:
+            return None
+        # yfinance 옵셔널 보강 (Ticker 객체 + 추가 메타) — 실패해도 영향 X
+        try:
+            yf_result = _fetch_yfinance(ticker, retries=1, delay=0.5)
+            if yf_result is not None:
+                # FDR 필수 필드(가격·통화·시가총액·발행주식수)는 유지
+                fdr_essential = {}
+                for k in ("regularMarketPrice", "currentPrice", "currency", "marketCap",
+                          "sharesOutstanding", "longName", "sector", "industry"):
+                    v = result["info"].get(k)
+                    if v is not None:
+                        fdr_essential[k] = v
+                # yfinance info를 베이스로 + FDR 필수 덮어씀
+                merged = {**yf_result["info"], **fdr_essential}
+                # _data_warnings 같은 yfinance 메시지 제거 (FDR 정상 동작 시)
+                merged.pop("_data_warnings", None)
+                result["info"] = merged
+                result["stock"] = yf_result["stock"]  # history·earnings_quality용
+                result["source"] = "fdr+yfinance"
+        except Exception:
+            pass  # yfinance 실패해도 FDR + DART로 충분
+        return result
     else:
         # 미국·기타: yfinance 먼저
         result = _fetch_yfinance(ticker, retries=2, delay=1.5)

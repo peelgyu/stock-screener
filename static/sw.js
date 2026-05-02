@@ -1,6 +1,6 @@
-// StockInto Service Worker - v35 (한국 종목 yfinance 완전 분리 — FDR + DART + 베타 자체 계산)
+// StockInto Service Worker - v36 (HOTFIX: 한국 종목 history·5인 채점 복구 — yfinance Ticker 객체 옵셔널 보강)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v35';
+const CACHE_NAME = 'stockinto-v36';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
