@@ -934,33 +934,6 @@ def analyze():
     })
 
 
-@app.route("/api/_diag/naver")
-def _diag_naver():
-    """임시 진단 — NAVER 환경변수 상태 체크. 비밀값은 노출 X (길이만)."""
-    candidates = [
-        "NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET",
-        "NAVER_ID", "NAVER_SECRET",
-        "naver_client_id", "naver_client_secret",
-        "Naver_Client_Id", "Naver_Client_Secret",
-        "NaverClientId", "NaverClientSecret",
-        "NAVER_API_KEY", "NAVER_KEY",
-    ]
-    found = {}
-    for k in candidates:
-        v = os.environ.get(k)
-        if v is not None:
-            found[k] = {"len": len(v), "first2": v[:2] if v else "", "is_blank": v.strip() == ""}
-    # NAVER로 시작하는 모든 환경변수 표시 (이름만)
-    naver_keys = sorted([k for k in os.environ.keys() if "NAVER" in k.upper() or "naver" in k])
-    return jsonify({
-        "is_available_check": naver_news.is_available(),
-        "matched_candidates": found,
-        "all_naver_keys": naver_keys,
-        "expected_keys": ["NAVER_CLIENT_ID", "NAVER_CLIENT_SECRET"],
-        "total_env_count": len(os.environ),
-    })
-
-
 @app.route("/api/news", methods=["POST"])
 def analyze_news():
     """종목 관련 뉴스 — 네이버 검색 API. 탭 클릭 시 lazy load.
