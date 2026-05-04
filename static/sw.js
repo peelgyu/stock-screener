@@ -1,6 +1,6 @@
-// StockInto Service Worker - v38 (📰 종목별 관련 뉴스 — 네이버 검색 API 통합)
+// StockInto Service Worker - v39 (🔧 SEC EDGAR 회계연도 매핑 수정 — NVDA·AAPL 등 비12월결산 정상화)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v38';
+const CACHE_NAME = 'stockinto-v39';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

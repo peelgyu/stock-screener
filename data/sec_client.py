@@ -189,45 +189,84 @@ def _fetch_company_facts(cik: str) -> Optional[dict]:
         return None
 
 
-def _extract_annual_value(facts: dict, concept: str, year: int) -> Optional[float]:
-    """특정 연도 (FY)의 연간 값 추출. 10-K 우선, 없으면 큰 unit 합계."""
+def _extract_annual_series(facts: dict, concept: str) -> dict[int, float]:
+    """concept의 연간(10-K FY) 시계열 추출 — report end date 기준.
+
+    핵심: 회계연도(fy) 라벨이 아닌 **end date의 캘린더 연도**로 매핑.
+    NVDA처럼 1월 종료 기업 정상 처리 (FY2025 end=2025-01-26 → year=2025).
+
+    동일 연도에 여러 filing(원공시 + 정정 10-K/A)이 있으면 가장 최근 filed 우선.
+
+    Returns:
+        {year: value} — year는 end date의 연도, 누락 가능.
+    """
     try:
         node = facts.get("facts", {}).get("us-gaap", {}).get(concept)
         if not node:
-            return None
+            return {}
         units = node.get("units", {})
-        # USD 우선, 그 다음 일반 unit
         unit_keys = list(units.keys())
         if not unit_keys:
-            return None
-        # USD 또는 USD/shares 우선
+            return {}
         primary = "USD" if "USD" in unit_keys else unit_keys[0]
         entries = units.get(primary, [])
-        # FY 그리고 연도 매칭, 10-K 우선
-        candidates = []
+
+        # 10-K 또는 10-K/A에서 fp=FY인 항목만
+        rows = []
         for e in entries:
-            fy = e.get("fy")
-            fp = e.get("fp")  # FY = 연간, Q1~Q4 = 분기
-            form = e.get("form", "")
-            if fy == year and fp == "FY":
-                priority = 1 if form.startswith("10-K") else 2
-                candidates.append((priority, e.get("val")))
-        if not candidates:
-            return None
-        candidates.sort(key=lambda x: x[0])
-        v = candidates[0][1]
-        return float(v) if v is not None else None
+            if e.get("fp") != "FY":
+                continue
+            form = (e.get("form") or "")
+            if not form.startswith("10-K"):
+                continue
+            end = e.get("end")
+            val = e.get("val")
+            filed = e.get("filed") or ""
+            if not end or val is None:
+                continue
+            try:
+                year = int(end[:4])
+                rows.append((year, end, filed, float(val)))
+            except (ValueError, TypeError):
+                continue
+        if not rows:
+            return {}
+
+        # 같은 연도 + 같은 end 내에서는 filed가 가장 최근 것 (정정 공시 우선)
+        # 같은 연도 다른 end도 있을 수 있는데, 그땐 더 최근 end 우선
+        rows.sort(key=lambda r: (r[1], r[2]), reverse=True)
+        seen: dict[int, float] = {}
+        for year, end, filed, val in rows:
+            if year not in seen:
+                seen[year] = val
+        return seen
     except Exception:
-        return None
+        return {}
 
 
-def _pick_concept(facts: dict, concept_list: list[str], year: int) -> Optional[float]:
-    """후보 concept 중 첫 번째 가용 값."""
+def _pick_concept_series(facts: dict, concept_list: list[str], pick: str = "max") -> dict[int, float]:
+    """후보 concept들의 시계열을 합침 — 회사·시기별 태그 변경 대응.
+
+    회계 표준 진화로 같은 회사가 시기마다 다른 태그 사용:
+        - 2010년대 초반: SalesRevenueNet (구 us-gaap)
+        - 중반: Revenues (브릿지)
+        - 2018+: RevenueFromContractWithCustomerExcludingAssessedTax (ASC 606)
+
+    같은 연도에 여러 컨셉트가 값을 주면:
+        - pick="max": 가장 큰 값 (revenue·자산처럼 부분값 vs 연간합계 충돌 시 안전)
+        - pick="first": concept_list 순서 우선 (eps처럼 max가 의미 없는 경우)
+    """
+    by_year: dict[int, list[float]] = {}
     for c in concept_list:
-        v = _extract_annual_value(facts, c, year)
-        if v is not None:
-            return v
-    return None
+        s = _extract_annual_series(facts, c)
+        for y, v in s.items():
+            by_year.setdefault(y, []).append(v)
+
+    if pick == "first":
+        # 첫 번째로 들어온 값
+        return {y: vals[0] for y, vals in by_year.items()}
+    # default: 가장 큰 값 (분기 일부 vs 연간 합계 충돌 시 안전)
+    return {y: max(vals) for y, vals in by_year.items()}
 
 
 def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
@@ -245,7 +284,8 @@ def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
     if not cik:
         return None
 
-    cache_key = f"sec_fin_v1:{cik}:{years}"
+    # v2: end-date 기반 매핑 (v1 캐시 무효화 — NVDA 등 비표준 회계연도 버그 수정)
+    cache_key = f"sec_fin_v2:{cik}:{years}"
     hit = cache.get(cache_key)
     if hit is not None:
         return hit if hit else None
@@ -255,27 +295,41 @@ def fetch_financials(ticker: str, years: int = 5) -> Optional[dict]:
         cache.set(cache_key, False, ttl=3600)
         return None
 
-    import datetime
-    now_year = datetime.datetime.now().year
-    year_list = list(range(now_year - 1, now_year - 1 - years, -1))
-    year_list.sort()  # 오름차순 (오래된 것부터)
+    # 1단계: 각 필드별로 end-date 기반 시계열 수집
+    # EPS는 max가 무의미 (희석/기본 차이만 있음) → first 우선
+    _PICK_FIRST = {"eps_basic", "eps_diluted", "shares_outstanding"}
+    series_by_field: dict[str, dict[int, float]] = {}
+    all_years: set[int] = set()
+    for field, concepts in _FIELD_CONCEPTS.items():
+        pick = "first" if field in _PICK_FIRST else "max"
+        s = _pick_concept_series(facts, concepts, pick=pick)
+        series_by_field[field] = s
+        all_years.update(s.keys())
 
-    by_year: dict[int, dict[str, float]] = {}
-    for y in year_list:
-        year_data: dict[str, float] = {}
-        for field, concepts in _FIELD_CONCEPTS.items():
-            v = _pick_concept(facts, concepts, y)
-            if v is not None:
-                year_data[field] = v
-        # 매출 또는 순이익 하나라도 있으면 유효 연도
-        if year_data.get("revenue") is not None or year_data.get("net_income") is not None:
-            by_year[y] = year_data
-
-    if not by_year:
+    if not all_years:
         cache.set(cache_key, False, ttl=3600)
         return None
 
-    sorted_years = sorted(by_year.keys())
+    # 2단계: 매출 또는 순이익이 있는 연도만 유효
+    rev_series = series_by_field.get("revenue", {})
+    ni_series = series_by_field.get("net_income", {})
+    valid_years = sorted(y for y in all_years if y in rev_series or y in ni_series)
+    if not valid_years:
+        cache.set(cache_key, False, ttl=3600)
+        return None
+
+    # 3단계: 가장 최근 N년
+    valid_years = valid_years[-years:]
+
+    by_year: dict[int, dict[str, float]] = {}
+    for y in valid_years:
+        year_data = {}
+        for field, s in series_by_field.items():
+            if y in s:
+                year_data[field] = s[y]
+        by_year[y] = year_data
+
+    sorted_years = valid_years
 
     def col(field):
         return [by_year[y].get(field) for y in sorted_years]
