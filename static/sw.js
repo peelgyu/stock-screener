@@ -1,6 +1,6 @@
-// StockInto Service Worker - v40 (🎯 HYPER_GROWTH 카테고리 + 가중치 가이드 — DCF 보수성 자동 보정)
+// StockInto Service Worker - v41 (🎯 뉴스 투자 시그널 필터 — 노이즈 제거 + 모든 종목 동일 잣대)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v40';
+const CACHE_NAME = 'stockinto-v41';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
