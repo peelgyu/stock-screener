@@ -149,6 +149,66 @@ def classify_company(info: dict, history_data: dict | None) -> dict:
             "enable": {"dcf": True, "per": True, "graham": not negative_equity, "analyst": True, "ps": False},
         }
 
+    # HYPER_GROWTH: 흑자 + (고PE 또는 낮은 FCF yield) + 매출 고성장
+    # NVDA·META·TSLA 등 — DCF는 본질적으로 underestimate하므로 가중치 하향이 합리적
+    forward_pe = info.get("forwardPE")
+    trailing_pe = info.get("trailingPE")
+    market_cap = info.get("marketCap")
+
+    # PE 기준: forward·trailing 둘 중 큰 값 (forward만 보면 애널리스트 낙관 EPS에 속을 수 있음)
+    pe_candidates = [p for p in (forward_pe, trailing_pe) if p and p > 0]
+    pe_for_check = max(pe_candidates) if pe_candidates else None
+
+    # FCF yield 기준 (시총 대비 FCF 비율) — 시장이 미래 폭증 가격 매겼는지 시그널
+    # FCF yield < 2.5%면 DCF 정당화 어려움 (P/FCF > 40배)
+    fcf_yield = None
+    if market_cap and market_cap > 0 and fcf and fcf > 0:
+        fcf_yield = fcf / market_cap
+
+    # 5년 매출 CAGR 계산
+    rev_cagr_5y = None
+    if len(rev_history) >= 5:
+        valid_rev = [r for r in rev_history if r is not None and r > 0]
+        if len(valid_rev) >= 5:
+            try:
+                rev_cagr_5y = (valid_rev[-1] / valid_rev[0]) ** (1 / (len(valid_rev) - 1)) - 1
+            except (ZeroDivisionError, ValueError):
+                rev_cagr_5y = None
+
+    high_pe = pe_for_check is not None and pe_for_check >= 30
+    low_fcf_yield = fcf_yield is not None and fcf_yield < 0.025  # 2.5%
+    high_growth = (
+        (rev_cagr_5y is not None and rev_cagr_5y >= 0.20)
+        or (rev_growth >= 0.20 and has_recent_growth)
+    )
+
+    is_hyper_growth = (
+        eps_current_positive
+        and (fcf_current_positive or fcf_mostly_positive)
+        and (high_pe or low_fcf_yield)
+        and high_growth
+    )
+    if is_hyper_growth:
+        rationale_bits = []
+        if pe_for_check is not None:
+            label = "forward PE" if pe_for_check == forward_pe else "PER"
+            rationale_bits.append(f"{label} {pe_for_check:.1f}")
+        if low_fcf_yield:
+            rationale_bits.append(f"FCF yield {fcf_yield*100:.1f}% (P/FCF {1/fcf_yield:.0f}배)")
+        if rev_cagr_5y is not None:
+            rationale_bits.append(f"5년 매출 CAGR {rev_cagr_5y*100:.1f}%")
+        elif rev_growth >= 0.20:
+            rationale_bits.append(f"최근 매출 성장 {rev_growth*100:.1f}%")
+        return {
+            "category": "HYPER_GROWTH",
+            "confidence": "high",
+            "label": "고성장 기업",
+            "warnings": warnings,
+            "note": "DCF는 보수적 평가법이라 미래 성장 가치 반영 부족 — PER·애널리스트 비중 ↑",
+            "rationale": " · ".join(rationale_bits),
+            "enable": {"dcf": True, "per": True, "graham": not negative_equity, "analyst": True, "ps": False},
+        }
+
     # STABLE: 꾸준한 이익 + (양수 FCF 또는 FCF 데이터 없음)
     if eps_current_positive and (fcf_current_positive or fcf_missing or fcf_mostly_positive):
         conf = "high" if fcf_current_positive else "medium"

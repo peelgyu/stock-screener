@@ -1677,11 +1677,20 @@
             if (qc.label || (fv.excluded_methods && fv.excluded_methods.length)) {
                 const usedNames = Object.keys(fv.weights_used || {}).map(k => ({dcf:'DCF',per_based:'PER',graham_number:'Graham',analyst_target:'애널리스트',ps_based:'P/S'})[k]||k);
                 const exclList = (fv.excluded_methods || []).map(e => `<li><b>${e.method}</b> — ${e.reason}</li>`).join('');
+                const wr = fv.weights_rationale || {};
+                const basisHTML = wr.category_basis
+                    ? `<div style="font-size:0.72rem;color:#9aa6c9;margin-bottom:6px;">🧭 분류 근거: ${wr.category_basis}</div>`
+                    : '';
+                const explainHTML = wr.explanation
+                    ? `<div style="background:rgba(255,255,255,0.04);border-left:3px solid ${confCol};padding:8px 10px;margin-top:8px;border-radius:6px;font-size:0.74rem;color:#cdd2dd;line-height:1.55;">💡 <b>왜 이 가중치인가?</b><br>${wr.explanation}</div>`
+                    : '';
                 methodPolicyHTML = `
                     <div style="background:rgba(13,95,217,0.08);border:1px solid rgba(13,95,217,0.3);border-radius:10px;padding:12px 14px;margin-top:10px;font-size:0.78rem;">
                         <div style="color:${confCol};font-weight:700;margin-bottom:4px;">📋 ${qc.label || '표준 평가'}</div>
                         ${qc.note ? `<div style="color:#bbb;margin-bottom:6px;">${qc.note}</div>` : ''}
+                        ${basisHTML}
                         ${usedNames.length ? `<div style="color:#aaa;font-size:0.74rem;">✅ 적용된 평가법: <b style="color:#ddd;">${usedNames.join(' · ')}</b></div>` : ''}
+                        ${explainHTML}
                         ${exclList ? `<details style="margin-top:6px;"><summary style="cursor:pointer;color:#ff9800;font-size:0.74rem;">❌ 제외된 평가법 ${fv.excluded_methods.length}개 보기</summary><ul style="padding-left:18px;margin-top:4px;color:#999;font-size:0.72rem;">${exclList}</ul></details>` : ''}
                     </div>`;
             }

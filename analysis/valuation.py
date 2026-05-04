@@ -119,6 +119,45 @@ def _calc_wacc(info: dict, ticker: str | None = None) -> dict:
     }
 
 
+def _explain_weights(category: str, used_weights: dict, sector: str | None) -> str:
+    """카테고리별 가중치 결정 근거를 한국어로 설명 (UI 가이드용)."""
+    method_kr = {"dcf": "DCF", "per_based": "PER", "graham_number": "Graham",
+                 "analyst_target": "애널리스트", "ps_based": "P/S"}
+    parts = [f"{method_kr.get(k, k)} {int(v*100)}%" for k, v in used_weights.items()]
+    weights_str = " · ".join(parts)
+
+    if category == "HYPER_GROWTH":
+        return (f"고성장 기업으로 분류되어 DCF 비중을 보수적으로 낮추고 시장 컨센서스(PER·애널리스트) 비중을 높였습니다. "
+                f"DCF는 영구성장률 1.5% + WACC 할인 방식이라 미래 폭증 가치를 반영하지 못합니다. "
+                f"적용 가중치: {weights_str}")
+    if category == "STABLE":
+        return (f"안정 수익 구조로 분류되어 표준 가중치를 적용했습니다 (섹터: {sector or '일반'}). "
+                f"DCF·PER·애널리스트를 균형 있게 활용. "
+                f"적용 가중치: {weights_str}")
+    if category == "GROWTH_UNPROFITABLE":
+        return (f"적자 성장주로 분류되어 DCF·PER을 사용할 수 없습니다 (이익이 음수). "
+                f"애널리스트 컨센서스 + P/S 배수만 활용. 적용 가중치: {weights_str}")
+    if category == "UNRELIABLE_EARNINGS":
+        return (f"일회성 이익 가능성이 있어 PER·DCF를 제외하고 애널리스트 의견 중심으로 평가합니다. "
+                f"적용 가중치: {weights_str}")
+    if category == "DISTRESSED":
+        return (f"지속 적자·자금고갈 위험으로 펀더멘털 평가가 무의미합니다. 애널리스트 타겟만 참고. "
+                f"적용 가중치: {weights_str}")
+    if category in ("STABLE_FINANCIAL", "VOLATILE_FINANCIAL"):
+        return (f"금융섹터는 FCF 개념이 다르므로 DCF 제외, PER·Graham·애널리스트 중심으로 평가합니다. "
+                f"적용 가중치: {weights_str}")
+    if category == "BUYBACK_HEAVY":
+        return (f"자사주 매입으로 장부 자본잠식이지만 실제 수익성은 우량 (AAPL 같은 케이스). "
+                f"Graham·PBR 무효, DCF·PER·애널리스트 활용. 적용 가중치: {weights_str}")
+    if category == "VOLATILE":
+        return (f"일부 연도 적자가 있어 PER 해석에 주의가 필요합니다. 다년 평균 관점으로 보세요. "
+                f"적용 가중치: {weights_str}")
+    if category == "WEAK_CASH_FLOW":
+        return (f"장부이익은 양수지만 FCF가 적자라 DCF 제외, PER·애널리스트 혼합. "
+                f"적용 가중치: {weights_str}")
+    return f"카테고리: {category} · 적용 가중치: {weights_str}"
+
+
 def _dcf_fair_value(fcf, shares, growth_5y=0.10, terminal_growth=TERMINAL_GROWTH, discount=0.10):
     if not fcf or fcf <= 0 or not shares or shares <= 0:
         return None
@@ -279,17 +318,29 @@ def calculate_fair_value(info: dict, stock, history_data: dict | None = None) ->
         "ps_based": "analyst",  # P/S는 애널리스트와 비슷한 무게로 처리
     }
 
+    # 카테고리별 가중치 오버라이드 — 사용자에게 근거 노출 위해 명시 테이블화
+    # 총합이 1.0이 안 돼도 정규화되니 비율 의미만 갖춤
+    CATEGORY_WEIGHT_OVERRIDES = {
+        # 고성장주: DCF는 보수적이라 underestimate → 비중 ↓, PER·애널 ↑
+        "HYPER_GROWTH": {"dcf": 0.15, "per": 0.35, "analyst": 0.40, "graham": 0.10},
+        # 적자 성장주: DCF·PER 무효 → 애널·P/S 중심
+        "GROWTH_UNPROFITABLE": {"analyst": 0.60, "ps": 0.40},
+        # 일회성 이익 의심: 펀더멘털 신뢰도 낮음 → 애널 중심
+        "UNRELIABLE_EARNINGS": {"analyst": 0.70, "ps": 0.30},
+        # 부실: 펀더멘털 무의미 → 애널만
+        "DISTRESSED": {"analyst": 1.00},
+    }
+    overrides = CATEGORY_WEIGHT_OVERRIDES.get(quality_class["category"], {})
+
     available_methods = {}
     for method_name, method_data in methods.items():
         fair_val = method_data["fair_value"]
         weight_key = method_weight_key.get(method_name, "analyst")
-        base_w = base_weights.get(weight_key, 0.25)
-        # UNRELIABLE_EARNINGS/GROWTH_UNPROFITABLE면 애널리스트 가중치 증폭
-        if quality_class["category"] in ("UNRELIABLE_EARNINGS", "GROWTH_UNPROFITABLE", "DISTRESSED"):
-            if method_name == "analyst_target":
-                base_w = max(base_w, 0.60)
-            elif method_name == "ps_based":
-                base_w = 0.30
+        # 오버라이드 우선, 없으면 섹터 기본값
+        if weight_key in overrides:
+            base_w = overrides[weight_key]
+        else:
+            base_w = base_weights.get(weight_key, 0.25)
         available_methods[method_name] = (fair_val, base_w)
 
     if not available_methods:
@@ -326,6 +377,15 @@ def calculate_fair_value(info: dict, stock, history_data: dict | None = None) ->
 
     used_weights = {k: round(w / total_w, 2) for k, (_, w) in available_methods.items()}
 
+    # 가중치 결정 근거 — 사용자가 "왜 이 가중치인가" 이해하도록
+    weights_rationale = {
+        "category": quality_class["category"],
+        "category_label": quality_class["label"],
+        "category_basis": quality_class.get("rationale"),  # HYPER_GROWTH면 "PE 30+ · CAGR 25%" 등
+        "default_or_override": "category_override" if overrides else "sector_default",
+        "explanation": _explain_weights(quality_class["category"], used_weights, sector),
+    }
+
     # 판정
     if quality_class["confidence"] == "low":
         verdict_prefix = "⚠ 신뢰도 낮음 — "
@@ -355,6 +415,7 @@ def calculate_fair_value(info: dict, stock, history_data: dict | None = None) ->
         "verdict": verdict,
         "sector": st.get("sector", "Unknown"),
         "weights_used": used_weights,
+        "weights_rationale": weights_rationale,
         "quality_class": {
             "category": quality_class["category"],
             "label": quality_class["label"],

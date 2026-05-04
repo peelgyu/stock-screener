@@ -1,6 +1,6 @@
-// StockInto Service Worker - v39 (🔧 SEC EDGAR 회계연도 매핑 수정 — NVDA·AAPL 등 비12월결산 정상화)
+// StockInto Service Worker - v40 (🎯 HYPER_GROWTH 카테고리 + 가중치 가이드 — DCF 보수성 자동 보정)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v39';
+const CACHE_NAME = 'stockinto-v40';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
