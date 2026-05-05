@@ -99,6 +99,19 @@ CANONICAL_HOST = "stockinto.com"
 REDIRECT_HOSTS = {"stockinto.co.kr", "www.stockinto.co.kr", "www.stockinto.com"}
 
 
+# 모니터링 봇 시그니처 — GA4·AdSense 트래픽 오염 방지용
+# UptimeRobot 5분 핑이 일일 288회 들어와서 통계가 봇 트래픽으로 도배되는 문제 차단
+_MONITORING_BOT_UAS = ("uptimerobot", "uptime-kuma", "pingdom", "statuscake")
+
+
+@app.context_processor
+def inject_bot_flag():
+    """모든 템플릿에 is_bot 변수 주입 — 추적 스크립트 조건부 렌더링용."""
+    ua = (request.headers.get("User-Agent") or "").lower()
+    is_bot = any(sig in ua for sig in _MONITORING_BOT_UAS)
+    return {"is_bot": is_bot}
+
+
 @app.before_request
 def _canonical_redirect():
     """`.co.kr` 및 `www.` 접속을 `stockinto.com`으로 301 리다이렉트 (SEO 최적화)."""

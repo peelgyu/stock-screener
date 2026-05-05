@@ -1,6 +1,6 @@
-// StockInto Service Worker - v41 (🎯 뉴스 투자 시그널 필터 — 노이즈 제거 + 모든 종목 동일 잣대)
+// StockInto Service Worker - v42 (📊 봇 트래픽 통계 오염 차단 — UptimeRobot UA에 GA4·AdSense 미주입)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v41';
+const CACHE_NAME = 'stockinto-v42';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
