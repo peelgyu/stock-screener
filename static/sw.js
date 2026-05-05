@@ -1,6 +1,6 @@
-// StockInto Service Worker - v47 (📊 일일 금융 브리핑 — 매일 자동 갱신 + /briefing 페이지 + cron 트리거)
+// StockInto Service Worker - v48 (📊 일일 브리핑 모달 팝업 — 메인 진입 시 자동, 하루 1회)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v47';
+const CACHE_NAME = 'stockinto-v48';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

@@ -1077,6 +1077,31 @@ def briefing_page(date_str=None):
     return render_template("briefing.html", briefing=briefing, archives=archives)
 
 
+@app.route("/api/briefing/summary")
+def briefing_summary():
+    """모달 팝업용 경량 요약 — 지수·환율·공포탐욕·뉴스 3건만."""
+    try:
+        briefing = daily_briefing.get_or_generate()
+    except Exception:
+        app.logger.exception("briefing summary failed")
+        return jsonify({"available": False}), 200
+
+    if not briefing:
+        return jsonify({"available": False}), 200
+
+    return jsonify({
+        "available": True,
+        "date": briefing.get("date"),
+        "weekday_kr": briefing.get("weekday_kr"),
+        "us_indices": briefing.get("us_indices"),
+        "kr_indices": briefing.get("kr_indices"),
+        "fx": briefing.get("fx"),
+        "fear_greed": briefing.get("fear_greed"),
+        "top_news_kr": (briefing.get("news_kr") or [])[:3],
+        "top_news_us": (briefing.get("news_us") or [])[:3],
+    })
+
+
 @app.route("/cron/daily-briefing", methods=["POST", "GET"])
 def cron_briefing():
     """외부 cron이 호출 — 매일 오전 9:30 KST에 브리핑 자동 생성.

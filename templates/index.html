@@ -604,6 +604,106 @@
         .qm-value { color: #fff; font-weight: 600; margin-top: 2px; }
 
         .disclaimer { text-align: center; color: #888; font-size: 0.78rem; padding: 20px 0; line-height: 1.7; }
+
+        /* 일일 브리핑 모달 */
+        .briefing-modal-backdrop {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(5, 8, 15, 0.78);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            display: flex; align-items: center; justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .briefing-modal-card {
+            background: var(--bg-card, #141821);
+            border: 1px solid var(--border, #232936);
+            border-radius: 16px;
+            width: 100%; max-width: 480px;
+            max-height: 90vh; overflow-y: auto;
+            padding: 24px 22px 18px;
+            position: relative;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .briefing-modal-close {
+            position: absolute; top: 14px; right: 14px;
+            background: transparent; border: none;
+            color: #888; cursor: pointer;
+            font-size: 1.2rem; padding: 6px 10px;
+            border-radius: 50%;
+            min-width: 36px; min-height: 36px;
+        }
+        .briefing-modal-close:hover { background: rgba(255,255,255,0.06); color: #fff; }
+        .briefing-modal-header { margin-bottom: 16px; padding-right: 30px; }
+        .briefing-modal-header h2 { font-size: 1.15rem; font-weight: 700; color: var(--text, #e7eaf2); margin-bottom: 4px; }
+        .briefing-modal-date { font-size: 0.78rem; color: #888; }
+        .briefing-modal-body { font-size: 0.85rem; }
+        .briefing-modal-indices {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+            margin-bottom: 14px;
+        }
+        .briefing-modal-idx {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border, #232936);
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+        .briefing-modal-idx .name { font-size: 0.7rem; color: #888; }
+        .briefing-modal-idx .value { font-size: 0.95rem; font-weight: 700; color: var(--text, #e7eaf2); }
+        .briefing-modal-idx .change { font-size: 0.72rem; font-weight: 600; }
+        .briefing-modal-idx .change.up { color: #4caf50; }
+        .briefing-modal-idx .change.down { color: #f44336; }
+        .briefing-modal-news { margin-top: 14px; }
+        .briefing-modal-news-title { font-size: 0.78rem; color: #aaa; margin-bottom: 8px; font-weight: 600; }
+        .briefing-modal-news-item {
+            display: block; padding: 8px 10px;
+            border: 1px solid var(--border, #232936);
+            border-radius: 6px;
+            margin-bottom: 6px;
+            text-decoration: none; color: var(--text, #e7eaf2);
+            font-size: 0.78rem; line-height: 1.4;
+        }
+        .briefing-modal-news-item:hover { border-color: var(--accent, #3B82F6); }
+        .briefing-modal-news-item .src { font-size: 0.68rem; color: #777; margin-top: 2px; }
+        .briefing-modal-fg-row {
+            display: flex; gap: 8px; margin-bottom: 14px;
+        }
+        .briefing-modal-fg-row > div {
+            flex: 1; background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border, #232936);
+            border-radius: 8px; padding: 8px 10px; text-align: center;
+        }
+        .briefing-modal-footer {
+            display: flex; gap: 8px; margin-top: 18px;
+        }
+        .briefing-modal-btn-primary, .briefing-modal-btn-secondary {
+            flex: 1; padding: 11px 14px;
+            border-radius: 9999px; font-size: 0.84rem; font-weight: 600;
+            cursor: pointer; min-height: 44px;
+            text-decoration: none; text-align: center;
+            font-family: inherit;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--border, #232936);
+        }
+        .briefing-modal-btn-primary {
+            background: var(--accent, #3B82F6); color: white;
+            border-color: var(--accent, #3B82F6);
+        }
+        .briefing-modal-btn-primary:hover { background: #2563eb; }
+        .briefing-modal-btn-secondary {
+            background: transparent; color: #aaa;
+        }
+        .briefing-modal-btn-secondary:hover { background: rgba(255,255,255,0.04); }
+        @media (max-width: 480px) {
+            .briefing-modal-card { padding: 20px 16px 14px; max-height: 92vh; }
+            .briefing-modal-header h2 { font-size: 1rem; }
+        }
         .disclaimer strong { color: #ff9800; }
         .disclaimer a { color: #7b2ff7; text-decoration: none; margin: 0 6px; }
         .disclaimer a:hover { text-decoration: underline; }
@@ -932,6 +1032,32 @@
             </a>
         </div>
 
+        <!-- 일일 브리핑 모달 (페이지 첫 진입 시 자동 표시, 하루 1회) -->
+        <div id="briefingModalBackdrop" class="briefing-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="briefingModalTitle" style="display:none;">
+            <div class="briefing-modal-card" id="briefingModalCard">
+                <button class="briefing-modal-close" onclick="closeBriefingModal()" aria-label="닫기">✕</button>
+                <div class="briefing-modal-header">
+                    <h2 id="briefingModalTitle">📊 오늘의 시황</h2>
+                    <div class="briefing-modal-date" id="briefingModalDate">로딩 중...</div>
+                </div>
+                <div class="briefing-modal-body" id="briefingModalBody">
+                    <div style="text-align:center;padding:30px;color:#888;">
+                        <div class="spinner" style="margin:0 auto 12px;"></div>
+                        시황 데이터 로딩 중...
+                    </div>
+                </div>
+                <div class="briefing-modal-footer">
+                    <a href="/briefing" class="briefing-modal-btn-primary">📄 전체 보기</a>
+                    <button onclick="dontShowBriefingToday()" class="briefing-modal-btn-secondary">오늘 그만 보기</button>
+                </div>
+                <div style="text-align:center;margin-top:8px;">
+                    <label style="font-size:0.7rem;color:#666;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                        <input type="checkbox" id="briefingNeverAgain" style="margin:0;"> 다시는 보지 않기
+                    </label>
+                </div>
+            </div>
+        </div>
+
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>데이터 분석 중...</p>
@@ -1001,6 +1127,149 @@
         let optionsLoaded = false;
         let krxLoaded = false;
         let newsLoaded = false;
+
+        // ========== 일일 브리핑 모달 ==========
+        const BRIEFING_KEY_LAST = 'stockinto_briefing_last_shown';
+        const BRIEFING_KEY_NEVER = 'stockinto_briefing_never_again';
+
+        function todayKST() {
+            // KST 기준 YYYY-MM-DD
+            const now = new Date(Date.now() + 9*3600*1000);
+            return now.toISOString().slice(0, 10);
+        }
+
+        function shouldShowBriefingModal() {
+            try {
+                if (localStorage.getItem(BRIEFING_KEY_NEVER) === '1') return false;
+                const last = localStorage.getItem(BRIEFING_KEY_LAST);
+                return last !== todayKST();
+            } catch (e) { return false; }
+        }
+
+        function dontShowBriefingToday() {
+            try {
+                const checkbox = document.getElementById('briefingNeverAgain');
+                if (checkbox && checkbox.checked) {
+                    localStorage.setItem(BRIEFING_KEY_NEVER, '1');
+                } else {
+                    localStorage.setItem(BRIEFING_KEY_LAST, todayKST());
+                }
+            } catch (e) {}
+            closeBriefingModal();
+        }
+
+        function closeBriefingModal() {
+            const m = document.getElementById('briefingModalBackdrop');
+            if (m) m.style.display = 'none';
+            // 닫기 = "오늘 봤음" 으로 기록 (X 버튼·백드롭·ESC 모두)
+            try { localStorage.setItem(BRIEFING_KEY_LAST, todayKST()); } catch (e) {}
+        }
+
+        function fmtIdxRow(name, idx) {
+            if (!idx) return `<div class="briefing-modal-idx"><div class="name">${name}</div><div class="value" style="color:#666;">—</div></div>`;
+            const cls = idx.change_pct > 0 ? 'up' : idx.change_pct < 0 ? 'down' : '';
+            const arrow = idx.change_pct > 0 ? '▲' : idx.change_pct < 0 ? '▼' : '─';
+            const valStr = Number(idx.value).toLocaleString('ko-KR', {minimumFractionDigits:2, maximumFractionDigits:2});
+            const pctStr = (idx.change_pct >= 0 ? '+' : '') + idx.change_pct.toFixed(2);
+            return `<div class="briefing-modal-idx">
+                <div class="name">${name}</div>
+                <div class="value">${valStr}</div>
+                <div class="change ${cls}">${arrow} ${pctStr}%</div>
+            </div>`;
+        }
+
+        async function showBriefingModal() {
+            if (!shouldShowBriefingModal()) return;
+            const backdrop = document.getElementById('briefingModalBackdrop');
+            if (!backdrop) return;
+            backdrop.style.display = 'flex';
+
+            try {
+                const res = await fetch('/api/briefing/summary');
+                const data = await res.json();
+                if (!data.available) {
+                    backdrop.style.display = 'none';
+                    return;
+                }
+                renderBriefingModal(data);
+            } catch (e) {
+                backdrop.style.display = 'none';
+            }
+        }
+
+        function escapeBriefHtml(s) {
+            return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function renderBriefingModal(data) {
+            const dateEl = document.getElementById('briefingModalDate');
+            const bodyEl = document.getElementById('briefingModalBody');
+            if (dateEl) dateEl.textContent = `${data.date} (${data.weekday_kr || ''})`;
+
+            const us = data.us_indices || {};
+            const kr = data.kr_indices || {};
+            const fx = data.fx || {};
+            const fg = data.fear_greed || {};
+
+            const indicesHTML = `
+                <div class="briefing-modal-indices">
+                    ${fmtIdxRow('S&P 500', us.sp500)}
+                    ${fmtIdxRow('NASDAQ', us.nasdaq)}
+                    ${fmtIdxRow('KOSPI', kr.kospi)}
+                    ${fmtIdxRow('KOSDAQ', kr.kosdaq)}
+                </div>`;
+
+            const fxStr = fx.usd_krw ? '₩' + Math.round(fx.usd_krw).toLocaleString('ko-KR') : '—';
+            const fgScore = fg.score != null ? fg.score : '—';
+            const fgLabel = fg.label || '';
+            const fgColor = fgScore < 25 ? '#f44336' : fgScore < 55 ? '#fbbf24' : '#4caf50';
+
+            const fgRow = `
+                <div class="briefing-modal-fg-row">
+                    <div>
+                        <div style="font-size:0.7rem;color:#888;">USD/KRW</div>
+                        <div style="font-size:0.95rem;font-weight:700;">${fxStr}</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.7rem;color:#888;">공포탐욕</div>
+                        <div style="font-size:0.95rem;font-weight:700;color:${fgColor};">${fgScore} <span style="font-size:0.68rem;color:#888;font-weight:400;">${escapeBriefHtml(fgLabel)}</span></div>
+                    </div>
+                </div>`;
+
+            const newsKR = (data.top_news_kr || []).slice(0, 3);
+            let newsHTML = '';
+            if (newsKR.length) {
+                newsHTML = '<div class="briefing-modal-news"><div class="briefing-modal-news-title">📰 주요 뉴스</div>';
+                newsKR.forEach(n => {
+                    const link = n.link || n.originalLink || '#';
+                    newsHTML += `<a href="${escapeBriefHtml(link)}" target="_blank" rel="noopener" class="briefing-modal-news-item">
+                        <div>${escapeBriefHtml((n.title || '').slice(0, 65))}</div>
+                        <div class="src">${escapeBriefHtml(n.source || '')}</div>
+                    </a>`;
+                });
+                newsHTML += '</div>';
+            }
+
+            bodyEl.innerHTML = indicesHTML + fgRow + newsHTML;
+        }
+
+        // 백드롭 클릭 + ESC 키 닫기
+        document.addEventListener('DOMContentLoaded', () => {
+            const backdrop = document.getElementById('briefingModalBackdrop');
+            if (backdrop) {
+                backdrop.addEventListener('click', (e) => {
+                    if (e.target === backdrop) closeBriefingModal();
+                });
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    const m = document.getElementById('briefingModalBackdrop');
+                    if (m && m.style.display === 'flex') closeBriefingModal();
+                }
+            });
+            // 페이지 로드 후 1초 뒤 모달 표시 (메인 분석 페이지 로딩 안 거슬리게)
+            setTimeout(showBriefingModal, 1000);
+        });
 
         // ========== 용어 툴팁 헬퍼 ==========
         // tt('PER') → '<span class="term-tooltip" data-term="PER">PER</span>'
