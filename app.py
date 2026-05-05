@@ -66,6 +66,7 @@ from data import krx_client
 from data import sec_client
 from data import kr_listing
 from data import naver_news
+from data import daily_briefing
 from analysis.sector_baseline import get_sector_thresholds
 from analysis.history import get_historical_metrics
 from analysis.quality import evaluate_earnings_quality
@@ -1051,6 +1052,63 @@ def _build_data_meta(info: dict, ticker: str, is_kr: bool, history_data: dict | 
         "marketCurrency": "KRW" if is_kr else "USD",
         "disclaimer": "본 분석은 위 시점의 공시 데이터 기준이며, 그 이후 시장 변동은 미반영. 투자 자문이 아닌 정보 제공입니다.",
     }
+
+
+@app.route("/briefing")
+@app.route("/briefing/<date_str>")
+def briefing_page(date_str=None):
+    """일일 금융 브리핑 페이지 — 매일 자동 갱신.
+
+    /briefing → 오늘
+    /briefing/2026-05-04 → 특정 날짜 아카이브
+    """
+    import re as _re_date
+    if date_str and not _re_date.fullmatch(r"\d{4}-\d{2}-\d{2}", date_str):
+        return "Invalid date", 400
+
+    briefing = daily_briefing.get_or_generate(date_str)
+    archives = daily_briefing.list_archives(limit=14)
+
+    if not briefing:
+        # 과거 날짜인데 데이터 없음
+        from flask import abort
+        abort(404)
+
+    return render_template("briefing.html", briefing=briefing, archives=archives)
+
+
+@app.route("/cron/daily-briefing", methods=["POST", "GET"])
+def cron_briefing():
+    """외부 cron이 호출 — 매일 오전 9:30 KST에 브리핑 자동 생성.
+
+    인증: X-Cron-Token 헤더 또는 ?token= 쿼리스트링 필수.
+    환경변수 CRON_TOKEN과 일치해야 실행.
+    """
+    expected = os.getenv("CRON_TOKEN")
+    if not expected:
+        return jsonify({"error": "CRON_TOKEN 환경변수 미설정"}), 503
+    provided = request.headers.get("X-Cron-Token") or request.args.get("token")
+    if provided != expected:
+        return jsonify({"error": "forbidden"}), 403
+
+    try:
+        briefing = daily_briefing.generate_briefing()
+        path = daily_briefing.save_briefing(briefing)
+        # 캐시도 갱신
+        cache.set(f"daily_briefing:{briefing['date']}", briefing, ttl=3600)
+        return jsonify({
+            "ok": True,
+            "date": briefing["date"],
+            "saved_to": path,
+            "summary": {
+                "us_sp500": briefing.get("us_indices", {}).get("sp500"),
+                "kr_kospi": briefing.get("kr_indices", {}).get("kospi"),
+                "news_count": len(briefing.get("news_us", [])) + len(briefing.get("news_kr", [])),
+            },
+        })
+    except Exception as e:
+        app.logger.exception("briefing cron failed")
+        return jsonify({"error": f"{type(e).__name__}: {str(e)[:200]}"}), 500
 
 
 @app.route("/api/news", methods=["POST"])

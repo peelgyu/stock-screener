@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>{{ briefing.date }} 일일 금융 브리핑 — 미국·한국 시장 시황 | StockInto</title>
+    <meta name="description" content="{{ briefing.date }} 미국(S&P500·NASDAQ·DOW)·한국(KOSPI·KOSDAQ) 시장 시황, 환율, 공포탐욕지수, 거래량 TOP, 시장 뉴스 한눈에. 매일 자동 갱신.">
+    <meta name="keywords" content="일일 금융 브리핑, 시황, 코스피, 나스닥, S&P500, 미국 증시, 한국 증시, 환율, {{ briefing.date }}">
+    <link rel="canonical" href="https://stockinto.com/briefing/{{ briefing.date }}">
+
+    <meta property="og:title" content="{{ briefing.date }} 일일 금융 브리핑 — StockInto">
+    <meta property="og:description" content="미국·한국 시장 시황 + 시장 뉴스 + 공포탐욕지수">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://stockinto.com/briefing/{{ briefing.date }}">
+
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <style>
+        :root {
+            --bg: #0b0d12;
+            --bg-card: #141821;
+            --bg-elev: #1a1f2b;
+            --text: #e7eaf2;
+            --text-secondary: #9aa3b2;
+            --text-dim: #6b7280;
+            --border: #232936;
+            --accent: #3B82F6;
+            --accent-cyan: #06b6d4;
+            --green: #4caf50;
+            --red: #f44336;
+            --yellow: #fbbf24;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { background: var(--bg); }
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        .topnav {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+        .topnav a { color: var(--text); text-decoration: none; font-size: 0.85rem; }
+        .topnav .brand { font-weight: 700; font-size: 1rem; color: var(--accent); }
+        .container { max-width: 920px; margin: 0 auto; padding: 24px 16px 80px; }
+
+        .briefing-header {
+            background: linear-gradient(135deg, #141821 0%, #1a1f2b 100%);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px 28px;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .briefing-header h1 {
+            font-size: 1.6rem; font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .briefing-header .subtitle {
+            font-size: 0.85rem; color: var(--text-secondary);
+        }
+
+        .section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 18px;
+        }
+        .section-title {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 1rem; font-weight: 700;
+            margin-bottom: 14px;
+            border-left: 3px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        .index-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        @media (max-width: 540px) {
+            .index-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .index-card {
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px 12px;
+            text-align: center;
+        }
+        .index-card .name {
+            font-size: 0.8rem; color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+        .index-card .value {
+            font-size: 1.4rem; font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .index-card .change {
+            font-size: 0.85rem; font-weight: 600;
+        }
+        .change.up { color: var(--green); }
+        .change.down { color: var(--red); }
+        .change.neutral { color: var(--text-secondary); }
+
+        .news-list { display: flex; flex-direction: column; gap: 10px; }
+        .news-item {
+            display: block;
+            padding: 12px 14px;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            text-decoration: none; color: inherit;
+            transition: border-color 0.15s;
+        }
+        .news-item:hover { border-color: var(--accent); }
+        .news-item .title {
+            font-size: 0.92rem; font-weight: 600;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        .news-item .meta {
+            font-size: 0.72rem; color: var(--text-dim);
+        }
+
+        .mover-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .mover-row:last-child { border-bottom: none; }
+        .mover-row .ticker { font-weight: 700; color: var(--accent-cyan); width: 80px; }
+        .mover-row .name { flex: 1; color: var(--text-secondary); font-size: 0.78rem; }
+        .mover-row .pct { font-weight: 700; min-width: 70px; text-align: right; }
+
+        .archives {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-top: 16px;
+        }
+        .archive-pill {
+            padding: 6px 12px;
+            background: var(--bg-elev);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+        }
+        .archive-pill:hover { border-color: var(--accent); color: var(--text); }
+        .archive-pill.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+        .fg-card { display: flex; gap: 14px; align-items: center; }
+        .fg-circle {
+            width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.4rem; font-weight: 700;
+            color: white;
+        }
+        .fg-info { flex: 1; }
+        .fg-info .label { font-size: 0.95rem; font-weight: 700; }
+        .fg-info .level { font-size: 0.78rem; color: var(--text-secondary); }
+
+        .footer-disclaimer {
+            margin-top: 24px;
+            padding: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 0.75rem; color: var(--text-dim);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="brand">📈 StockInto</a>
+        <div style="display:flex;gap:14px;font-size:0.78rem;">
+            <a href="/">분석</a>
+            <a href="/glossary">용어</a>
+            <a href="/about">소개</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="briefing-header">
+            <h1>📊 일일 금융 브리핑</h1>
+            <div class="subtitle">{{ briefing.date }} ({{ briefing.weekday_kr }}) · {{ briefing.generated_at_kst }} 생성</div>
+        </div>
+
+        {# US 지수 #}
+        <div class="section">
+            <div class="section-title">🇺🇸 미국 시장 지수</div>
+            <div class="index-grid">
+                {% for key, name in [('sp500', 'S&P 500'), ('nasdaq', 'NASDAQ'), ('dow', 'DOW')] %}
+                {% set idx = briefing.us_indices.get(key) %}
+                <div class="index-card">
+                    <div class="name">{{ name }}</div>
+                    {% if idx %}
+                        <div class="value">{{ "{:,.2f}".format(idx.value) }}</div>
+                        <div class="change {% if idx.change_pct > 0 %}up{% elif idx.change_pct < 0 %}down{% else %}neutral{% endif %}">
+                            {% if idx.change_pct > 0 %}▲{% elif idx.change_pct < 0 %}▼{% else %}─{% endif %}
+                            {{ "{:+.2f}".format(idx.change_pct) }}%
+                        </div>
+                    {% else %}
+                        <div class="value" style="color:#666;">—</div>
+                        <div class="change neutral">데이터 없음</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# KR 지수 #}
+        <div class="section">
+            <div class="section-title">🇰🇷 한국 시장 지수</div>
+            <div class="index-grid" style="grid-template-columns:1fr 1fr;">
+                {% for key, name in [('kospi', 'KOSPI'), ('kosdaq', 'KOSDAQ')] %}
+                {% set idx = briefing.kr_indices.get(key) %}
+                <div class="index-card">
+                    <div class="name">{{ name }}</div>
+                    {% if idx %}
+                        <div class="value">{{ "{:,.2f}".format(idx.value) }}</div>
+                        <div class="change {% if idx.change_pct > 0 %}up{% elif idx.change_pct < 0 %}down{% else %}neutral{% endif %}">
+                            {% if idx.change_pct > 0 %}▲{% elif idx.change_pct < 0 %}▼{% else %}─{% endif %}
+                            {{ "{:+.2f}".format(idx.change_pct) }}%
+                        </div>
+                    {% else %}
+                        <div class="value" style="color:#666;">—</div>
+                        <div class="change neutral">데이터 없음</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {# 환율 + 공포탐욕 #}
+        <div class="section">
+            <div class="section-title">💱 환율 · 😨 공포탐욕지수</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div class="index-card">
+                    <div class="name">USD/KRW</div>
+                    {% if briefing.fx and briefing.fx.usd_krw %}
+                        <div class="value">₩{{ "{:,.0f}".format(briefing.fx.usd_krw) }}</div>
+                        <div class="change neutral">달러당</div>
+                    {% else %}
+                        <div class="value" style="color:#666;">—</div>
+                    {% endif %}
+                </div>
+                <div class="index-card">
+                    {% if briefing.fear_greed and briefing.fear_greed.score is not none %}
+                        {% set fg = briefing.fear_greed %}
+                        {% set fg_color = '#f44336' if fg.score < 25 else ('#fbbf24' if fg.score < 55 else '#4caf50') %}
+                        <div class="name">공포탐욕지수</div>
+                        <div class="value" style="color:{{ fg_color }};">{{ fg.score }}</div>
+                        <div class="change neutral">{{ fg.label or '' }}</div>
+                    {% else %}
+                        <div class="name">공포탐욕지수</div>
+                        <div class="value" style="color:#666;">—</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# 거래량 TOP — 미국 #}
+        {% set us_g = briefing.top_movers_us.gainers if briefing.top_movers_us else [] %}
+        {% set us_l = briefing.top_movers_us.losers if briefing.top_movers_us else [] %}
+        {% if us_g or us_l %}
+        <div class="section">
+            <div class="section-title">🇺🇸 미국 거래량 활발 종목</div>
+            {% if us_g %}
+            <div style="margin-bottom:12px;font-size:0.82rem;color:var(--text-secondary);">📈 상승 TOP</div>
+            {% for m in us_g %}
+            <div class="mover-row">
+                <span class="ticker">{{ m.symbol }}</span>
+                <span class="name">{{ (m.name or m.symbol)[:30] }}</span>
+                <span class="pct" style="color:{% if m.changePercent > 0 %}var(--green){% else %}var(--red){% endif %};">
+                    {{ "{:+.2f}".format(m.changePercent) }}%
+                </span>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% if us_l %}
+            <div style="margin:14px 0 10px;font-size:0.82rem;color:var(--text-secondary);">📉 하락 TOP</div>
+            {% for m in us_l %}
+            <div class="mover-row">
+                <span class="ticker">{{ m.symbol }}</span>
+                <span class="name">{{ (m.name or m.symbol)[:30] }}</span>
+                <span class="pct" style="color:{% if m.changePercent > 0 %}var(--green){% else %}var(--red){% endif %};">
+                    {{ "{:+.2f}".format(m.changePercent) }}%
+                </span>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# 미국 시장 뉴스 #}
+        {% if briefing.news_us %}
+        <div class="section">
+            <div class="section-title">📰 미국 시장 뉴스</div>
+            <div class="news-list">
+                {% for n in briefing.news_us %}
+                <a href="{{ n.link or n.originalLink }}" target="_blank" rel="noopener" class="news-item">
+                    <div class="title">{{ n.title }}</div>
+                    <div class="meta">{{ n.source }}</div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# 한국 시장 뉴스 #}
+        {% if briefing.news_kr %}
+        <div class="section">
+            <div class="section-title">📰 한국 시장 뉴스</div>
+            <div class="news-list">
+                {% for n in briefing.news_kr %}
+                <a href="{{ n.link or n.originalLink }}" target="_blank" rel="noopener" class="news-item">
+                    <div class="title">{{ n.title }}</div>
+                    <div class="meta">{{ n.source }}</div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# 아카이브 #}
+        {% if archives %}
+        <div class="section">
+            <div class="section-title">🗂 지난 브리핑</div>
+            <div class="archives">
+                {% for d in archives %}
+                <a href="/briefing/{{ d }}" class="archive-pill {% if d == briefing.date %}active{% endif %}">{{ d }}</a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# 면책·출처 #}
+        <div class="footer-disclaimer">
+            <strong style="color:#ff9800;">⚠ 본 브리핑은 정보 제공 목적이며, 투자 자문이 아닙니다.</strong><br>
+            {{ briefing.disclaimer or '투자 판단과 그 결과의 책임은 이용자 본인에게 있습니다.' }}<br><br>
+            <strong>📅 데이터 시점</strong>: {{ briefing.generated_at_kst }} 기준. 시장 상황은 그 이후 실시간으로 변동됩니다.<br>
+            <strong>출처</strong>:
+            {% if briefing.data_sources %}
+                지수 — {{ briefing.data_sources.indices }} ·
+                뉴스 — {{ briefing.data_sources.news }} ·
+                환율 — {{ briefing.data_sources.fx }}
+            {% endif %}
+            <br><br>
+            <a href="/" style="color:var(--accent);">📈 종목 분석으로</a> ·
+            <a href="/glossary" style="color:var(--text-secondary);">📚 용어 사전</a> ·
+            <a href="/terms" style="color:var(--text-dim);">이용약관</a>
+        </div>
+    </main>
+</body>
+</html>

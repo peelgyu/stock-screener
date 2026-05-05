@@ -1,6 +1,6 @@
-// StockInto Service Worker - v46 (📅 데이터 기준일 전면 표기 — 종목 헤더·평가자·적정가·푸터 + dataMeta 메타 시스템)
+// StockInto Service Worker - v47 (📊 일일 금융 브리핑 — 매일 자동 갱신 + /briefing 페이지 + cron 트리거)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v46';
+const CACHE_NAME = 'stockinto-v47';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
