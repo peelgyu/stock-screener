@@ -819,7 +819,7 @@ def analyze():
             if dps is not None and info.get("dividendRate") is None:
                 info["dividendRate"] = dps
             if y is not None and info.get("dividendYield") is None:
-                info["dividendYield"] = y / 100  # DART는 %로 줌 → yfinance는 소수
+                info["dividendYield"] = y  # DART %를 그대로 저장 (yfinance 0.2.x+도 % 형식으로 통일)
             price = info.get("currentPrice") or info.get("regularMarketPrice")
             if dps and price and price > 0 and info.get("payoutRatio") is None:
                 eps = info.get("trailingEps")

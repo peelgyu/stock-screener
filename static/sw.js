@@ -1,6 +1,6 @@
-// StockInto Service Worker - v42 (📊 봇 트래픽 통계 오염 차단 — UptimeRobot UA에 GA4·AdSense 미주입)
+// StockInto Service Worker - v43 (🔧 그레이엄 배당 수익률 100배 부풀려짐 버그 수정)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v42';
+const CACHE_NAME = 'stockinto-v43';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

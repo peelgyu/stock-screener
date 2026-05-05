@@ -315,12 +315,24 @@ def evaluate_graham(info: dict, sector_t: dict, history_data: dict | None = None
         results.append({"name": "수익 안정성 (5년 연속 흑자)", "passed": None, "value": "데이터 없음"})
 
     # #6: 배당 + 배당 수익률 1%+
-    dy = safe_get(info, "dividendYield")
-    if dy is not None:
+    # yfinance 0.2.x+ 이후 dividendYield는 % 형식으로 변경됨 (옛: 소수)
+    # 가장 안전한 방법: dividendRate / price로 직접 계산
+    dy_pct = None
+    rate = safe_get(info, "dividendRate")
+    price = safe_get(info, "currentPrice") or safe_get(info, "regularMarketPrice")
+    if rate is not None and price and price > 0:
+        dy_pct = (rate / price) * 100
+    else:
+        # fallback: dividendYield 사용. 0.5 이상이면 이미 %, 미만이면 소수형 (옛 yfinance)
+        dy = safe_get(info, "dividendYield")
+        if dy is not None:
+            dy_pct = dy if dy >= 0.5 else dy * 100
+
+    if dy_pct is not None:
         results.append({
             "name": "배당 1%+ (인플레 헤지)",
-            "passed": dy >= 0.01,
-            "value": f"{dy*100:.2f}%"
+            "passed": dy_pct >= 1.0,
+            "value": f"{dy_pct:.2f}%"
         })
     else:
         results.append({"name": "배당 1%+ (인플레 헤지)", "passed": None, "value": "데이터 없음"})
