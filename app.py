@@ -850,6 +850,48 @@ def analyze():
                 if last_shares and info.get("sharesOutstanding") in (None, 0):
                     info["sharesOutstanding"] = last_shares
 
+        # SEC TTM 비율 — 미국 종목의 모든 비율 지표를 정부 공시 기반으로 정확화
+        # yfinance 형식 변경(dividendYield 100배 등) 사고 영구 차단
+        # D/E는 yfinance 정의(LT+ST debt만)가 더 정확해서 yfinance 우선 유지
+        sec_ttm = _safe_call(sec_client.fetch_ttm_metrics, None, ticker)
+        if sec_ttm:
+            info["_sec_ttm"] = True
+
+            def _safe_set(key, val, valid_check=lambda v: v is not None):
+                if valid_check(val):
+                    info[key] = val
+
+            # 비율 지표 — SEC TTM이 yfinance 보다 정확 + 안정적
+            if sec_ttm.get("roe") is not None:
+                _safe_set("returnOnEquity", sec_ttm["roe"], lambda v: -2.0 <= v <= 5.0)
+            if sec_ttm.get("operating_margin") is not None:
+                _safe_set("operatingMargins", sec_ttm["operating_margin"], lambda v: -1.5 <= v <= 1.0)
+            if sec_ttm.get("profit_margin") is not None:
+                _safe_set("profitMargins", sec_ttm["profit_margin"], lambda v: -2.0 <= v <= 1.0)
+            if sec_ttm.get("gross_margin") is not None:
+                _safe_set("grossMargins", sec_ttm["gross_margin"], lambda v: -0.5 <= v <= 1.0)
+            if sec_ttm.get("current_ratio") is not None:
+                _safe_set("currentRatio", sec_ttm["current_ratio"], lambda v: 0.3 <= v <= 5.0)
+            if sec_ttm.get("ttm_fcf") is not None:
+                info["freeCashflow"] = sec_ttm["ttm_fcf"]
+            if sec_ttm.get("ttm_revenue") is not None:
+                info["totalRevenue"] = sec_ttm["ttm_revenue"]
+
+            # PER/PBR/EPS/BPS — 자체 계산 (yfinance가 없거나 부정확할 때 보강)
+            shares_out = info.get("sharesOutstanding") or sec_ttm.get("latest_shares")
+            price = info.get("currentPrice") or info.get("regularMarketPrice")
+            ni_ttm = sec_ttm.get("ttm_net_income")
+            equity = sec_ttm.get("latest_equity")
+            if shares_out and shares_out > 0 and price and price > 0:
+                if ni_ttm is not None and ni_ttm > 0:
+                    eps = ni_ttm / shares_out
+                    info["trailingEps"] = eps
+                    info["trailingPE"] = price / eps
+                if equity and equity > 0:
+                    bps = equity / shares_out
+                    info["bookValue"] = bps
+                    info["priceToBook"] = price / bps
+
     # 한국 주식 KRX 수급 — lazy load (별도 /api/krx 엔드포인트, 탭 클릭 시 fetch)
     krx_data = {"available": None, "lazy": True} if (is_kr and krx_client.is_available()) else None
 

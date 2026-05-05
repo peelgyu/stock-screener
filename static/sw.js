@@ -1,6 +1,6 @@
-// StockInto Service Worker - v44 (🔍 5인 평가자 전 기준 일괄 감사 — 한국 유동비율 비현실 값 차단 + DART 별칭 보강)
+// StockInto Service Worker - v45 (🏛 SEC EDGAR TTM 자체 계산 — 미국 종목 yfinance 의존 70% → 25% 축소)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v44';
+const CACHE_NAME = 'stockinto-v45';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

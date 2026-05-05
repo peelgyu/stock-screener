@@ -244,6 +244,188 @@ def _extract_annual_series(facts: dict, concept: str) -> dict[int, float]:
         return {}
 
 
+def _collect_12m_entries(facts: dict, concept: str) -> list:
+    """concept의 12개월 누적 entries 수집 — (end, filed, val, concept) 리스트 반환."""
+    out = []
+    try:
+        node = facts.get("facts", {}).get("us-gaap", {}).get(concept)
+        if not node:
+            return out
+        units = node.get("units", {})
+        if "USD" not in units:
+            return out
+        from datetime import datetime
+        for e in units["USD"]:
+            start, end = e.get("start"), e.get("end")
+            val = e.get("val")
+            if not start or not end or val is None:
+                continue
+            try:
+                d_start = datetime.strptime(start, "%Y-%m-%d")
+                d_end = datetime.strptime(end, "%Y-%m-%d")
+                days = (d_end - d_start).days
+            except ValueError:
+                continue
+            if 350 <= days <= 380:
+                out.append((end, e.get("filed", ""), float(val), concept))
+    except Exception:
+        pass
+    return out
+
+
+def _best_ttm_across_concepts(facts: dict, concept_list: list[str]) -> Optional[float]:
+    """여러 concept 중 가장 최근 end date를 가진 12M 값을 채택.
+
+    회사가 시기별로 다른 concept 사용해도 (Revenues → RevenueFromContract...),
+    end date 기준 가장 최근 값을 자동 선택. 옛 concept 잔재 값 채택 방지.
+    """
+    all_entries = []
+    for c in concept_list:
+        all_entries.extend(_collect_12m_entries(facts, c))
+    if not all_entries:
+        # fallback: 최근 FY (10-K) 값
+        annual_merged = _pick_concept_series(facts, concept_list)
+        if annual_merged:
+            return annual_merged[max(annual_merged.keys())]
+        return None
+    # end date 가장 최근 우선, 동률이면 filed 가장 최근
+    all_entries.sort(key=lambda x: (x[0], x[1]), reverse=True)
+    return all_entries[0][2]
+
+
+def _extract_latest_balance(facts: dict, concept: str) -> Optional[float]:
+    """balance 계정(자산·부채·자본 등)의 가장 최근 시점 값.
+
+    Balance sheet items은 누적이 아닌 point-in-time (특정 시점 잔액).
+    가장 최근 보고된 값 (10-K든 10-Q든)을 반환.
+    """
+    try:
+        node = facts.get("facts", {}).get("us-gaap", {}).get(concept)
+        if not node:
+            return None
+        units = node.get("units", {})
+        if "USD" not in units:
+            return None
+        entries = units["USD"]
+        rows = []
+        for e in entries:
+            end = e.get("end")
+            val = e.get("val")
+            if not end or val is None:
+                continue
+            # start가 없거나 start==end면 시점 데이터 (balance)
+            start = e.get("start")
+            if start and start != end:
+                # 누적 데이터는 BS 컨셉트엔 거의 없지만 안전 차원
+                continue
+            rows.append((end, e.get("filed", ""), float(val)))
+        if not rows:
+            return None
+        rows.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        return rows[0][2]
+    except Exception:
+        return None
+
+
+def fetch_ttm_metrics(ticker: str) -> Optional[dict]:
+    """미국 종목의 TTM(최근 12개월) + 최신 BS 값으로 비율 지표 계산.
+
+    yfinance 의존도 축소 — SEC 정부 공시 직접 사용.
+    yfinance 형식 변경 (dividendYield 100배 같은) 사고 영구 차단.
+
+    Returns:
+        dict with keys: ttm_revenue, ttm_net_income, ttm_operating_income,
+        ttm_gross_profit, ttm_fcf, latest_equity, latest_total_debt,
+        latest_current_assets, latest_current_liabilities,
+        + 계산된 비율: roe, operating_margin, profit_margin, gross_margin,
+        debt_to_equity, current_ratio, fcf
+        실패 시 None.
+    """
+    cik = _get_cik(ticker)
+    if not cik:
+        return None
+
+    cache_key = f"sec_ttm_v1:{cik}"
+    hit = cache.get(cache_key)
+    if hit is not None:
+        return hit if hit else None
+
+    facts = _fetch_company_facts(cik)
+    if not facts:
+        cache.set(cache_key, False, ttl=3600)
+        return None
+
+    # Flow 계정 (TTM) — concept 다중 + end date 우선
+    rev = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["revenue"])
+    ni = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["net_income"])
+    oi = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["operating_income"])
+    gp = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["gross_profit"])
+    cor = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["cost_of_revenue"])
+    ocf = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["operating_cf"])
+    capex = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["capex"])
+
+    # gross_profit fallback
+    if gp is None and rev is not None and cor is not None:
+        gp = rev - cor
+
+    fcf = None
+    if ocf is not None:
+        fcf = ocf - (capex or 0)
+
+    # Balance 계정 (시점)
+    def best_balance(concept_list):
+        for c in concept_list:
+            v = _extract_latest_balance(facts, c)
+            if v is not None:
+                return v
+        return None
+
+    equity = best_balance(_FIELD_CONCEPTS["total_equity"])
+    total_assets = best_balance(_FIELD_CONCEPTS["total_assets"])
+    total_liab = best_balance(_FIELD_CONCEPTS["total_liabilities"])
+    ca = best_balance(_FIELD_CONCEPTS["current_assets"])
+    cl = best_balance(_FIELD_CONCEPTS["current_liabilities"])
+    shares = best_balance(_FIELD_CONCEPTS["shares_outstanding"])
+
+    # 비율 계산
+    ratios = {}
+    if ni is not None and equity and equity > 0:
+        ratios["roe"] = ni / equity
+    if oi is not None and rev and rev > 0:
+        ratios["operating_margin"] = oi / rev
+    if ni is not None and rev and rev > 0:
+        ratios["profit_margin"] = ni / rev
+    if gp is not None and rev and rev > 0:
+        ratios["gross_margin"] = gp / rev
+    if total_liab is not None and equity and equity > 0:
+        ratios["debt_to_equity_pct"] = (total_liab / equity) * 100  # %
+    if ca is not None and cl and cl > 0:
+        cr = ca / cl
+        if 0.3 <= cr <= 5.0:  # 정상 범위만 채택
+            ratios["current_ratio"] = cr
+
+    result = {
+        "ttm_revenue": rev,
+        "ttm_net_income": ni,
+        "ttm_operating_income": oi,
+        "ttm_gross_profit": gp,
+        "ttm_operating_cf": ocf,
+        "ttm_capex": capex,
+        "ttm_fcf": fcf,
+        "latest_equity": equity,
+        "latest_total_assets": total_assets,
+        "latest_total_liabilities": total_liab,
+        "latest_current_assets": ca,
+        "latest_current_liabilities": cl,
+        "latest_shares": shares,
+        **ratios,
+        "source": "sec_edgar_ttm",
+    }
+    facts = None  # 메모리 해제
+    cache.set(cache_key, result, ttl=24 * 3600)
+    return result
+
+
 def _pick_concept_series(facts: dict, concept_list: list[str], pick: str = "max") -> dict[int, float]:
     """후보 concept들의 시계열을 합침 — 회사·시기별 태그 변경 대응.
 
