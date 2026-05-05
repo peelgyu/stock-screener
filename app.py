@@ -990,7 +990,67 @@ def analyze():
         "overall": overall,
         "krx": krx_data,
         "dataWarnings": info.get("_data_warnings", []),
+        "dataMeta": _build_data_meta(info, ticker, is_kr, history_data),
     })
+
+
+def _build_data_meta(info: dict, ticker: str, is_kr: bool, history_data: dict | None) -> dict:
+    """응답 메타데이터 — 사용자가 데이터 시점·출처를 즉시 이해할 수 있게.
+
+    법적 보호: 자본시장법상 정보 제공자임을 명시 + 시점 명확화 (조언 아님).
+    """
+    from datetime import datetime, timezone, timedelta
+    kst = datetime.now(timezone(timedelta(hours=9)))
+    sec_ttm = info.get("_sec_ttm")
+    dart_used = info.get("_data_source_dart")
+
+    # 재무 데이터 출처
+    if is_kr and dart_used:
+        fin_source = "금융감독원 DART (공공누리 1유형)"
+        fin_source_short = "DART"
+    elif sec_ttm:
+        fin_source = "SEC EDGAR (Public Domain · 17 USC §105)"
+        fin_source_short = "SEC EDGAR"
+    else:
+        fin_source = "Yahoo Finance (재무 추정치)"
+        fin_source_short = "Yahoo Finance"
+
+    # 재무 데이터 기준일
+    fin_end_date = None
+    fin_period_type = None
+    if sec_ttm:
+        # SEC TTM 정보는 info에 직접 안 박혔으니 재호출은 비용 → 캐시에서 가져옴
+        from data.cache import cache as _cache
+        cik = None
+        try:
+            from data.sec_client import _get_cik
+            cik = _get_cik(ticker)
+        except Exception:
+            pass
+        if cik:
+            cached_ttm = _cache.get(f"sec_ttm_v1:{cik}")
+            if cached_ttm and isinstance(cached_ttm, dict):
+                fin_end_date = cached_ttm.get("ttm_end_date") or cached_ttm.get("balance_end_date")
+                fin_period_type = "TTM (12개월 누적)"
+    if not fin_end_date and history_data and history_data.get("years"):
+        years = history_data["years"]
+        if years:
+            fin_end_date = f"{years[-1]}-12-31"
+            fin_period_type = "연간 (FY 결산)"
+
+    return {
+        "analysisTimeKST": kst.strftime("%Y-%m-%d %H:%M KST"),
+        "analysisTimeISO": kst.isoformat(),
+        "financialSource": fin_source,
+        "financialSourceShort": fin_source_short,
+        "financialEndDate": fin_end_date,         # "2025-09-27" 같은 날짜
+        "financialPeriodType": fin_period_type,    # "TTM (12개월 누적)" 또는 "연간 (FY 결산)"
+        "priceDelayMinutes": 15,
+        "priceProviderShort": "Yahoo Finance" if not is_kr else "FinanceDataReader (KRX)",
+        "fxRateDate": kst.strftime("%Y-%m-%d"),    # 환율 fetch 시점 (당일 단위)
+        "marketCurrency": "KRW" if is_kr else "USD",
+        "disclaimer": "본 분석은 위 시점의 공시 데이터 기준이며, 그 이후 시장 변동은 미반영. 투자 자문이 아닌 정보 제공입니다.",
+    }
 
 
 @app.route("/api/news", methods=["POST"])

@@ -273,58 +273,49 @@ def _collect_12m_entries(facts: dict, concept: str) -> list:
     return out
 
 
-def _best_ttm_across_concepts(facts: dict, concept_list: list[str]) -> Optional[float]:
-    """여러 concept 중 가장 최근 end date를 가진 12M 값을 채택.
+def _best_ttm_across_concepts(facts: dict, concept_list: list[str]) -> tuple:
+    """여러 concept 중 가장 최근 end date를 가진 12M 값 + end date 반환.
 
-    회사가 시기별로 다른 concept 사용해도 (Revenues → RevenueFromContract...),
-    end date 기준 가장 최근 값을 자동 선택. 옛 concept 잔재 값 채택 방지.
+    Returns: (value, end_date_str) 또는 (None, None)
     """
     all_entries = []
     for c in concept_list:
         all_entries.extend(_collect_12m_entries(facts, c))
     if not all_entries:
-        # fallback: 최근 FY (10-K) 값
         annual_merged = _pick_concept_series(facts, concept_list)
         if annual_merged:
-            return annual_merged[max(annual_merged.keys())]
-        return None
-    # end date 가장 최근 우선, 동률이면 filed 가장 최근
+            latest_year = max(annual_merged.keys())
+            return (annual_merged[latest_year], f"{latest_year}-12-31")
+        return (None, None)
     all_entries.sort(key=lambda x: (x[0], x[1]), reverse=True)
-    return all_entries[0][2]
+    return (all_entries[0][2], all_entries[0][0])  # (val, end)
 
 
-def _extract_latest_balance(facts: dict, concept: str) -> Optional[float]:
-    """balance 계정(자산·부채·자본 등)의 가장 최근 시점 값.
-
-    Balance sheet items은 누적이 아닌 point-in-time (특정 시점 잔액).
-    가장 최근 보고된 값 (10-K든 10-Q든)을 반환.
-    """
+def _extract_latest_balance(facts: dict, concept: str) -> tuple:
+    """BS 항목 가장 최근 시점값 + 시점 반환. Returns: (val, end_date) or (None, None)"""
     try:
         node = facts.get("facts", {}).get("us-gaap", {}).get(concept)
         if not node:
-            return None
+            return (None, None)
         units = node.get("units", {})
         if "USD" not in units:
-            return None
-        entries = units["USD"]
+            return (None, None)
         rows = []
-        for e in entries:
+        for e in units["USD"]:
             end = e.get("end")
             val = e.get("val")
             if not end or val is None:
                 continue
-            # start가 없거나 start==end면 시점 데이터 (balance)
             start = e.get("start")
             if start and start != end:
-                # 누적 데이터는 BS 컨셉트엔 거의 없지만 안전 차원
                 continue
             rows.append((end, e.get("filed", ""), float(val)))
         if not rows:
-            return None
+            return (None, None)
         rows.sort(key=lambda x: (x[0], x[1]), reverse=True)
-        return rows[0][2]
+        return (rows[0][2], rows[0][0])
     except Exception:
-        return None
+        return (None, None)
 
 
 def fetch_ttm_metrics(ticker: str) -> Optional[dict]:
@@ -356,13 +347,13 @@ def fetch_ttm_metrics(ticker: str) -> Optional[dict]:
         return None
 
     # Flow 계정 (TTM) — concept 다중 + end date 우선
-    rev = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["revenue"])
-    ni = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["net_income"])
-    oi = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["operating_income"])
-    gp = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["gross_profit"])
-    cor = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["cost_of_revenue"])
-    ocf = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["operating_cf"])
-    capex = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["capex"])
+    rev, rev_end = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["revenue"])
+    ni, ni_end = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["net_income"])
+    oi, _ = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["operating_income"])
+    gp, _ = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["gross_profit"])
+    cor, _ = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["cost_of_revenue"])
+    ocf, _ = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["operating_cf"])
+    capex, _ = _best_ttm_across_concepts(facts, _FIELD_CONCEPTS["capex"])
 
     # gross_profit fallback
     if gp is None and rev is not None and cor is not None:
@@ -375,17 +366,17 @@ def fetch_ttm_metrics(ticker: str) -> Optional[dict]:
     # Balance 계정 (시점)
     def best_balance(concept_list):
         for c in concept_list:
-            v = _extract_latest_balance(facts, c)
+            v, end = _extract_latest_balance(facts, c)
             if v is not None:
-                return v
-        return None
+                return (v, end)
+        return (None, None)
 
-    equity = best_balance(_FIELD_CONCEPTS["total_equity"])
-    total_assets = best_balance(_FIELD_CONCEPTS["total_assets"])
-    total_liab = best_balance(_FIELD_CONCEPTS["total_liabilities"])
-    ca = best_balance(_FIELD_CONCEPTS["current_assets"])
-    cl = best_balance(_FIELD_CONCEPTS["current_liabilities"])
-    shares = best_balance(_FIELD_CONCEPTS["shares_outstanding"])
+    equity, eq_end = best_balance(_FIELD_CONCEPTS["total_equity"])
+    total_assets, _ = best_balance(_FIELD_CONCEPTS["total_assets"])
+    total_liab, _ = best_balance(_FIELD_CONCEPTS["total_liabilities"])
+    ca, _ = best_balance(_FIELD_CONCEPTS["current_assets"])
+    cl, _ = best_balance(_FIELD_CONCEPTS["current_liabilities"])
+    shares, _ = best_balance(_FIELD_CONCEPTS["shares_outstanding"])
 
     # 비율 계산
     ratios = {}
@@ -404,6 +395,10 @@ def fetch_ttm_metrics(ticker: str) -> Optional[dict]:
         if 0.3 <= cr <= 5.0:  # 정상 범위만 채택
             ratios["current_ratio"] = cr
 
+    # 가장 최근 TTM end date 채택 (income statement 기준)
+    flow_end = max([d for d in (rev_end, ni_end) if d], default=None)
+    bs_end = eq_end
+
     result = {
         "ttm_revenue": rev,
         "ttm_net_income": ni,
@@ -420,6 +415,8 @@ def fetch_ttm_metrics(ticker: str) -> Optional[dict]:
         "latest_shares": shares,
         **ratios,
         "source": "sec_edgar_ttm",
+        "ttm_end_date": flow_end,        # 손익계산서 기준일 (TTM 종료)
+        "balance_end_date": bs_end,      # BS 기준일
     }
     facts = None  # 메모리 해제
     cache.set(cache_key, result, ttl=24 * 3600)

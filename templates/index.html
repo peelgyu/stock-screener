@@ -979,8 +979,9 @@
             본 서비스는 자본시장법상 투자자문업·유사투자자문업이 아니며, 인가된 금융투자업자가 아닙니다.<br>
             제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 참고 정보이며,<br>
             <strong>투자 판단과 그에 따른 결과의 책임은 이용자 본인</strong>에게 있습니다.<br>
+            <strong>📅 데이터 시점</strong>: 재무 분석은 각 기업의 정기 공시(분기·연간) 기준이며, 종목 페이지에 표기된 결산일 이후 시장 변동은 반영되지 않습니다. 시세는 거래소 직접 연동이 아닌 무료 데이터 소스 기준 약 15~20분 지연.<br>
             데이터 출처: <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener" style="color:#888;">SEC EDGAR</a> (미국 상장사 공시 재무 · Public Domain) · Yahoo Finance (미국 시세 · 15~20분 지연) · <a href="https://opendart.fss.or.kr" target="_blank" rel="noopener" style="color:#888;">금융감독원 DART</a> (한국 공시 재무) · <a href="https://finance.naver.com" target="_blank" rel="noopener" style="color:#888;">FinanceDataReader</a> (KRX 한국 시세)<br>
-            <small style="color:#666;">SEC EDGAR 데이터는 17 USC §105에 따라 Public Domain. DART 공시자료는 공공누리 제1유형(출처표시) 준수.</small><br><br>
+            <small style="color:#666;">SEC EDGAR 데이터는 17 USC §105에 따라 Public Domain. DART 공시자료는 공공누리 제1유형(출처표시) 준수. 미국 종목 비율 지표(ROE·OM·PER 등)는 SEC 10-K + 10-Q 자체 계산(TTM 12개월 누적).</small><br><br>
             <a href="/about" target="_blank">ℹ 소개</a> · <a href="/glossary" target="_blank">📚 용어 사전</a> · <a href="/install" target="_blank">📱 앱 설치</a> · <a href="/contact" target="_blank">✉ 문의</a> · <a href="/terms" target="_blank">이용약관</a> · <a href="/privacy" target="_blank">개인정보처리방침</a>
         </div>
     </div>
@@ -1452,6 +1453,9 @@
             const descHTML = data.stock.description
                 ? `<div style="margin-top:6px;font-size:0.85rem;line-height:1.5;color:#bbb;">📝 ${escHTML(data.stock.description)}</div>`
                 : '';
+            const meta = data.dataMeta || {};
+            const finEndDate = meta.financialEndDate ? `<span title="공시 기준일 — 분석에 사용된 재무 데이터가 보고된 시점">📊 재무 ${meta.financialEndDate} (${meta.financialPeriodType || ''})</span>` : '';
+            const finSource = meta.financialSourceShort ? `<span title="${meta.financialSource || ''}">🏛 ${meta.financialSourceShort}</span>` : '';
             document.getElementById('stockCard').innerHTML = `
                 <div class="stock-name">${data.stock.name}<span class="stock-ticker">${data.ticker}</span></div>
                 <div class="stock-meta">
@@ -1461,15 +1465,18 @@
                     <span>시총 ${data.stock.marketCap}</span>
                 </div>
                 ${descHTML}
-                <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:0.7rem;color:#777;margin-top:6px;">
-                    <span title="시세는 거래소 직접 연동이 아닌 무료 데이터 소스 기준 — 거의 모든 무료 주식 사이트가 동일">⏱ 시세 약 15~20분 지연</span>
-                    <span>· 분석 시점 ${tsKR}</span>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:0.7rem;color:#777;margin-top:6px;align-items:center;">
+                    <span title="시세는 거래소 직접 연동이 아닌 무료 데이터 소스 기준 — 거의 모든 무료 주식 사이트가 동일">⏱ 시세 ${meta.priceDelayMinutes||15}분 지연</span>
+                    ${finEndDate}
+                    ${finSource}
+                    <span>· 분석 ${meta.analysisTimeKST || tsKR}</span>
                 </div>
                 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
                     <button id="favBtn" onclick="toggleFavorite()" aria-pressed="false" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;">☆ 관심 종목 추가</button>
                     <button onclick="shareStock()" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;" aria-label="이 종목 분석 링크 공유">🔗 공유</button>
                 </div>`;
             updateFavBtn();
+            window._latestDataMeta = data.dataMeta || {};
             renderTVChart(data.ticker);
             renderFairValue(data.fairValue);
             renderRSRating(data.rsRating);
@@ -1481,7 +1488,7 @@
                 renderOptions(data.options);
             }
             renderOverall(data.overall);
-            renderInvestors(data.investors);
+            renderInvestors(data.investors, data.dataMeta);
             renderQuality(data.quality);
             const isKR = (data.ticker || '').endsWith('.KS') || (data.ticker || '').endsWith('.KQ');
             renderTrendCharts(data.history, isKR ? 'KRW' : 'USD');
@@ -1710,10 +1717,13 @@
             const extraPSRow = psStr ? `<div class="fv-box"><div class="fv-box-label">${tt('P/S')} 기반 (매출 배수)</div><div class="fv-box-value">${psStr}</div></div>` : '';
 
             const fvNow = new Date().toLocaleString('ko-KR', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+            const dm = window._latestDataMeta || {};
+            const finBasis = dm.financialEndDate ? `📊 재무 ${dm.financialEndDate} (${dm.financialPeriodType||''})` : '📅 연간 결산';
+            const sourceTag = dm.financialSourceShort ? ` · 🏛 ${dm.financialSourceShort}` : '';
             el.innerHTML = `
                 <div class="fv-card">
                     <div class="section-title" style="margin-top:0;">적정주가 추정 <span style="font-size:0.7rem;font-weight:400;color:#888;">(${fv.sector || '?'} 섹터)</span>${catBadge}</div>
-                    <div style="font-size:0.7rem;color:#777;margin-bottom:10px;">📅 연간 결산 + 현재가 기준 · 분석 시점 ${fvNow}</div>
+                    <div style="font-size:0.7rem;color:#777;margin-bottom:10px;line-height:1.5;">${finBasis} + 현재가 기준${sourceTag} · 분석 시점 ${fvNow}</div>
                     <div class="fv-grid">
                         <div class="fv-box"><div class="fv-box-label">현재가</div><div class="fv-box-value">${fmtPrice(fv.current_price)}</div></div>
                         <div class="fv-box"><div class="fv-box-label">종합 적정가</div><div class="fv-box-value">${fmtPrice(fv.composite_fair_value)}</div><div class="fv-box-sub">${fv.upside_pct >= 0 ? '+' : ''}${fv.upside_pct}%</div></div>
@@ -1843,8 +1853,12 @@
             document.getElementById('overallCard').innerHTML = `<div class="grade-circle grade-${o.grade}">${o.grade}</div><div class="overall-text">${o.gradeText} (${o.rate}%)</div><div class="overall-detail">${o.yes}/${o.total} 기준 통과</div>`;
         }
 
-        function renderInvestors(investors) {
+        function renderInvestors(investors, dataMeta) {
             const icons = { buffett: 'B', graham: 'G', lynch: 'L', oneil: 'O', fisher: 'F' };
+            const meta = dataMeta || {};
+            const metaLine = (meta.financialEndDate)
+                ? `<div style="padding:4px 20px 10px;font-size:0.7rem;color:#777;line-height:1.4;">📊 재무 ${meta.financialEndDate} (${meta.financialPeriodType||''}) · 출처 ${meta.financialSourceShort||''}</div>`
+                : '';
             let html = '';
             investors.forEach((inv, i) => {
                 const rc = inv.rate >= 70 ? 'rate-high' : inv.rate >= 40 ? 'rate-mid' : 'rate-low';
@@ -1910,7 +1924,7 @@
                             </div>
                         </div>
                         <div class="progress-bar"><div class="progress-fill" style="width:${inv.rate}%;background:${pc};"></div></div>
-                        <div class="criteria-list" id="criteria-${i}">${cHTML}${extraBadge ? '<div style="padding:0 20px 14px;">' + extraBadge + '</div>' : ''}</div>
+                        <div class="criteria-list" id="criteria-${i}">${metaLine}${cHTML}${extraBadge ? '<div style="padding:0 20px 14px;">' + extraBadge + '</div>' : ''}</div>
                     </div>`;
             });
             document.getElementById('investorCards').innerHTML = html;

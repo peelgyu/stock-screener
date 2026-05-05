@@ -1,6 +1,6 @@
-// StockInto Service Worker - v45 (🏛 SEC EDGAR TTM 자체 계산 — 미국 종목 yfinance 의존 70% → 25% 축소)
+// StockInto Service Worker - v46 (📅 데이터 기준일 전면 표기 — 종목 헤더·평가자·적정가·푸터 + dataMeta 메타 시스템)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v45';
+const CACHE_NAME = 'stockinto-v46';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
