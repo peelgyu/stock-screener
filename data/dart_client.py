@@ -111,8 +111,8 @@ ACCOUNT_ALIASES = {
     "total_assets": ("BS", None, ["자산총계", "자산 총계"]),
     "total_liabilities": ("BS", None, ["부채총계", "부채 총계"]),
     "total_equity": ("BS", None, ["자본총계", "자본 총계"]),
-    "current_assets": ("BS", None, ["유동자산"]),
-    "current_liabilities": ("BS", None, ["유동부채"]),
+    "current_assets": ("BS", None, ["유동자산", "유동 자산", "유동자산총계", "I.유동자산", "Ⅰ.유동자산"]),
+    "current_liabilities": ("BS", None, ["유동부채", "유동 부채", "유동부채총계", "I.유동부채", "Ⅰ.유동부채"]),
     "operating_cf": ("CF", None, ["영업활동현금흐름", "영업활동으로인한현금흐름", "영업활동 현금흐름", "영업활동으로 인한 현금흐름"]),
     "capex": ("CF", None, ["유형자산의 취득", "유형자산의취득", "유형자산취득"]),
 }

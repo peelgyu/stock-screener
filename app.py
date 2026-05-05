@@ -754,7 +754,11 @@ def analyze():
         if ni_l is not None and rev_l and rev_l > 0:
             _set_if_missing("profitMargins", ni_l / rev_l)
         if ca_l is not None and cl_l and cl_l > 0:
-            _set_if_missing("currentRatio", ca_l / cl_l)
+            cr = ca_l / cl_l
+            # 정상 유동비율 범위 (30%~500%) — 벗어나면 BS 매칭 실패 가능성, 저장 안 함
+            # 한국 DART는 회사별 BS 항목명이 다양해서 잘못된 매칭으로 비현실적 값 나올 수 있음
+            if 0.3 <= cr <= 5.0:
+                _set_if_missing("currentRatio", cr)
 
         # YoY 성장률
         rev_vals = [v for v in rev if v is not None]

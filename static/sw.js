@@ -1,6 +1,6 @@
-// StockInto Service Worker - v43 (🔧 그레이엄 배당 수익률 100배 부풀려짐 버그 수정)
+// StockInto Service Worker - v44 (🔍 5인 평가자 전 기준 일괄 감사 — 한국 유동비율 비현실 값 차단 + DART 별칭 보강)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v43';
+const CACHE_NAME = 'stockinto-v44';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
