@@ -39,6 +39,32 @@ def _today_kst_str() -> str:
     return _kst_now().strftime("%Y-%m-%d")
 
 
+# 매일 아침 KST 08:30 — "전날 시황" 갱신 기준 시각
+# 이 시각 이전에는 그저께 시황을, 이후에는 어제 시황을 표시
+# (미국 시장은 한국 새벽 5~6시 마감, 한국 시장은 어제 15:30 마감)
+BRIEFING_CUTOFF_HOUR = 8
+BRIEFING_CUTOFF_MIN = 30
+
+
+def _briefing_target_date() -> str:
+    """현재 시점에 표시해야 할 브리핑 날짜 — '전날 시황' 갱신 기준.
+
+    매일 KST 08:30이 갱신 컷오프:
+    - 08:30 이전: 그저께 날짜 반환 (가장 최근 마감일이 그저께)
+    - 08:30 이후: 어제 날짜 반환 (어제 마감 데이터 표시)
+
+    예: 2026-05-05 09:00 KST → "2026-05-04" (어제 시황)
+        2026-05-05 07:00 KST → "2026-05-03" (그저께 시황)
+    """
+    now = _kst_now()
+    cutoff = now.replace(hour=BRIEFING_CUTOFF_HOUR, minute=BRIEFING_CUTOFF_MIN, second=0, microsecond=0)
+    if now < cutoff:
+        target = now - timedelta(days=2)
+    else:
+        target = now - timedelta(days=1)
+    return target.strftime("%Y-%m-%d")
+
+
 def _fetch_index(symbol: str) -> Optional[dict]:
     """지수 시세 + 변동률. yfinance Ticker.history 마지막 2일 비교."""
     try:
@@ -158,15 +184,15 @@ def _fetch_fear_greed() -> Optional[dict]:
 
 
 def generate_briefing(date_str: Optional[str] = None) -> dict:
-    """일일 브리핑 데이터 생성.
+    """일일 브리핑 데이터 생성 — 전날 마감 시황 기준.
 
     Args:
-        date_str: "YYYY-MM-DD" 또는 None (오늘)
+        date_str: "YYYY-MM-DD" 또는 None (자동 — 전날 시황 날짜)
 
     Returns:
         브리핑 데이터 dict (저장·렌더링용)
     """
-    date_str = date_str or _today_kst_str()
+    date_str = date_str or _briefing_target_date()
     now = _kst_now()
 
     return {
@@ -204,7 +230,7 @@ def generate_briefing(date_str: Optional[str] = None) -> dict:
 def save_briefing(briefing: dict) -> str:
     """브리핑을 static/briefings/YYYY-MM-DD.json에 저장."""
     os.makedirs(_BRIEFING_DIR, exist_ok=True)
-    date_str = briefing.get("date") or _today_kst_str()
+    date_str = briefing.get("date") or _briefing_target_date()
     path = os.path.join(_BRIEFING_DIR, f"{date_str}.json")
     with open(path, "w", encoding="utf-8") as f:
         json.dump(briefing, f, ensure_ascii=False, indent=2)
@@ -213,7 +239,7 @@ def save_briefing(briefing: dict) -> str:
 
 def load_briefing(date_str: Optional[str] = None) -> Optional[dict]:
     """저장된 브리핑 로드. 없으면 None."""
-    date_str = date_str or _today_kst_str()
+    date_str = date_str or _briefing_target_date()
     path = os.path.join(_BRIEFING_DIR, f"{date_str}.json")
     if not os.path.exists(path):
         return None
@@ -225,16 +251,16 @@ def load_briefing(date_str: Optional[str] = None) -> Optional[dict]:
 
 
 def get_or_generate(date_str: Optional[str] = None) -> dict:
-    """저장된 게 있으면 로드, 없으면 생성·저장.
+    """전날 시황 브리핑 로드/생성. 08:30 KST 갱신 기준.
 
-    오늘 날짜는 cache 우선 (1시간), 없으면 파일 → 없으면 생성.
-    과거 날짜는 파일만 (생성 안 함, 시점 데이터라 재생성 무의미).
+    date_str 없으면 자동으로 _briefing_target_date() 사용 (전날).
+    target_date 외 다른 날짜는 아카이브 — 파일에 있으면 반환, 없으면 빈 dict.
     """
-    date_str = date_str or _today_kst_str()
-    today = _today_kst_str()
+    target = _briefing_target_date()
+    date_str = date_str or target
 
-    # 오늘은 cache 우선
-    if date_str == today:
+    # 가장 최근 갱신 대상 날짜는 cache 우선
+    if date_str == target:
         cached = cache.get(f"daily_briefing:{date_str}")
         if cached:
             return cached

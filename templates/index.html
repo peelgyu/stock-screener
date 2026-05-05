@@ -1037,7 +1037,7 @@
             <div class="briefing-modal-card" id="briefingModalCard">
                 <button class="briefing-modal-close" onclick="closeBriefingModal()" aria-label="닫기">✕</button>
                 <div class="briefing-modal-header">
-                    <h2 id="briefingModalTitle">📊 오늘의 시황</h2>
+                    <h2 id="briefingModalTitle">📊 전날 시황 브리핑</h2>
                     <div class="briefing-modal-date" id="briefingModalDate">로딩 중...</div>
                 </div>
                 <div class="briefing-modal-body" id="briefingModalBody">
@@ -1138,11 +1138,24 @@
             return now.toISOString().slice(0, 10);
         }
 
+        function briefingPeriodKey() {
+            // "전날 시황" 갱신 키 — KST 08:30 컷오프 적용
+            // 같은 갱신 주기 내에선 같은 키 → 모달 한 번만 표시
+            const nowKST = new Date(Date.now() + 9*3600*1000);
+            const cutoffMin = 8 * 60 + 30;          // 08:30 = 510분
+            const totalMin = nowKST.getUTCHours() * 60 + nowKST.getUTCMinutes();
+            // 08:30 이전이면 어제 갱신 주기에 해당
+            if (totalMin < cutoffMin) {
+                nowKST.setUTCDate(nowKST.getUTCDate() - 1);
+            }
+            return nowKST.toISOString().slice(0, 10);
+        }
+
         function shouldShowBriefingModal() {
             try {
                 if (localStorage.getItem(BRIEFING_KEY_NEVER) === '1') return false;
                 const last = localStorage.getItem(BRIEFING_KEY_LAST);
-                return last !== todayKST();
+                return last !== briefingPeriodKey();
             } catch (e) { return false; }
         }
 
@@ -1152,7 +1165,7 @@
                 if (checkbox && checkbox.checked) {
                     localStorage.setItem(BRIEFING_KEY_NEVER, '1');
                 } else {
-                    localStorage.setItem(BRIEFING_KEY_LAST, todayKST());
+                    localStorage.setItem(BRIEFING_KEY_LAST, briefingPeriodKey());
                 }
             } catch (e) {}
             closeBriefingModal();
@@ -1161,8 +1174,8 @@
         function closeBriefingModal() {
             const m = document.getElementById('briefingModalBackdrop');
             if (m) m.style.display = 'none';
-            // 닫기 = "오늘 봤음" 으로 기록 (X 버튼·백드롭·ESC 모두)
-            try { localStorage.setItem(BRIEFING_KEY_LAST, todayKST()); } catch (e) {}
+            // 닫기 = "이 갱신 주기 봤음"으로 기록 (X·백드롭·ESC 모두)
+            try { localStorage.setItem(BRIEFING_KEY_LAST, briefingPeriodKey()); } catch (e) {}
         }
 
         function fmtIdxRow(name, idx) {
@@ -1204,7 +1217,7 @@
         function renderBriefingModal(data) {
             const dateEl = document.getElementById('briefingModalDate');
             const bodyEl = document.getElementById('briefingModalBody');
-            if (dateEl) dateEl.textContent = `${data.date} (${data.weekday_kr || ''})`;
+            if (dateEl) dateEl.textContent = `📅 ${data.date} (${data.weekday_kr || ''}) 마감 기준 · 매일 08:30 KST 갱신`;
 
             const us = data.us_indices || {};
             const kr = data.kr_indices || {};

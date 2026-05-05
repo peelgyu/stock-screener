@@ -6,13 +6,13 @@
 
     {% include '_tracking.html' %}
 
-    <title>{{ briefing.date }} 일일 금융 브리핑 — 미국·한국 시장 시황 | StockInto</title>
-    <meta name="description" content="{{ briefing.date }} 미국(S&P500·NASDAQ·DOW)·한국(KOSPI·KOSDAQ) 시장 시황, 환율, 공포탐욕지수, 거래량 TOP, 시장 뉴스 한눈에. 매일 자동 갱신.">
-    <meta name="keywords" content="일일 금융 브리핑, 시황, 코스피, 나스닥, S&P500, 미국 증시, 한국 증시, 환율, {{ briefing.date }}">
+    <title>{{ briefing.date }} 전날 시황 브리핑 — 미국·한국 시장 마감 | StockInto</title>
+    <meta name="description" content="{{ briefing.date }} 마감 기준 미국(S&P500·NASDAQ·DOW)·한국(KOSPI·KOSDAQ) 시장 시황, 환율, 공포탐욕지수, 거래량 TOP, 시장 뉴스. 매일 아침 08:30 KST 자동 갱신.">
+    <meta name="keywords" content="전날 시황, 일일 금융 브리핑, 시장 마감, 코스피, 나스닥, S&P500, 미국 증시, 한국 증시, 환율, {{ briefing.date }}">
     <link rel="canonical" href="https://stockinto.com/briefing/{{ briefing.date }}">
 
-    <meta property="og:title" content="{{ briefing.date }} 일일 금융 브리핑 — StockInto">
-    <meta property="og:description" content="미국·한국 시장 시황 + 시장 뉴스 + 공포탐욕지수">
+    <meta property="og:title" content="{{ briefing.date }} 전날 시황 브리핑 — StockInto">
+    <meta property="og:description" content="시장 마감 기준 미국·한국 시황 + 뉴스 + 공포탐욕지수">
     <meta property="og:type" content="article">
     <meta property="og:url" content="https://stockinto.com/briefing/{{ briefing.date }}">
 
@@ -195,8 +195,9 @@
 
     <main class="container">
         <div class="briefing-header">
-            <h1>📊 일일 금융 브리핑</h1>
-            <div class="subtitle">{{ briefing.date }} ({{ briefing.weekday_kr }}) · {{ briefing.generated_at_kst }} 생성</div>
+            <h1>📊 전날 시황 브리핑</h1>
+            <div class="subtitle">📅 {{ briefing.date }} ({{ briefing.weekday_kr }}) 마감 기준 · 매일 아침 08:30 KST 갱신</div>
+            <div style="font-size:0.7rem;color:#777;margin-top:6px;">생성: {{ briefing.generated_at_kst }}</div>
         </div>
 
         {# US 지수 #}
