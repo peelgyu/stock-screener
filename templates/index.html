@@ -110,6 +110,11 @@
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <script src="/static/glossary-terms.js"></script>
     <script src="/static/tooltip.js" defer></script>
+    <script src="/static/i18n.js"></script>
+    <style>
+        /* i18n FOUC 방지 — 영어 블록은 기본 hidden, JS에서 토글 */
+        .lang-en { display: none; }
+    </style>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
     <style>
         /* ========== 디자인 시스템 v2 (토스 DNA) ========== */
@@ -943,11 +948,11 @@
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
         <div class="topnav-right">
-            <a href="/en/" class="topnav-link" aria-label="View in English" style="border:1px solid #2a2a3e;" id="enToggle">🇺🇸 EN</a>
-            <a href="/about" class="topnav-link">ℹ 소개</a>
-            <a href="/glossary" class="topnav-link">📚 용어</a>
-            <a href="/install" class="topnav-link">📱 앱</a>
-            <a href="/contact" class="topnav-link">✉ 문의</a>
+            <button onclick="setLang(getLang() === 'en' ? 'ko' : 'en')" class="topnav-link" id="langToggle" style="border:1px solid #2a2a3e;background:transparent;cursor:pointer;font:inherit;color:inherit;" data-i18n-aria-label="nav.lang_to_en_aria"></button>
+            <a href="/about" class="topnav-link" data-i18n="nav.about">ℹ 소개</a>
+            <a href="/glossary" class="topnav-link" data-i18n="nav.glossary">📚 용어</a>
+            <a href="/install" class="topnav-link" data-i18n="nav.install">📱 앱</a>
+            <a href="/contact" class="topnav-link" data-i18n="nav.contact">✉ 문의</a>
         </div>
     </nav>
 
@@ -991,33 +996,34 @@
     <div class="container">
         <div class="hero">
             <a href="/" class="hero-logo" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-            <h1 class="hero-catch"><span class="accent">워렌 버핏</span>이라면,<br>이 주식을 살까?</h1>
-            <p class="hero-sub">스톡인투(StockInto) — 워렌 버핏부터 피터 린치까지 · 5명의 전설이 채점합니다</p>
+            <h1 class="hero-catch" data-i18n="hero.catch_html"><span class="accent">워렌 버핏</span>이라면,<br>이 주식을 살까?</h1>
+            <p class="hero-sub" data-i18n="hero.sub">스톡인투(StockInto) — 워렌 버핏부터 피터 린치까지 · 5명의 전설이 채점합니다</p>
         </div>
 
         <div class="search-wrap">
             <label for="tickerInput" class="sr-only">종목 검색 입력</label>
             <div class="search-box">
                 <input type="text" id="tickerInput" placeholder="종목명 또는 티커 (예: 애플, 삼성전자, NVDA)" autocomplete="off"
-                       aria-label="종목명 또는 티커 입력" aria-describedby="searchHint" aria-autocomplete="list" aria-controls="autocomplete">
-                <button id="searchBtn" onclick="analyze()" aria-label="종목 분석 시작">분석</button>
+                       aria-label="종목명 또는 티커 입력" aria-describedby="searchHint" aria-autocomplete="list" aria-controls="autocomplete"
+                       data-i18n-placeholder="search.placeholder">
+                <button id="searchBtn" onclick="analyze()" aria-label="종목 분석 시작" data-i18n="search.button" data-i18n-aria-label="search.aria">분석</button>
             </div>
-            <span id="searchHint" class="sr-only">종목명 또는 티커를 입력하고 분석 버튼을 누르거나 엔터를 치세요. 자동완성 목록이 나타나면 화살표 키로 선택할 수 있습니다.</span>
+            <span id="searchHint" class="sr-only" data-i18n="search.hint">종목명 또는 티커를 입력하고 분석 버튼을 누르거나 엔터를 치세요. 자동완성 목록이 나타나면 화살표 키로 선택할 수 있습니다.</span>
             <div class="autocomplete" id="autocomplete" role="listbox" aria-label="검색 자동완성"></div>
         </div>
 
         <div class="quick-search-wrap" id="favoritesSection" style="display:none;">
-            <div class="quick-search-label">⭐ 내 관심 종목 <span style="color:#666;font-weight:400;font-size:0.7rem;">— 클릭해서 분석</span></div>
+            <div class="quick-search-label"><span data-i18n="quick.favorites">⭐ 내 관심 종목</span> <span style="color:#666;font-weight:400;font-size:0.7rem;" data-i18n="quick.favorites_hint">— 클릭해서 분석</span></div>
             <div class="quick-search" id="favoritesList"></div>
         </div>
 
         <div class="quick-search-wrap" id="historySection" style="display:none;">
-            <div class="quick-search-label">🕓 최근 본 종목 <button onclick="clearHistory()" aria-label="최근 본 종목 초기화" style="background:none;border:none;color:#666;font-size:0.75rem;cursor:pointer;font-weight:400;margin-left:6px;padding:10px 12px;min-height:44px;min-width:44px;">초기화</button></div>
+            <div class="quick-search-label"><span data-i18n="quick.history">🕓 최근 본 종목</span> <button onclick="clearHistory()" aria-label="최근 본 종목 초기화" style="background:none;border:none;color:#666;font-size:0.75rem;cursor:pointer;font-weight:400;margin-left:6px;padding:10px 12px;min-height:44px;min-width:44px;" data-i18n="quick.clear" data-i18n-aria-label="quick.clear_aria">초기화</button></div>
             <div class="quick-search" id="historyList"></div>
         </div>
 
         <div class="quick-search-wrap">
-            <div class="quick-search-label">🔥 지금 많이 찾는 종목</div>
+            <div class="quick-search-label" data-i18n="quick.popular">🔥 지금 많이 찾는 종목</div>
             <div class="quick-search">
                 <button class="quick-btn" onclick="quickSearch('AAPL')">AAPL</button>
                 <button class="quick-btn" onclick="quickSearch('MSFT')">MSFT</button>
@@ -1032,15 +1038,15 @@
         <div class="promo-grid">
             <a href="/install" class="promo-card">
                 <div class="promo-icon">📱</div>
-                <div class="promo-title">앱처럼 바로 쓰기</div>
-                <div class="promo-sub">홈 화면 아이콘으로 즉시 실행. 30초면 끝.</div>
-                <div class="promo-cta">설치 방법 보기 →</div>
+                <div class="promo-title" data-i18n="promo.install_title">앱처럼 바로 쓰기</div>
+                <div class="promo-sub" data-i18n="promo.install_sub">홈 화면 아이콘으로 즉시 실행. 30초면 끝.</div>
+                <div class="promo-cta" data-i18n="promo.install_cta">설치 방법 보기 →</div>
             </a>
             <a href="/glossary" class="promo-card">
                 <div class="promo-icon">📚</div>
-                <div class="promo-title">주식 용어 한눈에</div>
-                <div class="promo-sub">PER, ROE, DCF, RSI... 70+ 용어 검색.</div>
-                <div class="promo-cta">용어 사전 →</div>
+                <div class="promo-title" data-i18n="promo.glossary_title">주식 용어 한눈에</div>
+                <div class="promo-sub" data-i18n="promo.glossary_sub">PER, ROE, DCF, RSI... 70+ 용어 검색.</div>
+                <div class="promo-cta" data-i18n="promo.glossary_cta">용어 사전 →</div>
             </a>
         </div>
 
@@ -1072,7 +1078,7 @@
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>데이터 분석 중...</p>
+            <p data-i18n="analysis.loading">데이터 분석 중...</p>
         </div>
         <div class="error-msg" id="errorMsg"></div>
 
@@ -1086,13 +1092,13 @@
             <div id="rsCard"></div>
 
             <div class="tabs" role="tablist" aria-label="분석 결과 탭">
-                <button class="tab-btn active" onclick="switchTab('investors')" role="tab" id="tabbtn-investors" aria-controls="tab-investors" aria-selected="true">🧠 워렌 버핏이라면?</button>
-                <button class="tab-btn" onclick="switchTab('trend')" role="tab" id="tabbtn-trend" aria-controls="tab-trend" aria-selected="false">📆 재무 추세</button>
-                <button class="tab-btn" id="tabbtn-krx" style="display:none;" onclick="switchTab('krx')" role="tab" aria-controls="tab-krx" aria-selected="false">🇰🇷 수급</button>
-                <button class="tab-btn" onclick="switchTab('news')" role="tab" id="tabbtn-news" aria-controls="tab-news" aria-selected="false">📰 관련 뉴스</button>
-                <button class="tab-btn" onclick="switchTab('sentiment')" role="tab" id="tabbtn-sentiment" aria-controls="tab-sentiment" aria-selected="false">😱 탐욕지수</button>
-                <button class="tab-btn" onclick="switchTab('positions')" role="tab" id="tabbtn-positions" aria-controls="tab-positions" aria-selected="false">📊 숏/롱</button>
-                <button class="tab-btn" onclick="switchTab('options')" role="tab" id="tabbtn-options" aria-controls="tab-options" aria-selected="false">🎯 옵션</button>
+                <button class="tab-btn active" onclick="switchTab('investors')" role="tab" id="tabbtn-investors" aria-controls="tab-investors" aria-selected="true" data-i18n="tab.investors">🧠 워렌 버핏이라면?</button>
+                <button class="tab-btn" onclick="switchTab('trend')" role="tab" id="tabbtn-trend" aria-controls="tab-trend" aria-selected="false" data-i18n="tab.trend">📆 재무 추세</button>
+                <button class="tab-btn" id="tabbtn-krx" style="display:none;" onclick="switchTab('krx')" role="tab" aria-controls="tab-krx" aria-selected="false" data-i18n="tab.krx">🇰🇷 수급</button>
+                <button class="tab-btn" onclick="switchTab('news')" role="tab" id="tabbtn-news" aria-controls="tab-news" aria-selected="false" data-i18n="tab.news">📰 관련 뉴스</button>
+                <button class="tab-btn" onclick="switchTab('sentiment')" role="tab" id="tabbtn-sentiment" aria-controls="tab-sentiment" aria-selected="false" data-i18n="tab.sentiment">😱 탐욕지수</button>
+                <button class="tab-btn" onclick="switchTab('positions')" role="tab" id="tabbtn-positions" aria-controls="tab-positions" aria-selected="false" data-i18n="tab.positions">📊 숏/롱</button>
+                <button class="tab-btn" onclick="switchTab('options')" role="tab" id="tabbtn-options" aria-controls="tab-options" aria-selected="false" data-i18n="tab.options">🎯 옵션</button>
             </div>
 
             <div class="tab-content active" id="tab-investors" role="tabpanel" aria-labelledby="tabbtn-investors">
@@ -1114,36 +1120,56 @@
         {% if not stock_ticker %}
         <!-- SEO 콘텐츠 섹션 — 메인 진입 시에만 노출. 봇이 인식할 본문 텍스트 + 내부 링크 강화 -->
         <section class="seo-section" aria-label="StockInto 소개 및 가이드" style="margin: 48px 0 24px; padding: 28px 24px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
-            <h2 style="color:#00D9FF;font-size:1.35rem;font-weight:800;margin:0 0 14px;letter-spacing:-0.02em;">왜 5인 거장 기준으로 분석하나요?</h2>
-            <p style="color:#c9d0dc;font-size:0.93rem;line-height:1.75;margin:0 0 12px;">
-                개인 투자자가 가장 흔히 빠지는 함정은 <strong style="color:#fff;">"좋은 회사"와 "좋은 주식"을 혼동하는 것</strong>입니다. 매출이 늘어나는 회사라도 PER이 100배라면 비싼 주식이고, 영업이익률이 30%인 회사라도 부채가 자본의 5배라면 위험합니다.
-                <strong style="color:#fff;">워렌 버핏·벤저민 그레이엄·피터 린치·윌리엄 오닐·필립 피셔</strong> — 이 다섯 명은 50~100년에 걸쳐 검증된 정량 기준을 남겼습니다. StockInto는 그 기준을 코드로 옮겨, 종목을 1초 안에 채점합니다.
-            </p>
-            <p style="color:#9aa3b2;font-size:0.88rem;line-height:1.7;margin:0;">
-                예를 들어 <em>버핏의 ROE 15% 이상 + FCF 양수 + 부채비율 100% 이하</em>처럼 명확한 룰을 모든 종목에 동일하게 적용하니, 감정·소문·테마에 휘둘리지 않고 객관적으로 비교할 수 있습니다.
-            </p>
+            <h2 style="color:#00D9FF;font-size:1.35rem;font-weight:800;margin:0 0 14px;letter-spacing:-0.02em;" data-i18n="seo.why_heading">왜 5인 거장 기준으로 분석하나요?</h2>
+            <div class="lang-ko">
+                <p style="color:#c9d0dc;font-size:0.93rem;line-height:1.75;margin:0 0 12px;">
+                    개인 투자자가 가장 흔히 빠지는 함정은 <strong style="color:#fff;">"좋은 회사"와 "좋은 주식"을 혼동하는 것</strong>입니다. 매출이 늘어나는 회사라도 PER이 100배라면 비싼 주식이고, 영업이익률이 30%인 회사라도 부채가 자본의 5배라면 위험합니다.
+                    <strong style="color:#fff;">워렌 버핏·벤저민 그레이엄·피터 린치·윌리엄 오닐·필립 피셔</strong> — 이 다섯 명은 50~100년에 걸쳐 검증된 정량 기준을 남겼습니다. StockInto는 그 기준을 코드로 옮겨, 종목을 1초 안에 채점합니다.
+                </p>
+                <p style="color:#9aa3b2;font-size:0.88rem;line-height:1.7;margin:0;">
+                    예를 들어 <em>버핏의 ROE 15% 이상 + FCF 양수 + 부채비율 100% 이하</em>처럼 명확한 룰을 모든 종목에 동일하게 적용하니, 감정·소문·테마에 휘둘리지 않고 객관적으로 비교할 수 있습니다.
+                </p>
+            </div>
+            <div class="lang-en">
+                <p style="color:#c9d0dc;font-size:0.93rem;line-height:1.75;margin:0 0 12px;">
+                    The most common pitfall for individual investors is confusing <strong style="color:#fff;">"a great company"</strong> with <strong style="color:#fff;">"a great stock"</strong>. A growing business at PER 100 is still expensive; a 30% operating margin business with debt 5x equity is still risky.
+                    <strong style="color:#fff;">Warren Buffett · Benjamin Graham · Peter Lynch · William O'Neil · Philip Fisher</strong> — these five investors left behind quantitative criteria proven over 50-100 years. StockInto encodes their criteria and scores any stock in under a second.
+                </p>
+                <p style="color:#9aa3b2;font-size:0.88rem;line-height:1.7;margin:0;">
+                    For example, <em>Buffett's ROE 15%+ AND positive FCF AND debt-to-equity ≤ 100%</em> applied identically to every stock means objective comparison free from emotion, rumor, or hype.
+                </p>
+            </div>
 
-            <h2 style="color:#00D9FF;font-size:1.2rem;font-weight:800;margin:28px 0 14px;letter-spacing:-0.02em;">이렇게 활용하세요 — 3단계 가이드</h2>
+            <h2 style="color:#00D9FF;font-size:1.2rem;font-weight:800;margin:28px 0 14px;letter-spacing:-0.02em;" data-i18n="seo.guide_heading">이렇게 활용하세요 — 3단계 가이드</h2>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:8px;">
                 <div style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:12px;padding:16px 18px;">
-                    <div style="color:#7b2ff7;font-size:0.78rem;font-weight:700;margin-bottom:6px;">STEP 1 · 검색</div>
-                    <div style="color:#e7eaf2;font-size:0.92rem;font-weight:700;margin-bottom:4px;">종목명·티커 입력</div>
-                    <div style="color:#9aa3b2;font-size:0.82rem;line-height:1.55;">"애플", "삼성전자", "AAPL" 모두 가능. 자동완성으로 빠르게 찾을 수 있습니다.</div>
+                    <div style="color:#7b2ff7;font-size:0.78rem;font-weight:700;margin-bottom:6px;" data-i18n="seo.step1_tag">STEP 1 · 검색</div>
+                    <div style="color:#e7eaf2;font-size:0.92rem;font-weight:700;margin-bottom:4px;" data-i18n="seo.step1_title">종목명·티커 입력</div>
+                    <div style="color:#9aa3b2;font-size:0.82rem;line-height:1.55;">
+                        <span class="lang-ko">"애플", "삼성전자", "AAPL" 모두 가능. 자동완성으로 빠르게 찾을 수 있습니다.</span>
+                        <span class="lang-en">"AAPL", "Samsung", "005930.KS" all work. Autocomplete helps you find it fast.</span>
+                    </div>
                 </div>
                 <div style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:12px;padding:16px 18px;">
-                    <div style="color:#1f6feb;font-size:0.78rem;font-weight:700;margin-bottom:6px;">STEP 2 · 분석</div>
-                    <div style="color:#e7eaf2;font-size:0.92rem;font-weight:700;margin-bottom:4px;">5인 채점 + 적정주가</div>
-                    <div style="color:#9aa3b2;font-size:0.82rem;line-height:1.55;">버핏·그레이엄·린치·오닐·피셔 각자의 통과율, DCF·PER·Graham 가중평균 적정가를 한 화면에.</div>
+                    <div style="color:#1f6feb;font-size:0.78rem;font-weight:700;margin-bottom:6px;" data-i18n="seo.step2_tag">STEP 2 · 분석</div>
+                    <div style="color:#e7eaf2;font-size:0.92rem;font-weight:700;margin-bottom:4px;" data-i18n="seo.step2_title">5인 채점 + 적정주가</div>
+                    <div style="color:#9aa3b2;font-size:0.82rem;line-height:1.55;">
+                        <span class="lang-ko">버핏·그레이엄·린치·오닐·피셔 각자의 통과율, DCF·PER·Graham 가중평균 적정가를 한 화면에.</span>
+                        <span class="lang-en">Pass rates from Buffett, Graham, Lynch, O'Neil, Fisher; weighted DCF + PER + Graham fair price on one screen.</span>
+                    </div>
                 </div>
                 <div style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:12px;padding:16px 18px;">
-                    <div style="color:#00d2ff;font-size:0.78rem;font-weight:700;margin-bottom:6px;">STEP 3 · 결정</div>
-                    <div style="color:#e7eaf2;font-size:0.92rem;font-weight:700;margin-bottom:4px;">근거 보고 직접 판단</div>
-                    <div style="color:#9aa3b2;font-size:0.82rem;line-height:1.55;">A~F 등급은 참고용입니다. 통과·미통과 항목과 안전마진을 본 뒤, 직접 투자 결정을 내리세요.</div>
+                    <div style="color:#00d2ff;font-size:0.78rem;font-weight:700;margin-bottom:6px;" data-i18n="seo.step3_tag">STEP 3 · 결정</div>
+                    <div style="color:#e7eaf2;font-size:0.92rem;font-weight:700;margin-bottom:4px;" data-i18n="seo.step3_title">근거 보고 직접 판단</div>
+                    <div style="color:#9aa3b2;font-size:0.82rem;line-height:1.55;">
+                        <span class="lang-ko">A~F 등급은 참고용입니다. 통과·미통과 항목과 안전마진을 본 뒤, 직접 투자 결정을 내리세요.</span>
+                        <span class="lang-en">A~F grades are reference. Examine which criteria pass/fail and the margin of safety, then make your own call.</span>
+                    </div>
                 </div>
             </div>
 
-            <h2 style="color:#00D9FF;font-size:1.2rem;font-weight:800;margin:28px 0 14px;letter-spacing:-0.02em;">🔥 지금 인기 분석 종목</h2>
-            <p style="color:#9aa3b2;font-size:0.85rem;margin:0 0 12px;">티커를 클릭하면 바로 분석 결과로 이동합니다.</p>
+            <h2 style="color:#00D9FF;font-size:1.2rem;font-weight:800;margin:28px 0 14px;letter-spacing:-0.02em;" data-i18n="seo.popular_heading">🔥 지금 인기 분석 종목</h2>
+            <p style="color:#9aa3b2;font-size:0.85rem;margin:0 0 12px;" data-i18n="seo.popular_hint">티커를 클릭하면 바로 분석 결과로 이동합니다.</p>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:12px;">
                 <a href="/stock/AAPL" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;transition:all 0.15s;">🇺🇸 <strong>AAPL</strong> Apple</a>
                 <a href="/stock/MSFT" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>MSFT</strong> Microsoft</a>
@@ -1153,61 +1179,69 @@
                 <a href="/stock/AMZN" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>AMZN</strong> Amazon</a>
                 <a href="/stock/META" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>META</strong> Meta</a>
                 <a href="/stock/BRK-B" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>BRK-B</strong> Berkshire</a>
-                <a href="/stock/005930.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>삼성전자</strong></a>
-                <a href="/stock/000660.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>SK하이닉스</strong></a>
+                <a href="/stock/005930.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong><span class="lang-ko">삼성전자</span><span class="lang-en">Samsung</span></strong></a>
+                <a href="/stock/000660.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong><span class="lang-ko">SK하이닉스</span><span class="lang-en">SK Hynix</span></strong></a>
                 <a href="/stock/035420.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>NAVER</strong></a>
-                <a href="/stock/035720.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>카카오</strong></a>
-                <a href="/stock/005380.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>현대차</strong></a>
-                <a href="/stock/373220.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>LG에너지솔루션</strong></a>
-                <a href="/stock/207940.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>삼성바이오로직스</strong></a>
-                <a href="/stock/068270.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>셀트리온</strong></a>
+                <a href="/stock/035720.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong><span class="lang-ko">카카오</span><span class="lang-en">Kakao</span></strong></a>
+                <a href="/stock/005380.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong><span class="lang-ko">현대차</span><span class="lang-en">Hyundai</span></strong></a>
+                <a href="/stock/373220.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong><span class="lang-ko">LG에너지솔루션</span><span class="lang-en">LG Energy</span></strong></a>
+                <a href="/stock/207940.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong><span class="lang-ko">삼성바이오로직스</span><span class="lang-en">Samsung Bio</span></strong></a>
+                <a href="/stock/068270.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong><span class="lang-ko">셀트리온</span><span class="lang-en">Celltrion</span></strong></a>
             </div>
             <p style="text-align:center;margin:12px 0 0;">
-                <a href="/picks/buffett-style" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:8px 16px;border:1px solid #2a3a55;border-radius:9999px;margin:4px;">🎯 버핏 스타일 종목 모음 →</a>
-                <a href="/picks/dividend-aristocrats" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:8px 16px;border:1px solid #2a3a55;border-radius:9999px;margin:4px;">💰 배당 귀족주 모음 →</a>
+                <a href="/picks/buffett-style" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:8px 16px;border:1px solid #2a3a55;border-radius:9999px;margin:4px;" data-i18n="seo.cta_buffett">🎯 버핏 스타일 종목 모음 →</a>
+                <a href="/picks/dividend-aristocrats" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:8px 16px;border:1px solid #2a3a55;border-radius:9999px;margin:4px;" data-i18n="seo.cta_dividend">💰 배당 귀족주 모음 →</a>
             </p>
 
-            <h2 style="color:#00D9FF;font-size:1.2rem;font-weight:800;margin:32px 0 14px;letter-spacing:-0.02em;">자주 묻는 질문 (FAQ)</h2>
+            <h2 style="color:#00D9FF;font-size:1.2rem;font-weight:800;margin:32px 0 14px;letter-spacing:-0.02em;" data-i18n="faq.heading">자주 묻는 질문 (FAQ)</h2>
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:14px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">PER 몇이면 비싼 건가요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">단순한 절대값보다 <strong style="color:#fff;">섹터 평균</strong>이 중요합니다. 기술주(Apple·MSFT 등)는 PER 25~35가 흔하지만, 금융주는 보통 10~15에서 거래됩니다. StockInto는 종목별로 섹터 중앙값을 적용해 채점합니다. 자세한 기준은 <a href="/learn/dcf-guide" style="color:#00d2ff;">DCF 가이드</a>와 <a href="/glossary" style="color:#00d2ff;">용어 사전</a> 참고.</p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;" data-i18n="faq.q1">PER 몇이면 비싼 건가요?</summary>
+                <p class="lang-ko" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">단순한 절대값보다 <strong style="color:#fff;">섹터 평균</strong>이 중요합니다. 기술주(Apple·MSFT 등)는 PER 25~35가 흔하지만, 금융주는 보통 10~15에서 거래됩니다. StockInto는 종목별로 섹터 중앙값을 적용해 채점합니다. 자세한 기준은 <a href="/learn/dcf-guide" style="color:#00d2ff;">DCF 가이드</a>와 <a href="/glossary" style="color:#00d2ff;">용어 사전</a> 참고.</p>
+                <p class="lang-en" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">It depends on the <strong style="color:#fff;">sector</strong>, not absolute value. Tech stocks (Apple, MSFT) usually trade at PER 25-35, while financials trade at 10-15. StockInto applies sector-median thresholds. See the <a href="/en/learn/dcf-guide" style="color:#00d2ff;">DCF Guide</a> for details.</p>
             </details>
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:14px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">A 등급 종목은 무조건 사도 되나요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">아닙니다. A 등급은 <strong style="color:#fff;">정량 기준 통과율이 높다는 뜻</strong>일 뿐, 미래 주가를 보장하지 않습니다. 사업 모델, 경영진, 산업 사이클, 거시 환경은 정량으로 잡히지 않습니다. StockInto의 등급은 후보 발굴·1차 필터로만 사용하시고, 최종 결정은 본인 판단으로 하세요.</p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;" data-i18n="faq.q2">A 등급 종목은 무조건 사도 되나요?</summary>
+                <p class="lang-ko" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">아닙니다. A 등급은 <strong style="color:#fff;">정량 기준 통과율이 높다는 뜻</strong>일 뿐, 미래 주가를 보장하지 않습니다. 사업 모델, 경영진, 산업 사이클, 거시 환경은 정량으로 잡히지 않습니다. StockInto의 등급은 후보 발굴·1차 필터로만 사용하시고, 최종 결정은 본인 판단으로 하세요.</p>
+                <p class="lang-en" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">No. An A grade just means the stock <strong style="color:#fff;">passes a high percentage of quantitative criteria</strong>; it does not predict future price. Business model, management, industry cycle, and macro aren't captured in numbers. Use grades as a screening filter only.</p>
             </details>
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:14px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">DCF 적정가는 어떻게 계산하나요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">5년간 FCF 성장 + 영구가치(Gordon Growth)를 WACC로 할인합니다. 영구성장률은 <strong style="color:#fff;">1.5%</strong> (인플레 이하 보수적), 할인율은 CAPM 기반 WACC 동적 산출(7.5~14% 클램프). 자세한 가정은 <a href="/learn/dcf-guide" style="color:#00d2ff;">DCF 가이드 →</a></p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;" data-i18n="faq.q3">DCF 적정가는 어떻게 계산하나요?</summary>
+                <p class="lang-ko" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">5년간 FCF 성장 + 영구가치(Gordon Growth)를 WACC로 할인합니다. 영구성장률은 <strong style="color:#fff;">1.5%</strong> (인플레 이하 보수적), 할인율은 CAPM 기반 WACC 동적 산출(7.5~14% 클램프). 자세한 가정은 <a href="/learn/dcf-guide" style="color:#00d2ff;">DCF 가이드 →</a></p>
+                <p class="lang-en" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">5 years of FCF growth + terminal value (Gordon Growth) discounted by WACC. Terminal growth fixed at <strong style="color:#fff;">1.5%</strong> (below inflation, conservative). Discount rate computed dynamically via CAPM-based WACC (clamped 7.5-14%). Full breakdown in the <a href="/en/learn/dcf-guide" style="color:#00d2ff;">DCF Guide →</a></p>
             </details>
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:14px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">한국 종목은 어디서 데이터를 가져오나요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">시세는 <strong style="color:#fff;">FinanceDataReader(KRX)</strong>, 재무는 <strong style="color:#fff;">금융감독원 DART</strong> 공시자료. yfinance의 한국 데이터는 누락·오류가 많아 의도적으로 사용하지 않습니다. 미국 종목은 SEC EDGAR 10-K·10-Q에서 TTM(최근 12개월) 직접 계산합니다.</p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;" data-i18n="faq.q4">한국 종목은 어디서 데이터를 가져오나요?</summary>
+                <p class="lang-ko" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">시세는 <strong style="color:#fff;">FinanceDataReader(KRX)</strong>, 재무는 <strong style="color:#fff;">금융감독원 DART</strong> 공시자료. yfinance의 한국 데이터는 누락·오류가 많아 의도적으로 사용하지 않습니다. 미국 종목은 SEC EDGAR 10-K·10-Q에서 TTM(최근 12개월) 직접 계산합니다.</p>
+                <p class="lang-en" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">Prices from <strong style="color:#fff;">FinanceDataReader (KRX)</strong>, financials from <strong style="color:#fff;">DART (Korean SEC equivalent)</strong>. yfinance has known issues with Korean data, so we don't use it for Korea. US stocks use <strong style="color:#fff;">SEC EDGAR</strong> 10-K and 10-Q for self-calculated TTM figures.</p>
             </details>
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:14px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">버핏의 9가지 기준은 정확히 무엇인가요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">ROE 15%+, 부채비율 100% 이하(섹터별 차등), 영업이익률, 매출 성장, FCF 양수, ROE 다년 일관성, 매출총이익률 안정성(±5%p), R&D 투자, 안전마진 30%+ — 9개 항목입니다. 각 기준의 의미와 실전 예시는 <a href="/learn/buffett-criteria" style="color:#00d2ff;">버핏 가이드 →</a></p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;" data-i18n="faq.q5">버핏의 9가지 기준은 정확히 무엇인가요?</summary>
+                <p class="lang-ko" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">ROE 15%+, 부채비율 100% 이하(섹터별 차등), 영업이익률, 매출 성장, FCF 양수, ROE 다년 일관성, 매출총이익률 안정성(±5%p), R&D 투자, 안전마진 30%+ — 9개 항목입니다. 각 기준의 의미와 실전 예시는 <a href="/learn/buffett-criteria" style="color:#00d2ff;">버핏 가이드 →</a></p>
+                <p class="lang-en" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">ROE 15%+, debt-to-equity ≤100% (sector-adjusted), operating margin, revenue growth, positive FCF, multi-year ROE consistency, gross margin stability (±5pp), R&D investment, 30%+ margin of safety. Full guide: <a href="/en/learn/buffett-criteria" style="color:#00d2ff;">Buffett Criteria →</a></p>
             </details>
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:14px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">유료인가요? 회원가입 필요한가요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;"><strong style="color:#fff;">완전 무료, 회원가입 불필요</strong>. 광고 수익으로 운영합니다. 관심 종목 저장은 브라우저 로컬 저장 방식이라 서버에 개인정보가 저장되지 않습니다.</p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;" data-i18n="faq.q6">유료인가요? 회원가입 필요한가요?</summary>
+                <p class="lang-ko" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;"><strong style="color:#fff;">완전 무료, 회원가입 불필요</strong>. 광고 수익으로 운영합니다. 관심 종목 저장은 브라우저 로컬 저장 방식이라 서버에 개인정보가 저장되지 않습니다.</p>
+                <p class="lang-en" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;"><strong style="color:#fff;">Completely free, no registration.</strong> Funded by Google AdSense ads. Watchlist is stored only in your browser — no personal data on our servers.</p>
             </details>
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:14px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">분석 결과로 손해가 나면 책임지나요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">아닙니다. 본 서비스는 <strong style="color:#fff;">자본시장법상 투자자문업·유사투자자문업이 아니며</strong>, 인가된 금융투자업자도 아닙니다. 모든 분석은 공개 데이터 기반 참고 정보이며, 투자 판단과 결과의 책임은 이용자 본인에게 있습니다. 자세한 내용은 <a href="/terms" style="color:#00d2ff;">이용약관</a>·<a href="/privacy" style="color:#00d2ff;">개인정보처리방침</a> 참고.</p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;" data-i18n="faq.q7">분석 결과로 손해가 나면 책임지나요?</summary>
+                <p class="lang-ko" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">아닙니다. 본 서비스는 <strong style="color:#fff;">자본시장법상 투자자문업·유사투자자문업이 아니며</strong>, 인가된 금융투자업자도 아닙니다. 모든 분석은 공개 데이터 기반 참고 정보이며, 투자 판단과 결과의 책임은 이용자 본인에게 있습니다. 자세한 내용은 <a href="/terms" style="color:#00d2ff;">이용약관</a>·<a href="/privacy" style="color:#00d2ff;">개인정보처리방침</a> 참고.</p>
+                <p class="lang-en" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">No. StockInto is <strong style="color:#fff;">not a registered investment advisor</strong> under Korean Capital Markets Act. All analyses are reference information from public data. Investment decisions and outcomes are solely your responsibility. See <a href="/terms" style="color:#00d2ff;">Terms</a> and <a href="/privacy" style="color:#00d2ff;">Privacy</a>.</p>
             </details>
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:14px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">앱으로 설치할 수 있나요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">네. PWA(Progressive Web App) 방식으로 Android·iOS·Windows 모두 지원합니다. 별도 다운로드 없이 브라우저에서 30초면 끝. <a href="/install" style="color:#00d2ff;">설치 가이드 →</a></p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;" data-i18n="faq.q8">앱으로 설치할 수 있나요?</summary>
+                <p class="lang-ko" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">네. PWA(Progressive Web App) 방식으로 Android·iOS·Windows 모두 지원합니다. 별도 다운로드 없이 브라우저에서 30초면 끝. <a href="/install" style="color:#00d2ff;">설치 가이드 →</a></p>
+                <p class="lang-en" style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">Yes, as a PWA (Progressive Web App). Works on Android, iOS, Windows. No download required — installable from your browser in 30 seconds. <a href="/install" style="color:#00d2ff;">Installation guide →</a></p>
             </details>
 
             <p style="margin:24px 0 0;text-align:center;color:#9aa3b2;font-size:0.85rem;">
-                더 깊이 알아보기 →
-                <a href="/about" style="color:#00d2ff;text-decoration:none;margin:0 6px;">소개</a> ·
-                <a href="/glossary" style="color:#00d2ff;text-decoration:none;margin:0 6px;">용어 사전</a> ·
-                <a href="/learn/buffett-criteria" style="color:#00d2ff;text-decoration:none;margin:0 6px;">버핏 가이드</a> ·
-                <a href="/learn/dcf-guide" style="color:#00d2ff;text-decoration:none;margin:0 6px;">DCF 가이드</a> ·
-                <a href="/briefing" style="color:#00d2ff;text-decoration:none;margin:0 6px;">일일 브리핑</a>
+                <span data-i18n="seo.learn_more">더 깊이 알아보기 →</span>
+                <a href="/about" style="color:#00d2ff;text-decoration:none;margin:0 6px;" data-i18n="nav.about">소개</a> ·
+                <a href="/glossary" style="color:#00d2ff;text-decoration:none;margin:0 6px;" data-i18n="nav.glossary">용어 사전</a> ·
+                <a href="/learn/buffett-criteria" style="color:#00d2ff;text-decoration:none;margin:0 6px;"><span class="lang-ko">버핏 가이드</span><span class="lang-en">Buffett Guide</span></a> ·
+                <a href="/learn/dcf-guide" style="color:#00d2ff;text-decoration:none;margin:0 6px;"><span class="lang-ko">DCF 가이드</span><span class="lang-en">DCF Guide</span></a> ·
+                <a href="/briefing" style="color:#00d2ff;text-decoration:none;margin:0 6px;" data-i18n="nav.briefing">일일 브리핑</a>
             </p>
         </section>
 
@@ -1231,14 +1265,26 @@
 
         <!-- 항상 보이는 푸터 (분석 여부 무관) -->
         <div class="disclaimer">
-            <strong>⚠ 본 서비스는 투자 참고용이며, 투자 권유·조언·자문이 아닙니다.</strong><br>
-            본 서비스는 자본시장법상 투자자문업·유사투자자문업이 아니며, 인가된 금융투자업자가 아닙니다.<br>
-            제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 참고 정보이며,<br>
-            <strong>투자 판단과 그에 따른 결과의 책임은 이용자 본인</strong>에게 있습니다.<br>
-            <strong>📅 데이터 시점</strong>: 재무 분석은 각 기업의 정기 공시(분기·연간) 기준이며, 종목 페이지에 표기된 결산일 이후 시장 변동은 반영되지 않습니다. 시세는 거래소 직접 연동이 아닌 무료 데이터 소스 기준 약 15~20분 지연.<br>
-            데이터 출처: <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener" style="color:#888;">SEC EDGAR</a> (미국 상장사 공시 재무 · Public Domain) · Yahoo Finance (미국 시세 · 15~20분 지연) · <a href="https://opendart.fss.or.kr" target="_blank" rel="noopener" style="color:#888;">금융감독원 DART</a> (한국 공시 재무) · <a href="https://finance.naver.com" target="_blank" rel="noopener" style="color:#888;">FinanceDataReader</a> (KRX 한국 시세)<br>
-            <small style="color:#666;">SEC EDGAR 데이터는 17 USC §105에 따라 Public Domain. DART 공시자료는 공공누리 제1유형(출처표시) 준수. 미국 종목 비율 지표(ROE·OM·PER 등)는 SEC 10-K + 10-Q 자체 계산(TTM 12개월 누적).</small><br><br>
-            <a href="/about" target="_blank">ℹ 소개</a> · <a href="/briefing" target="_blank">📊 일일 브리핑</a> · <a href="/glossary" target="_blank">📚 용어 사전</a> · <a href="/install" target="_blank">📱 앱 설치</a> · <a href="/contact" target="_blank">✉ 문의</a> · <a href="/terms" target="_blank">이용약관</a> · <a href="/privacy" target="_blank">개인정보처리방침</a>
+            <div class="lang-ko">
+                <strong>⚠ 본 서비스는 투자 참고용이며, 투자 권유·조언·자문이 아닙니다.</strong><br>
+                본 서비스는 자본시장법상 투자자문업·유사투자자문업이 아니며, 인가된 금융투자업자가 아닙니다.<br>
+                제공되는 모든 분석·등급(A/B/C/D/F)·점수는 공개 데이터 기반 참고 정보이며,<br>
+                <strong>투자 판단과 그에 따른 결과의 책임은 이용자 본인</strong>에게 있습니다.<br>
+                <strong>📅 데이터 시점</strong>: 재무 분석은 각 기업의 정기 공시(분기·연간) 기준이며, 종목 페이지에 표기된 결산일 이후 시장 변동은 반영되지 않습니다. 시세는 거래소 직접 연동이 아닌 무료 데이터 소스 기준 약 15~20분 지연.<br>
+                데이터 출처: <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener" style="color:#888;">SEC EDGAR</a> (미국 상장사 공시 재무 · Public Domain) · Yahoo Finance (미국 시세 · 15~20분 지연) · <a href="https://opendart.fss.or.kr" target="_blank" rel="noopener" style="color:#888;">금융감독원 DART</a> (한국 공시 재무) · <a href="https://finance.naver.com" target="_blank" rel="noopener" style="color:#888;">FinanceDataReader</a> (KRX 한국 시세)<br>
+                <small style="color:#666;">SEC EDGAR 데이터는 17 USC §105에 따라 Public Domain. DART 공시자료는 공공누리 제1유형(출처표시) 준수. 미국 종목 비율 지표(ROE·OM·PER 등)는 SEC 10-K + 10-Q 자체 계산(TTM 12개월 누적).</small>
+            </div>
+            <div class="lang-en">
+                <strong>⚠ This service is for reference only — not investment advice.</strong><br>
+                StockInto is not a registered investment advisor under Korean Capital Markets Act, nor a licensed financial services provider.<br>
+                All analyses, grades (A/B/C/D/F), and scores are reference information from public data;<br>
+                <strong>investment decisions and outcomes are solely your responsibility.</strong><br>
+                <strong>📅 Data timing</strong>: Financial analysis is based on each company's regulatory filings (quarterly/annual). Market movements after the reporting date shown on each stock page are not reflected. Prices are sourced from free data providers with approximately 15-20 minute delay.<br>
+                Data sources: <a href="https://www.sec.gov/edgar" target="_blank" rel="noopener" style="color:#888;">SEC EDGAR</a> (US filings · Public Domain) · Yahoo Finance (US prices · 15-20 min delay) · <a href="https://opendart.fss.or.kr" target="_blank" rel="noopener" style="color:#888;">DART</a> (Korean filings) · <a href="https://finance.naver.com" target="_blank" rel="noopener" style="color:#888;">FinanceDataReader</a> (KRX Korean prices)<br>
+                <small style="color:#666;">SEC EDGAR data is Public Domain (17 USC §105). DART data follows KOGL Type 1 (attribution required). US ratio metrics (ROE, OM, PER, etc.) are self-calculated from SEC 10-K + 10-Q (TTM 12-month aggregate).</small>
+            </div>
+            <br>
+            <a href="/about" target="_blank" data-i18n="nav.about">ℹ 소개</a> · <a href="/briefing" target="_blank" data-i18n="nav.briefing">📊 일일 브리핑</a> · <a href="/glossary" target="_blank" data-i18n="nav.glossary">📚 용어 사전</a> · <a href="/install" target="_blank" data-i18n="nav.install">📱 앱 설치</a> · <a href="/contact" target="_blank" data-i18n="nav.contact">✉ 문의</a> · <a href="/terms" target="_blank" data-i18n="nav.terms">이용약관</a> · <a href="/privacy" target="_blank" data-i18n="nav.privacy">개인정보처리방침</a>
         </div>
     </div>
 
