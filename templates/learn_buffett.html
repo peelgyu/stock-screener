@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>워렌 버핏의 9가지 투자 기준 완벽 정리 — ROE·해자·안전마진까지 | StockInto</title>
+    <meta name="description" content="워렌 버핏이 50년간 따라온 정량 투자 기준 9가지를 한눈에. ROE 15%+, 부채비율, FCF, 다년 일관성, 안전마진 30%+ 등 각 항목의 의미·기준값·실전 적용 예시. StockInto가 자동 채점하는 방식과 함께.">
+    <meta name="keywords" content="워렌 버핏 투자 기준, 버핏 ROE, 버핏 부채비율, 안전마진, 가치투자, 버핏 종목 선정, 9가지 기준, StockInto 버핏">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/learn/buffett-criteria">
+    <meta property="og:title" content="워렌 버핏의 9가지 투자 기준 완벽 정리">
+    <meta property="og:description" content="ROE·부채비율·해자·안전마진까지. StockInto가 자동 채점하는 9가지 기준의 의미와 실전 예시.">
+    <meta property="og:url" content="https://stockinto.com/learn/buffett-criteria">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "워렌 버핏의 9가지 투자 기준 완벽 정리",
+      "description": "워렌 버핏이 따라온 정량 투자 기준 9가지의 의미·기준값·실전 적용을 정리한 가이드.",
+      "author": {"@type": "Organization", "name": "StockInto"},
+      "publisher": {"@type": "Organization", "name": "StockInto", "logo": {"@type": "ImageObject", "url": "https://stockinto.com/static/icon-512.png"}},
+      "image": "https://stockinto.com/static/icon-512.png",
+      "datePublished": "2026-05-06",
+      "dateModified": "2026-05-06"
+    }
+    </script>
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.8; margin: 0; }
+        .container { max-width: 820px; margin: 0 auto; padding: 30px 20px 80px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,26,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a3e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link { display: flex; align-items: center; text-decoration: none; transition: opacity 0.2s; }
+        .brand-link img { height: 36px; width: auto; display: block; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid #2a2a3e; transition: all 0.15s; }
+        .nav-home:hover { background: #0D5FD9; color: #fff; border-color: #0D5FD9; }
+        h1 { color: #00d2ff; font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.02em; line-height: 1.3; }
+        h2 { color: #1f6feb; font-size: 1.25rem; margin: 36px 0 12px; border-left: 3px solid #1f6feb; padding-left: 12px; }
+        h3 { color: #fff; font-size: 1.05rem; margin: 24px 0 8px; }
+        p, li { color: #ccc; font-size: 0.94rem; }
+        ul, ol { padding-left: 24px; margin: 8px 0; }
+        li { margin: 6px 0; }
+        .meta { color: #777; font-size: 0.82rem; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #232336; }
+        a { color: #00d2ff; }
+        strong { color: #fff; }
+        em { color: #00d2ff; font-style: normal; }
+        .criterion-box { background: #161b25; border: 1px solid #232936; border-radius: 12px; padding: 18px 22px; margin: 18px 0; }
+        .criterion-box .num { display: inline-block; background: linear-gradient(135deg, #4a148c, #7b1fa2); color: #fff; font-weight: 800; font-size: 0.85rem; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; margin-right: 8px; vertical-align: middle; }
+        .criterion-box h3 { display: inline; color: #fff; font-size: 1.05rem; }
+        .criterion-box .threshold { display: inline-block; background: rgba(0,210,255,0.1); border: 1px solid rgba(0,210,255,0.3); color: #00d2ff; font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; margin-left: 8px; }
+        .criterion-box .body { margin: 12px 0 0; color: #d0d6e0; font-size: 0.92rem; line-height: 1.75; }
+        .criterion-box .example { margin-top: 10px; padding: 10px 14px; background: rgba(31, 111, 235, 0.06); border-left: 3px solid #1f6feb; border-radius: 6px; font-size: 0.85rem; color: #b0b8c4; }
+        .data-card { background: linear-gradient(135deg, rgba(0,210,255,0.06), rgba(31,111,235,0.06)); border: 1px solid #2a3a55; border-radius: 12px; padding: 18px 22px; margin: 22px 0; }
+        .cta-box { background: rgba(123, 47, 247, 0.08); border: 1px solid rgba(123, 47, 247, 0.3); border-radius: 14px; padding: 22px 24px; margin: 32px 0 16px; text-align: center; }
+        .cta-box h3 { color: #fff; margin: 0 0 10px; }
+        .cta-box p { color: #c9d0dc; margin: 0 0 14px; font-size: 0.9rem; }
+        .cta-btn { display: inline-block; background: #0D5FD9; color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 700; transition: background 0.15s; }
+        .cta-btn:hover { background: #1f6feb; color: #fff; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
+        .related-grid a { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 10px 12px; text-decoration: none; color: #e7eaf2; font-size: 0.85rem; }
+        .toc { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 12px; padding: 16px 22px; margin: 24px 0; }
+        .toc h4 { color: #00d2ff; font-size: 0.88rem; margin: 0 0 8px; }
+        .toc ul { padding-left: 20px; margin: 0; }
+        .toc li { font-size: 0.86rem; margin: 4px 0; }
+        .toc a { text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .back { margin-top: 50px; padding-top: 20px; border-top: 1px solid #2a2a3e; text-align: center; color: #888; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
+            <a href="/about" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">ℹ 소개</a>
+            <a href="/" class="nav-home">🏠 메인</a>
+        </div>
+    </nav>
+
+    <article class="container">
+        <h1>워렌 버핏의 9가지 투자 기준 완벽 정리</h1>
+        <p class="meta">📅 2026-05-06 · 약 8분 분량 · StockInto 가이드</p>
+
+        <p>
+            워렌 버핏(Warren Buffett)은 60년간 연평균 약 20%의 수익률로 버크셔 해서웨이를 운영해 왔습니다. 그의 비결은 화려한 기법이 아니라 <strong>단순하고 일관된 기준의 꾸준한 적용</strong>입니다. 이 글은 버핏이 종목을 고를 때 실제로 쓰는 정량 기준 9가지를 정리합니다 — StockInto가 모든 종목에 자동으로 적용하는 바로 그 기준입니다.
+        </p>
+
+        <div class="data-card">
+            <strong>이 글에서 다루는 것</strong><br>
+            <span style="color:#9aa3b2;font-size:0.88rem;">각 기준의 ① 의미 ② 임계값 ③ 통과·미통과 예시 ④ StockInto에서 어떻게 채점되는지. 마지막에 직접 분석해 볼 수 있는 종목 링크 포함.</span>
+        </div>
+
+        <div class="toc">
+            <h4>📋 목차</h4>
+            <ul>
+                <li><a href="#why-buffett">왜 버핏 기준인가?</a></li>
+                <li><a href="#original-5">원조 5개 기준 (수익성·안정성)</a></li>
+                <li><a href="#improved-4">개선 4개 기준 (다년 일관성·해자)</a></li>
+                <li><a href="#scoring">StockInto의 등급 기준 (A~F)</a></li>
+                <li><a href="#try-now">직접 분석해 보기</a></li>
+            </ul>
+        </div>
+
+        <h2 id="why-buffett">왜 버핏 기준인가?</h2>
+        <p>
+            벤저민 그레이엄의 제자였던 버핏은 단순히 "싸게 사는" 가치투자에서 한 발 더 나아가 <strong>"훌륭한 회사를 적정가에 사라"</strong>는 철학으로 진화시켰습니다. 그는 어떤 회사가 "훌륭한"지 판별하는 정량 기준을 60년간 다듬어 왔고, 그 기준은 다음 세 가지 축에 집중합니다.
+        </p>
+        <ul>
+            <li><strong>수익성</strong> — 자본을 효율적으로 굴리는가? (ROE 15%+)</li>
+            <li><strong>안정성</strong> — 빚으로 굴리지 않는가? 현금이 도는가? (부채비율, FCF 양수)</li>
+            <li><strong>지속성</strong> — 단년 운이 아니라 다년 일관성? (5~10년 ROE 추이, 마진 안정성)</li>
+        </ul>
+        <p>이 세 축에 더해 <strong>"지금 사도 비싸지 않은가"</strong>(안전마진 30%+)를 마지막 필터로 적용합니다. 결과적으로 9가지 정량 기준이 됩니다.</p>
+
+        <h2 id="original-5">원조 5개 기준 — 수익성·안정성</h2>
+
+        <div class="criterion-box">
+            <div class="num">1</div><h3>ROE (자기자본수익률)</h3><span class="threshold">≥ 15% (섹터별 차등)</span>
+            <p class="body">
+                주주가 맡긴 자본 100원으로 1년에 얼마를 벌었는지. 버핏의 가장 사랑하는 단일 지표입니다. 코카콜라·시즈캔디 같은 그가 특히 선호한 기업들은 모두 <strong>20% 이상</strong>의 ROE를 꾸준히 유지했습니다.
+            </p>
+            <div class="example">
+                예: Apple ROE 약 150%(자사주 매입 효과) · Microsoft ROE 약 35% · 삼성전자 ROE 약 10~15%. 단, 자본잠식 상태에서 ROE가 비정상적으로 높게 나오는 경우는 무효 처리.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">2</div><h3>부채비율 (Debt-to-Equity)</h3><span class="threshold">≤ 100% (섹터별)</span>
+            <p class="body">
+                자기자본 대비 총부채. 버핏은 <em>"빚으로 부풀려진 ROE는 가짜"</em>라고 봅니다. 부채가 많으면 호황기엔 좋지만 불황기에 무너집니다. 단, <strong>금융업·유틸리티는 본질적으로 부채를 굴리는 업이라 임계값이 다름</strong>(금융 400%까지 허용).
+            </p>
+            <div class="example">
+                예: Apple D/E 약 150%(자사주 매입으로 자본 감소) · Berkshire D/E 약 25% · 삼성전자 D/E 약 5~10%(현금부자).
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">3</div><h3>영업이익률 (Operating Margin)</h3><span class="threshold">≥ 15% (섹터별)</span>
+            <p class="body">
+                매출 100원당 영업으로 남기는 돈. 가격 결정력(pricing power)의 직접 증거. 버핏이 좋아하는 "해자(moat)"의 정량적 표현입니다. <strong>고마진은 경쟁사가 쉽게 따라잡지 못하는 무엇이 있다는 뜻</strong>.
+            </p>
+            <div class="example">
+                예: Microsoft 영업이익률 약 42% · 코카콜라 약 28% · 자동차 산업 평균 5~8%(저마진 산업).
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">4</div><h3>매출 성장 (Revenue Growth)</h3><span class="threshold">> 0%</span>
+            <p class="body">
+                전년 대비 매출이 늘고 있는가. 버핏은 폭발적 성장보다 <strong>꾸준한 성장</strong>을 선호합니다. 마이너스 성장은 사업 자체가 쪼그라드는 신호.
+            </p>
+            <div class="example">
+                예: 매출이 -10%인 기업이 PER 5라면 싸 보여도 "함정 가치주(value trap)"일 수 있음.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">5</div><h3>FCF (잉여현금흐름) 양수</h3><span class="threshold">> 0</span>
+            <p class="body">
+                영업현금흐름에서 설비투자(CapEx)를 뺀 진짜 남는 현금. <strong>버핏의 모든 평가의 출발점</strong>. 장부이익은 회계 조작이 가능하지만 FCF는 거짓말을 못 합니다. FCF가 음수라면 사업이 자기 힘으로 돌지 않고 외부 자금에 의존한다는 뜻.
+            </p>
+            <div class="example">
+                예: 흑자전환 직전 성장주(테슬라 초기)는 FCF 음수가 정상이지만, 성숙기업이 FCF 음수면 위험 신호.
+            </div>
+        </div>
+
+        <h2 id="improved-4">개선 4개 기준 — 다년 일관성·해자</h2>
+        <p>위 5개는 단년 스냅샷입니다. 버핏의 진짜 강점은 <strong>10년 동안 꾸준한가</strong>를 본다는 점. StockInto가 추가한 4개 기준은 이 "다년 일관성"을 정량화합니다.</p>
+
+        <div class="criterion-box">
+            <div class="num">6</div><h3>ROE 꾸준함 (다년도 15%+)</h3><span class="threshold">5년 중 3년+ 통과</span>
+            <p class="body">
+                한 해만 ROE 15%를 넘은 게 아니라 <strong>5년 중 3년 이상</strong> 꾸준히 넘었는가. 한 번의 호황에 끼인 운이 아니라 구조적 강점이라는 증거. 버핏이 "보유 기간 = 영원"이라고 한 이유.
+            </p>
+            <div class="example">
+                예: 코카콜라는 1980년대 이후 거의 매년 ROE 25%+. 한 해 빛났다 사라지는 IPO 첫해 종목과 명확히 구분.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">7</div><h3>매출총이익률(GM) 안정성</h3><span class="threshold">5년 표준편차 ≤ 5%p</span>
+            <p class="body">
+                Gross Margin이 해마다 들쑥날쑥하지 않은가. 안정된 GM = <strong>가격 결정력이 안정적</strong>이라는 뜻. 원자재 가격에 휘둘리는 기업(정유·철강)은 GM이 매년 크게 흔들립니다.
+            </p>
+            <div class="example">
+                예: Microsoft GM은 매년 65~70%로 안정 · 항공사들은 연료가에 따라 GM이 10~25%까지 흔들림(피해야 할 패턴).
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">8</div><h3>R&D 투자 (매출 대비)</h3><span class="threshold">Tech 5%+, Healthcare 8%+</span>
+            <p class="body">
+                미래에 투자하고 있는가. 기술·헬스케어는 R&D를 멈추는 순간 경쟁력이 사라집니다. <strong>금융·유틸리티는 R&D 개념 자체가 없으므로 자동 통과</strong>.
+            </p>
+            <div class="example">
+                예: 알파벳 R&D 약 14% · 화이자 약 16% · 코카콜라 약 0%(소비재라 무관).
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">9</div><h3>안전마진 (Margin of Safety)</h3><span class="threshold">현재가 대비 +30% 이상 저평가</span>
+            <p class="body">
+                StockInto가 계산한 적정가(DCF·PER·Graham 가중평균)가 현재 주가보다 <strong>30% 이상 높은가</strong>. 버핏의 스승 그레이엄의 핵심 개념. <em>"적정가 100원짜리를 70원에 사라"</em>가 안전마진. 시장이 비효율적일 때 이 마진이 손실 가능성을 흡수해 줍니다.
+            </p>
+            <div class="example">
+                예: 적정가 200원 종목을 130원에 사면 안전마진 35%(통과). 적정가 200원을 200원에 사면 마진 0%(미통과).
+            </div>
+        </div>
+
+        <h2 id="scoring">StockInto의 등급 기준</h2>
+        <p>9가지 기준 중 데이터가 없는 항목(N/A)은 분모에서 제외하고, 나머지 통과율로 등급을 매깁니다.</p>
+        <ul>
+            <li><strong style="color:#22c55e;">A+</strong> — 90%+ 통과 (예: 9/9 또는 8/8)</li>
+            <li><strong style="color:#22c55e;">A</strong> — 80%+ 통과</li>
+            <li><strong style="color:#22c55e;">B</strong> — 70%+ 통과</li>
+            <li><strong style="color:#eab308;">C</strong> — 50%+ 통과 (부분 충족)</li>
+            <li><strong style="color:#ef4444;">D</strong> — 30%+ 통과 (미달 다수)</li>
+            <li><strong style="color:#ef4444;">F</strong> — 30% 미만 (대부분 미충족)</li>
+        </ul>
+        <p style="color:#9aa3b2;font-size:0.88rem;">
+            <em>주의:</em> 등급은 정량 기준 통과율일 뿐, 매수·매도 권유가 아닙니다. 사업 모델·경영진·산업 사이클은 정량으로 잡히지 않으니 등급은 후보 발굴 도구로만 쓰세요.
+        </p>
+
+        <div class="cta-box" id="try-now">
+            <h3>🎯 직접 분석해 보기</h3>
+            <p>버핏 기준을 종목에 직접 적용해 보세요. 1초면 결과가 나옵니다.</p>
+            <p style="margin: 12px 0 16px;">
+                <a href="/stock/AAPL" class="cta-btn" style="margin: 4px;">Apple 분석 →</a>
+                <a href="/stock/BRK-B" class="cta-btn" style="margin: 4px;">Berkshire 분석 →</a>
+                <a href="/stock/005930.KS" class="cta-btn" style="margin: 4px;">삼성전자 분석 →</a>
+            </p>
+            <p style="color:#9aa3b2;font-size:0.85rem;margin-top:12px;">또는 메인에서 다른 종목 검색 → <a href="/" style="color:#00d2ff;">홈으로</a></p>
+        </div>
+
+        <h2>🔗 관련 가이드</h2>
+        <div class="related-grid">
+            <a href="/learn/dcf-guide">📐 DCF 적정주가 가이드</a>
+            <a href="/glossary">📚 주식 용어 사전</a>
+            <a href="/about">ℹ StockInto 소개</a>
+            <a href="/picks/buffett-style">🎯 버핏 스타일 종목</a>
+            <a href="/briefing">📊 일일 시황</a>
+        </div>
+
+        <div class="back">
+            <a href="/" style="color:#888;text-decoration:none;">← 메인으로 돌아가기</a>
+        </div>
+    </article>
+</body>
+</html>

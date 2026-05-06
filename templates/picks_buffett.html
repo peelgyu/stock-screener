@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>버핏 스타일 종목 모음 — ROE·해자·꾸준한 수익성 기준 20선 | StockInto</title>
+    <meta name="description" content="워렌 버핏의 투자 철학(ROE 15%+, 낮은 부채, 꾸준한 수익성, 강한 해자)에 부합하는 미국·한국 종목 20선. 각 종목 클릭하면 StockInto 자동 분석 결과로 이동.">
+    <meta name="keywords" content="버핏 스타일 종목, 버핏 추천주, ROE 높은 종목, 가치주, 해자 있는 기업, 버핏 한국 주식, 버핏 미국 주식">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/picks/buffett-style">
+    <meta property="og:title" content="버핏 스타일 종목 모음 — 20선">
+    <meta property="og:description" content="버핏 철학에 부합하는 미국·한국 우량주 20선. 각 종목별 분석 링크 포함.">
+    <meta property="og:url" content="https://stockinto.com/picks/buffett-style">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.7; margin: 0; }
+        .container { max-width: 920px; margin: 0 auto; padding: 30px 20px 80px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,26,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a3e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link img { height: 36px; width: auto; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid #2a2a3e; }
+        .nav-home:hover { background: #0D5FD9; color: #fff; border-color: #0D5FD9; }
+        h1 { color: #00d2ff; font-size: 1.9rem; margin: 0 0 8px; letter-spacing: -0.02em; }
+        h2 { color: #1f6feb; font-size: 1.2rem; margin: 32px 0 14px; border-left: 3px solid #1f6feb; padding-left: 12px; }
+        p, li { color: #ccc; font-size: 0.93rem; }
+        .meta { color: #777; font-size: 0.82rem; margin: 0 0 24px; padding-bottom: 14px; border-bottom: 1px solid #232336; }
+        a { color: #00d2ff; text-decoration: none; }
+        strong { color: #fff; }
+        .intro-card { background: linear-gradient(135deg, rgba(123, 47, 247, 0.06), rgba(0, 210, 255, 0.06)); border: 1px solid #2a3a55; border-radius: 14px; padding: 22px 24px; margin: 0 0 24px; }
+        .stocks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin: 16px 0; }
+        .stock-card { background: #161b25; border: 1px solid #232936; border-radius: 12px; padding: 16px 18px; transition: transform 0.15s, border-color 0.15s; display: block; }
+        .stock-card:hover { transform: translateY(-2px); border-color: #00d2ff; }
+        .stock-card .ticker { color: #00d2ff; font-size: 1rem; font-weight: 800; }
+        .stock-card .name { color: #fff; font-size: 0.92rem; font-weight: 700; margin-top: 2px; }
+        .stock-card .why { color: #9aa3b2; font-size: 0.82rem; margin-top: 8px; line-height: 1.55; }
+        .stock-card .flag { font-size: 0.85rem; margin-right: 4px; }
+        .disclaimer { background: rgba(244, 67, 54, 0.06); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 10px; padding: 14px 18px; margin: 28px 0 0; color: #ffcdd2; font-size: 0.85rem; line-height: 1.65; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
+        .related-grid a { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 10px 12px; color: #e7eaf2; font-size: 0.85rem; }
+        .back { margin-top: 50px; padding-top: 20px; border-top: 1px solid #2a2a3e; text-align: center; color: #888; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/learn/buffett-criteria" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📊 버핏 가이드</a>
+            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
+            <a href="/" class="nav-home">🏠 메인</a>
+        </div>
+    </nav>
+
+    <article class="container">
+        <h1>🎯 버핏 스타일 종목 모음 — 20선</h1>
+        <p class="meta">📅 2026-05-06 · 미국 12 + 한국 8 · StockInto 큐레이션</p>
+
+        <div class="intro-card">
+            <p style="margin:0 0 8px;"><strong>"훌륭한 회사를 적정가에 사라"</strong> — 워렌 버핏</p>
+            <p style="margin:0;color:#c9d0dc;font-size:0.9rem;">버핏의 투자 철학은 5가지 축으로 압축됩니다 — <strong>꾸준한 ROE 15%+</strong>, <strong>낮은 부채</strong>, <strong>강한 해자(moat)</strong>, <strong>일관된 마진</strong>, <strong>FCF 양수</strong>. 이 페이지는 그 철학에 부합하는 후보 종목을 정리한 것이며, 각 카드를 클릭하면 StockInto가 9가지 정량 기준으로 자동 채점한 결과를 볼 수 있습니다.</p>
+        </div>
+
+        <h2>🇺🇸 미국 — 버핏이 보유했거나 닮은 종목</h2>
+        <div class="stocks-grid">
+            <a href="/stock/BRK-B" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">BRK-B</span></div>
+                <div class="name">Berkshire Hathaway</div>
+                <div class="why">버핏이 직접 운영하는 지주사. 보험·철도·에너지·소비재 다각화. 자기 자신의 분신.</div>
+            </a>
+            <a href="/stock/AAPL" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">AAPL</span></div>
+                <div class="name">Apple</div>
+                <div class="why">버크셔 최대 보유 종목(2025년 기준). 강한 브랜드 해자 + 자사주 매입 + 꾸준한 ROE.</div>
+            </a>
+            <a href="/stock/KO" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">KO</span></div>
+                <div class="name">Coca-Cola</div>
+                <div class="why">버핏이 1988년부터 보유. 글로벌 브랜드 해자 + 안정적 마진 + 60년+ 배당 성장.</div>
+            </a>
+            <a href="/stock/MSFT" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">MSFT</span></div>
+                <div class="name">Microsoft</div>
+                <div class="why">엔터프라이즈 SW 해자 + Office·Azure 록인 + 35%+ ROE 다년 일관성.</div>
+            </a>
+            <a href="/stock/JNJ" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">JNJ</span></div>
+                <div class="name">Johnson & Johnson</div>
+                <div class="why">제약·의료기기·소비재 3축 분산. AAA 신용등급 (미국 정부와 동급).</div>
+            </a>
+            <a href="/stock/PG" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">PG</span></div>
+                <div class="name">Procter & Gamble</div>
+                <div class="why">생필품 브랜드 포트폴리오 (질레트·팸퍼스·타이드). 60년+ 배당 귀족.</div>
+            </a>
+            <a href="/stock/V" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">V</span></div>
+                <div class="name">Visa</div>
+                <div class="why">결제 네트워크 효과 = 강한 해자. 영업이익률 60%+. 버크셔 보유.</div>
+            </a>
+            <a href="/stock/MA" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">MA</span></div>
+                <div class="name">Mastercard</div>
+                <div class="why">Visa와 듀오폴리 시장. 동일한 네트워크 효과 해자. 마진 50%+.</div>
+            </a>
+            <a href="/stock/COST" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">COST</span></div>
+                <div class="name">Costco</div>
+                <div class="why">멤버십 락인 + 규모의 경제 = 가격 결정력. 버핏 친구 멍거가 극찬.</div>
+            </a>
+            <a href="/stock/WMT" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">WMT</span></div>
+                <div class="name">Walmart</div>
+                <div class="why">규모의 경제 해자. 50년+ 배당 성장. 안정적 FCF.</div>
+            </a>
+            <a href="/stock/MCD" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">MCD</span></div>
+                <div class="name">McDonald's</div>
+                <div class="why">글로벌 브랜드 + 부동산 자산. 프랜차이즈 모델로 경기방어.</div>
+            </a>
+            <a href="/stock/HD" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">HD</span></div>
+                <div class="name">Home Depot</div>
+                <div class="why">미국 주택수리 시장 1위. 높은 ROE + 자사주 매입 적극.</div>
+            </a>
+        </div>
+
+        <h2>🇰🇷 한국 — 버핏 기준 부합 후보</h2>
+        <div class="stocks-grid">
+            <a href="/stock/005930.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">005930.KS</span></div>
+                <div class="name">삼성전자</div>
+                <div class="why">현금부자 (D/E 5%대). 메모리 1위. 다만 사이클성으로 ROE 변동.</div>
+            </a>
+            <a href="/stock/000660.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">000660.KS</span></div>
+                <div class="name">SK하이닉스</div>
+                <div class="why">HBM 1위로 AI 수혜. 단, 메모리 사이클 베타 큼.</div>
+            </a>
+            <a href="/stock/035420.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">035420.KS</span></div>
+                <div class="name">NAVER</div>
+                <div class="why">한국 검색 점유율 절대 1위 = 네트워크 해자. 광고·커머스 다각화.</div>
+            </a>
+            <a href="/stock/005380.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">005380.KS</span></div>
+                <div class="name">현대차</div>
+                <div class="why">글로벌 5위 브랜드. EV 전환 + 제네시스 프리미엄. PER 4~6 저평가권.</div>
+            </a>
+            <a href="/stock/207940.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">207940.KS</span></div>
+                <div class="name">삼성바이오로직스</div>
+                <div class="why">CDMO 글로벌 1위. 캐파 증설로 장기 성장 가시성.</div>
+            </a>
+            <a href="/stock/068270.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">068270.KS</span></div>
+                <div class="name">셀트리온</div>
+                <div class="why">바이오시밀러 1세대 + 자가품 짐펜트라. 안정적 FCF.</div>
+            </a>
+            <a href="/stock/105560.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">105560.KS</span></div>
+                <div class="name">KB금융</div>
+                <div class="why">국내 1위 시중은행. PBR 0.5 내외 저평가 + 4%+ 배당.</div>
+            </a>
+            <a href="/stock/055550.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">055550.KS</span></div>
+                <div class="name">신한지주</div>
+                <div class="why">금융 빅3. 카드·증권 사업 다각화 + 자사주 매입 가속.</div>
+            </a>
+        </div>
+
+        <h2>📋 어떻게 활용하나요?</h2>
+        <ol>
+            <li>위 종목 카드를 클릭 → StockInto 자동 분석 페이지로 이동</li>
+            <li>버핏 9가지 기준 통과율 (탭의 "🧠 워렌 버핏이라면?")을 확인</li>
+            <li>적정주가 vs 현재가 비교 → <strong>안전마진 30%+</strong>가 통과인지 본다</li>
+            <li>다년 ROE·GM 추세 ("📆 재무 추세" 탭) → 일시적 호황인지 구조적 강점인지 판별</li>
+        </ol>
+
+        <h2>🔗 관련 자료</h2>
+        <div class="related-grid">
+            <a href="/learn/buffett-criteria">📊 버핏 9가지 기준 가이드</a>
+            <a href="/learn/dcf-guide">📐 DCF 적정가 가이드</a>
+            <a href="/picks/dividend-aristocrats">💰 배당 귀족주 모음</a>
+            <a href="/glossary">📚 용어 사전</a>
+            <a href="/about">ℹ StockInto 소개</a>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠ 본 페이지는 종목 추천이 아닌 큐레이션 가이드입니다.</strong> 버핏의 투자 철학에 부합할 가능성이 있는 후보 종목을 정리한 것이며, 각 종목의 실제 적합성은 StockInto 분석 결과를 직접 확인하세요. 투자 판단과 결과의 책임은 이용자 본인에게 있습니다.
+        </div>
+
+        <div class="back">
+            <a href="/" style="color:#888;">← 메인으로 돌아가기</a>
+        </div>
+    </article>
+</body>
+</html>

@@ -366,6 +366,11 @@ def sitemap_xml():
         ("/", "daily", "1.0"),
         ("/about", "monthly", "0.9"),
         ("/glossary", "weekly", "0.8"),
+        ("/briefing", "daily", "0.9"),
+        ("/learn/buffett-criteria", "monthly", "0.85"),
+        ("/learn/dcf-guide", "monthly", "0.85"),
+        ("/picks/buffett-style", "weekly", "0.85"),
+        ("/picks/dividend-aristocrats", "weekly", "0.85"),
         ("/install", "monthly", "0.7"),
         ("/contact", "monthly", "0.6"),
         ("/terms", "yearly", "0.4"),
@@ -440,6 +445,38 @@ def contact():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+
+# ===== 학습 가이드 (장문 SEO 콘텐츠) =====
+LEARN_TEMPLATES = {
+    "buffett-criteria": "learn_buffett.html",
+    "dcf-guide": "learn_dcf.html",
+}
+
+
+@app.route("/learn/<topic>")
+def learn_topic(topic: str):
+    """장문 학습 가이드 — 봇·검색 친화 SEO 콘텐츠."""
+    tpl = LEARN_TEMPLATES.get(topic)
+    if not tpl:
+        return redirect("/", code=302)
+    return render_template(tpl)
+
+
+# ===== 큐레이션 (종목 모음) =====
+PICKS_TEMPLATES = {
+    "buffett-style": "picks_buffett.html",
+    "dividend-aristocrats": "picks_dividend.html",
+}
+
+
+@app.route("/picks/<topic>")
+def picks_topic(topic: str):
+    """종목 큐레이션 페이지 — 내부 링크 강화 + SEO."""
+    tpl = PICKS_TEMPLATES.get(topic)
+    if not tpl:
+        return redirect("/", code=302)
+    return render_template(tpl)
 
 
 @app.route("/api/search", methods=["GET"])

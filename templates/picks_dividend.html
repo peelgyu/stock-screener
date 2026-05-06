@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>배당 귀족주(Dividend Aristocrats) — 25년+ 연속 배당 인상 기업 모음 | StockInto</title>
+    <meta name="description" content="25년 이상 연속으로 배당을 인상해 온 미국 배당 귀족주 + 한국 안정 배당주 모음. 인플레이션 헤지·은퇴 자산·복리 효과를 위한 종목 큐레이션. 각 종목 클릭하면 StockInto 자동 분석.">
+    <meta name="keywords" content="배당 귀족주, Dividend Aristocrats, 배당 성장주, 배당주 추천, 미국 배당주, 한국 배당주, 배당 ETF 대안, 배당 투자, KO PG JNJ">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/picks/dividend-aristocrats">
+    <meta property="og:title" content="배당 귀족주 모음 — 25년+ 연속 배당 인상 기업">
+    <meta property="og:description" content="미국 배당 귀족주 + 한국 안정 배당주. 인플레 헤지·은퇴 자산용 종목 큐레이션.">
+    <meta property="og:url" content="https://stockinto.com/picks/dividend-aristocrats">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.7; margin: 0; }
+        .container { max-width: 920px; margin: 0 auto; padding: 30px 20px 80px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,26,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a3e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link img { height: 36px; width: auto; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid #2a2a3e; }
+        .nav-home:hover { background: #0D5FD9; color: #fff; border-color: #0D5FD9; }
+        h1 { color: #00d2ff; font-size: 1.9rem; margin: 0 0 8px; letter-spacing: -0.02em; }
+        h2 { color: #1f6feb; font-size: 1.2rem; margin: 32px 0 14px; border-left: 3px solid #1f6feb; padding-left: 12px; }
+        p, li { color: #ccc; font-size: 0.93rem; }
+        .meta { color: #777; font-size: 0.82rem; margin: 0 0 24px; padding-bottom: 14px; border-bottom: 1px solid #232336; }
+        a { color: #00d2ff; text-decoration: none; }
+        strong { color: #fff; }
+        .intro-card { background: linear-gradient(135deg, rgba(34, 197, 94, 0.06), rgba(0, 210, 255, 0.06)); border: 1px solid #2a3a55; border-radius: 14px; padding: 22px 24px; margin: 0 0 24px; }
+        .stocks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 16px 0; }
+        .stock-card { background: #161b25; border: 1px solid #232936; border-radius: 12px; padding: 16px 18px; transition: transform 0.15s, border-color 0.15s; display: block; position: relative; }
+        .stock-card:hover { transform: translateY(-2px); border-color: #22c55e; }
+        .stock-card .ticker { color: #00d2ff; font-size: 1rem; font-weight: 800; }
+        .stock-card .name { color: #fff; font-size: 0.92rem; font-weight: 700; margin-top: 2px; }
+        .stock-card .why { color: #9aa3b2; font-size: 0.82rem; margin-top: 8px; line-height: 1.55; }
+        .stock-card .badge { display: inline-block; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #22c55e; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; margin-top: 6px; }
+        .stock-card .flag { font-size: 0.85rem; margin-right: 4px; }
+        .disclaimer { background: rgba(244, 67, 54, 0.06); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 10px; padding: 14px 18px; margin: 28px 0 0; color: #ffcdd2; font-size: 0.85rem; line-height: 1.65; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin-top: 12px; }
+        .related-grid a { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 10px 12px; color: #e7eaf2; font-size: 0.85rem; }
+        .back { margin-top: 50px; padding-top: 20px; border-top: 1px solid #2a2a3e; text-align: center; color: #888; font-size: 0.85rem; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid #232936; text-align: left; }
+        th { color: #00d2ff; font-weight: 700; }
+        td { color: #d0d6e0; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/picks/buffett-style" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">🎯 버핏 종목</a>
+            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
+            <a href="/" class="nav-home">🏠 메인</a>
+        </div>
+    </nav>
+
+    <article class="container">
+        <h1>💰 배당 귀족주 모음 — 25년+ 연속 배당 인상</h1>
+        <p class="meta">📅 2026-05-06 · 미국 배당 귀족 12 + 한국 배당주 6 · StockInto 큐레이션</p>
+
+        <div class="intro-card">
+            <p style="margin:0 0 8px;"><strong>배당 귀족주(Dividend Aristocrats)</strong>란?</p>
+            <p style="margin:0;color:#c9d0dc;font-size:0.9rem;">S&P 500 편입 + <strong>25년 이상 매년 배당 인상</strong>한 기업. 5명의 거장 중 그레이엄과 버핏이 가장 사랑한 카테고리입니다. 배당을 25년 연속 늘렸다는 건 <strong>그 기간 동안 회사가 충분한 FCF를 만들었고, 경영진이 주주환원에 진심</strong>이라는 뜻. 인플레이션 헤지·은퇴 자산·복리의 마법을 노리는 장기 투자자에게 핵심 카테고리.</p>
+        </div>
+
+        <h2>📊 왜 배당 귀족주를 보는가?</h2>
+        <table>
+            <tr><th>장점</th><th>설명</th></tr>
+            <tr><td>인플레 헤지</td><td>매년 배당이 늘어나니 인플레 이상 수익률 확보</td></tr>
+            <tr><td>변동성 낮음</td><td>대형 우량주 중심이라 베타 0.5~1.0대</td></tr>
+            <tr><td>FCF 검증된 기업</td><td>25년 연속 배당 인상 = 25년 연속 충분한 FCF</td></tr>
+            <tr><td>복리 효과</td><td>배당 재투자 시 30년+ 복리 효과 큼</td></tr>
+            <tr><td>경기방어</td><td>2008·2020 위기 때도 배당 유지·인상한 검증</td></tr>
+        </table>
+
+        <h2>🇺🇸 미국 — 배당 귀족 (Dividend Aristocrats)</h2>
+        <div class="stocks-grid">
+            <a href="/stock/KO" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">KO</span></div>
+                <div class="name">Coca-Cola</div>
+                <div class="badge">62년 연속 인상</div>
+                <div class="why">버핏 최애. 글로벌 브랜드 해자. 약 3% 배당 + 매년 약 5% 인상.</div>
+            </a>
+            <a href="/stock/PG" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">PG</span></div>
+                <div class="name">Procter & Gamble</div>
+                <div class="badge">68년 연속 인상</div>
+                <div class="why">생필품 브랜드 (질레트·팸퍼스). 약 2.5% 배당.</div>
+            </a>
+            <a href="/stock/JNJ" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">JNJ</span></div>
+                <div class="name">Johnson & Johnson</div>
+                <div class="badge">62년 연속 인상</div>
+                <div class="why">제약·의료기기·소비재 다각화. AAA 신용등급 (미국 정부와 동급).</div>
+            </a>
+            <a href="/stock/MMM" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">MMM</span></div>
+                <div class="name">3M</div>
+                <div class="badge">66년 연속 인상</div>
+                <div class="why">산업·헬스케어 종합. 약 5%대 고배당. 최근 PFAS 소송으로 변동성↑</div>
+            </a>
+            <a href="/stock/MCD" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">MCD</span></div>
+                <div class="name">McDonald's</div>
+                <div class="badge">48년 연속 인상</div>
+                <div class="why">글로벌 브랜드 + 부동산 자산. 약 2.5% 배당.</div>
+            </a>
+            <a href="/stock/WMT" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">WMT</span></div>
+                <div class="name">Walmart</div>
+                <div class="badge">51년 연속 인상</div>
+                <div class="why">미국 최대 유통. 규모의 경제 해자. 약 1% 배당.</div>
+            </a>
+            <a href="/stock/PEP" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">PEP</span></div>
+                <div class="name">PepsiCo</div>
+                <div class="badge">52년 연속 인상</div>
+                <div class="why">음료+스낵(프리토레이) 듀얼. 약 3.5% 배당.</div>
+            </a>
+            <a href="/stock/CL" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">CL</span></div>
+                <div class="name">Colgate-Palmolive</div>
+                <div class="badge">61년 연속 인상</div>
+                <div class="why">생필품 (치약·세제). 신흥국 매출 비중 높음. 약 2% 배당.</div>
+            </a>
+            <a href="/stock/TGT" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">TGT</span></div>
+                <div class="name">Target</div>
+                <div class="badge">53년 연속 인상</div>
+                <div class="why">미국 2위 종합유통. 약 3%대 배당.</div>
+            </a>
+            <a href="/stock/LOW" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">LOW</span></div>
+                <div class="name">Lowe's</div>
+                <div class="badge">61년 연속 인상</div>
+                <div class="why">홈디포의 라이벌. 주택수리 시장 2위. 약 1.7% 배당.</div>
+            </a>
+            <a href="/stock/CAT" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">CAT</span></div>
+                <div class="name">Caterpillar</div>
+                <div class="badge">31년 연속 인상</div>
+                <div class="why">중장비 1위. 인프라·광산 사이클 수혜. 약 1.5% 배당.</div>
+            </a>
+            <a href="/stock/T" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">T</span></div>
+                <div class="name">AT&T</div>
+                <div class="badge">고배당 약 5%+</div>
+                <div class="why">통신 거인. 분사 후 배당 조정. 고배당 유지 중.</div>
+            </a>
+        </div>
+
+        <h2>🇰🇷 한국 — 안정 배당주</h2>
+        <p style="color:#9aa3b2;font-size:0.88rem;margin-bottom:8px;">한국에는 미국식 "25년+ 배당 귀족"이 거의 없으나, 5년+ 안정 배당 + 4%+ 수익률 종목들을 정리.</p>
+        <div class="stocks-grid">
+            <a href="/stock/105560.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">105560.KS</span></div>
+                <div class="name">KB금융</div>
+                <div class="badge">약 4~5% 배당</div>
+                <div class="why">국내 1위 시중은행. 자사주 매입+소각 가속. PBR 0.5권.</div>
+            </a>
+            <a href="/stock/055550.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">055550.KS</span></div>
+                <div class="name">신한지주</div>
+                <div class="badge">약 4%+ 배당</div>
+                <div class="why">금융 빅3. 분기배당 도입.</div>
+            </a>
+            <a href="/stock/086790.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">086790.KS</span></div>
+                <div class="name">하나금융지주</div>
+                <div class="badge">약 5%+ 배당</div>
+                <div class="why">금융 빅4. 동남아 진출 적극. 자사주 매입 진행.</div>
+            </a>
+            <a href="/stock/017670.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">017670.KS</span></div>
+                <div class="name">SK텔레콤</div>
+                <div class="badge">약 6~7% 배당</div>
+                <div class="why">통신 1위. 안정적 FCF + 고배당 정책.</div>
+            </a>
+            <a href="/stock/030200.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">030200.KS</span></div>
+                <div class="name">KT</div>
+                <div class="badge">약 5~6% 배당</div>
+                <div class="why">통신 2위 + 부동산·미디어 자회사.</div>
+            </a>
+            <a href="/stock/005935.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">005935.KS</span></div>
+                <div class="name">삼성전자우</div>
+                <div class="badge">약 2.5%+ 우선주 배당</div>
+                <div class="why">보통주 대비 약 20% 할인 + 배당 우선권.</div>
+            </a>
+        </div>
+
+        <h2>📋 어떻게 활용하나요?</h2>
+        <ol>
+            <li>위 종목 카드 클릭 → StockInto 분석 페이지로 이동</li>
+            <li>그레이엄 7기준 중 <strong>"배당 1%+ (인플레 헤지)"</strong> 통과 여부 확인</li>
+            <li>"📆 재무 추세" 탭 → FCF·매출이 꾸준히 늘고 있는지 (배당 지속 가능성)</li>
+            <li>안전마진 (적정가 vs 현재가) 확인 → 배당이 좋다고 비싸게 사면 안 됨</li>
+        </ol>
+
+        <h2>⚠ 배당주 투자 시 흔한 함정</h2>
+        <ul>
+            <li><strong>고배당 함정 (Yield Trap)</strong> — 주가가 폭락해서 배당률이 10%로 보이지만, 실은 다음 분기에 배당 컷 직전인 경우. FCF·이익이 줄고 있다면 의심해야.</li>
+            <li><strong>배당 성향 100%+</strong> — 이익보다 배당을 더 주면 부채로 메우는 것. 곧 컷 옴.</li>
+            <li><strong>한국 분기배당 부재</strong> — 미국과 달리 대부분 연 1회 배당. 현금흐름 계획에 영향.</li>
+        </ul>
+
+        <h2>🔗 관련 자료</h2>
+        <div class="related-grid">
+            <a href="/learn/buffett-criteria">📊 버핏 9가지 기준</a>
+            <a href="/learn/dcf-guide">📐 DCF 적정가 가이드</a>
+            <a href="/picks/buffett-style">🎯 버핏 스타일 종목</a>
+            <a href="/glossary">📚 용어 사전</a>
+            <a href="/about">ℹ StockInto 소개</a>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠ 본 페이지는 종목 추천이 아닌 큐레이션 가이드입니다.</strong> 배당 정책·연속 인상 연도는 시점에 따라 변동될 수 있으며, 표시된 배당률은 작성 시점 근사치입니다. 실제 분석은 StockInto 종목 페이지에서 최신 데이터를 직접 확인하세요. 투자 판단과 결과의 책임은 이용자 본인에게 있습니다.
+        </div>
+
+        <div class="back">
+            <a href="/" style="color:#888;">← 메인으로 돌아가기</a>
+        </div>
+    </article>
+</body>
+</html>
