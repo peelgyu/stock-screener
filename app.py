@@ -351,6 +351,14 @@ def robots_txt():
     return send_from_directory("static", "robots.txt", mimetype="text/plain")
 
 
+@app.route("/favicon.ico")
+def favicon():
+    """루트 favicon — 구글·네이버 검색 결과용. 정적 캐시 1년."""
+    resp = send_from_directory("static", "favicon.ico", mimetype="image/x-icon")
+    resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return resp
+
+
 @app.route("/sitemap.xml")
 def sitemap_xml():
     """정적 페이지 + 인기 종목 100여개 동적 sitemap 생성."""
