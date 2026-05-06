@@ -65,11 +65,8 @@ def _calc_wacc(info: dict, ticker: str | None = None) -> dict:
         beta = float(beta) if beta is not None else 1.0
     except (TypeError, ValueError):
         beta = 1.0
-    # 비정상 베타 클램프
-    if beta < 0.3:
-        beta = 0.8
-    elif beta > 2.5:
-        beta = 2.0
+    # 비정상 베타 클램프 — 경계값으로 자르기 (이전: 임의 0.8/2.0으로 점프 → 저베타 우량주 과소평가 버그)
+    beta = max(0.3, min(2.5, beta))
     re = rf + beta * ERP
 
     # 2) 차입이자율 Rd — 이자비용/총부채, 없으면 Rf + 1.5%p (BBB급 회사채 스프레드 근사)

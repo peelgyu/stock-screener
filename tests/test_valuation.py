@@ -23,11 +23,29 @@ def test_wacc_kr_uses_lower_rf():
 
 
 def test_wacc_clamps_high_beta():
-    """베타 3.0 → 클램프 2.0으로 → WACC 14% 상한."""
+    """베타 3.0 → 상한 2.5로 클램프 → WACC 14% 상한."""
     info = {"beta": 3.0, "marketCap": 1e11, "totalDebt": 0}
     w = _calc_wacc(info, "TSLA")
-    assert w["beta"] == 2.0
+    assert w["beta"] == 2.5
     assert w["wacc"] <= 0.140
+
+
+def test_wacc_clamps_low_beta_to_floor_not_jump():
+    """베타 0.25 (저변동성 우량주) → 0.3으로 잘림. 이전 버그(0.8 점프) 회귀 방지."""
+    info = {"beta": 0.25, "marketCap": 2e11, "totalDebt": 0}
+    w = _calc_wacc(info, "KO")
+    assert w["beta"] == 0.3, f"저베타는 0.3으로 클램프되어야 함 (이전 버그: 0.8로 점프), 실제: {w['beta']}"
+    # CAPM: 4.3% + 0.3 × 5.5% = 5.95% — WACC_MIN 7.5%로 클램프됨
+    assert abs(w["cost_of_equity"] - 0.0595) < 0.001
+
+
+def test_wacc_preserves_normal_low_beta():
+    """베타 0.5 (정상 저베타) → 변경 없이 그대로 사용."""
+    info = {"beta": 0.5, "marketCap": 5e11, "totalDebt": 0}
+    w = _calc_wacc(info, "PG")
+    assert w["beta"] == 0.5
+    # CAPM: 4.3% + 0.5 × 5.5% = 7.05%
+    assert abs(w["cost_of_equity"] - 0.0705) < 0.001
 
 
 def test_wacc_handles_missing_beta():
