@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>Warren Buffett's 9 Investment Criteria — Complete Guide | StockInto</title>
+    <meta name="description" content="The 9 quantitative criteria Warren Buffett has used for 60 years to select stocks: ROE 15%+, low debt, durable moats, multi-year consistency, 30%+ margin of safety. Each explained with thresholds and real examples — the same criteria StockInto applies automatically.">
+    <meta name="keywords" content="Warren Buffett criteria, Buffett ROE, Buffett debt-to-equity, margin of safety, value investing, Buffett stock selection, 9 criteria, StockInto">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/en/learn/buffett-criteria">
+    <link rel="alternate" hreflang="ko" href="https://stockinto.com/learn/buffett-criteria">
+    <link rel="alternate" hreflang="en" href="https://stockinto.com/en/learn/buffett-criteria">
+    <link rel="alternate" hreflang="x-default" href="https://stockinto.com/learn/buffett-criteria">
+    <meta property="og:title" content="Warren Buffett's 9 Investment Criteria — Complete Guide">
+    <meta property="og:description" content="ROE, moats, margin of safety, and more. The exact criteria StockInto uses to score every stock.">
+    <meta property="og:url" content="https://stockinto.com/en/learn/buffett-criteria">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "Warren Buffett's 9 Investment Criteria — Complete Guide",
+      "description": "The 9 quantitative criteria Warren Buffett uses to select stocks, explained with thresholds and real examples.",
+      "author": {"@type": "Organization", "name": "StockInto"},
+      "publisher": {"@type": "Organization", "name": "StockInto", "logo": {"@type": "ImageObject", "url": "https://stockinto.com/static/icon-512.png"}},
+      "image": "https://stockinto.com/static/icon-512.png",
+      "datePublished": "2026-05-06",
+      "dateModified": "2026-05-06",
+      "inLanguage": "en"
+    }
+    </script>
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.8; margin: 0; }
+        .container { max-width: 820px; margin: 0 auto; padding: 30px 20px 80px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,26,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a3e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link img { height: 36px; width: auto; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid #2a2a3e; }
+        .nav-home:hover { background: #0D5FD9; color: #fff; border-color: #0D5FD9; }
+        .lang-toggle { color: #aaa; text-decoration: none; font-size: 0.78rem; padding: 6px 12px; border-radius: 9999px; border: 1px solid #2a2a3e; margin-right: 4px; }
+        .lang-toggle:hover { background: #0D5FD9; color: #fff; }
+        h1 { color: #00d2ff; font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.02em; line-height: 1.3; }
+        h2 { color: #1f6feb; font-size: 1.25rem; margin: 36px 0 12px; border-left: 3px solid #1f6feb; padding-left: 12px; }
+        h3 { color: #fff; font-size: 1.05rem; margin: 24px 0 8px; }
+        p, li { color: #ccc; font-size: 0.94rem; }
+        ul, ol { padding-left: 24px; margin: 8px 0; }
+        li { margin: 6px 0; }
+        .meta { color: #777; font-size: 0.82rem; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #232336; }
+        a { color: #00d2ff; }
+        strong { color: #fff; }
+        em { color: #00d2ff; font-style: normal; }
+        .criterion-box { background: #161b25; border: 1px solid #232936; border-radius: 12px; padding: 18px 22px; margin: 18px 0; }
+        .criterion-box .num { display: inline-block; background: linear-gradient(135deg, #4a148c, #7b1fa2); color: #fff; font-weight: 800; font-size: 0.85rem; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; margin-right: 8px; vertical-align: middle; }
+        .criterion-box h3 { display: inline; color: #fff; font-size: 1.05rem; }
+        .criterion-box .threshold { display: inline-block; background: rgba(0,210,255,0.1); border: 1px solid rgba(0,210,255,0.3); color: #00d2ff; font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; margin-left: 8px; }
+        .criterion-box .body { margin: 12px 0 0; color: #d0d6e0; font-size: 0.92rem; line-height: 1.75; }
+        .criterion-box .example { margin-top: 10px; padding: 10px 14px; background: rgba(31, 111, 235, 0.06); border-left: 3px solid #1f6feb; border-radius: 6px; font-size: 0.85rem; color: #b0b8c4; }
+        .data-card { background: linear-gradient(135deg, rgba(0,210,255,0.06), rgba(31,111,235,0.06)); border: 1px solid #2a3a55; border-radius: 12px; padding: 18px 22px; margin: 22px 0; }
+        .cta-box { background: rgba(123, 47, 247, 0.08); border: 1px solid rgba(123, 47, 247, 0.3); border-radius: 14px; padding: 22px 24px; margin: 32px 0 16px; text-align: center; }
+        .cta-box h3 { color: #fff; margin: 0 0 10px; }
+        .cta-box p { color: #c9d0dc; margin: 0 0 14px; font-size: 0.9rem; }
+        .cta-btn { display: inline-block; background: #0D5FD9; color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 700; }
+        .cta-btn:hover { background: #1f6feb; color: #fff; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; margin-top: 12px; }
+        .related-grid a { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 10px 12px; text-decoration: none; color: #e7eaf2; font-size: 0.85rem; }
+        .toc { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 12px; padding: 16px 22px; margin: 24px 0; }
+        .toc h4 { color: #00d2ff; font-size: 0.88rem; margin: 0 0 8px; }
+        .toc ul { padding-left: 20px; margin: 0; }
+        .toc li { font-size: 0.86rem; margin: 4px 0; }
+        .toc a { text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .back { margin-top: 50px; padding-top: 20px; border-top: 1px solid #2a2a3e; text-align: center; color: #888; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/en/" class="brand-link" aria-label="StockInto home"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/learn/buffett-criteria" class="lang-toggle">🇰🇷 한국어</a>
+            <a href="/en/" class="nav-home">🏠 Home</a>
+        </div>
+    </nav>
+
+    <article class="container">
+        <h1>Warren Buffett's 9 Investment Criteria — Complete Guide</h1>
+        <p class="meta">📅 2026-05-06 · 8 min read · StockInto Guide</p>
+
+        <p>
+            Warren Buffett has compounded capital at roughly 20% annually for 60 years through Berkshire Hathaway. The secret isn't a clever technique — it's the <strong>consistent application of simple, time-tested rules</strong>. This article distills the 9 quantitative criteria Buffett actually uses, the same ones StockInto applies to every stock automatically.
+        </p>
+
+        <div class="data-card">
+            <strong>What's covered</strong><br>
+            <span style="color:#9aa3b2;font-size:0.88rem;">Each criterion's ① meaning ② threshold ③ pass/fail examples ④ how StockInto scores it. With links to try the analysis live at the end.</span>
+        </div>
+
+        <div class="toc">
+            <h4>📋 Table of Contents</h4>
+            <ul>
+                <li><a href="#why-buffett">Why Buffett's criteria?</a></li>
+                <li><a href="#original-5">The original 5 (profitability + stability)</a></li>
+                <li><a href="#improved-4">The improved 4 (consistency + moats)</a></li>
+                <li><a href="#scoring">StockInto's grading scale (A~F)</a></li>
+                <li><a href="#try-now">Try it on real stocks</a></li>
+            </ul>
+        </div>
+
+        <h2 id="why-buffett">Why Buffett's criteria?</h2>
+        <p>
+            Buffett, a student of Benjamin Graham, evolved beyond pure "buy cheap" value investing to a philosophy of <strong>"buy great businesses at fair prices"</strong>. He has refined the quantitative tests of "great" for 60 years, focusing on three axes:
+        </p>
+        <ul>
+            <li><strong>Profitability</strong> — Does the company earn high returns on invested capital? (ROE 15%+)</li>
+            <li><strong>Stability</strong> — Is it leveraged dangerously? Does cash actually flow? (Debt ratio, positive FCF)</li>
+            <li><strong>Persistence</strong> — Single-year luck, or multi-year consistency? (5-10 year ROE trend, margin stability)</li>
+        </ul>
+        <p>Plus a final filter: <strong>"Am I overpaying right now?"</strong> (margin of safety 30%+). Together, 9 quantitative criteria.</p>
+
+        <h2 id="original-5">The Original 5 — Profitability + Stability</h2>
+
+        <div class="criterion-box">
+            <div class="num">1</div><h3>ROE (Return on Equity)</h3><span class="threshold">≥ 15% (sector-adjusted)</span>
+            <p class="body">
+                For every $100 of shareholder capital, how much profit per year? Buffett's single favorite metric. His most cherished holdings — Coca-Cola, See's Candies — all sustained ROE above <strong>20%</strong> consistently.
+            </p>
+            <div class="example">
+                Examples: Apple ROE ~150% (buyback effect) · Microsoft ~35% · Samsung Electronics ~10-15%. Note: ROE inflated by negative equity (capital impairment) is filtered out.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">2</div><h3>Debt-to-Equity Ratio</h3><span class="threshold">≤ 100% (sector-adjusted)</span>
+            <p class="body">
+                Total debt vs. shareholder equity. Buffett: <em>"ROE inflated by debt is fake ROE."</em> High leverage looks great in booms, devastating in recessions. Note: <strong>financials and utilities run on debt by design</strong>, so different thresholds apply (financials up to 400%).
+            </p>
+            <div class="example">
+                Examples: Apple D/E ~150% (equity reduced by buybacks) · Berkshire D/E ~25% · Samsung Electronics D/E ~5-10% (cash-rich).
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">3</div><h3>Operating Margin</h3><span class="threshold">≥ 15% (sector-adjusted)</span>
+            <p class="body">
+                Profit per $100 of revenue from core operations. Direct evidence of pricing power — the quantitative form of Buffett's "moat". <strong>High margins mean competitors can't easily replicate the business.</strong>
+            </p>
+            <div class="example">
+                Examples: Microsoft ~42% · Coca-Cola ~28% · Auto industry average 5-8% (low-margin sector).
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">4</div><h3>Revenue Growth</h3><span class="threshold">> 0%</span>
+            <p class="body">
+                Is revenue growing year-over-year? Buffett prefers <strong>steady growth over explosive growth</strong>. Negative growth signals the business itself is shrinking.
+            </p>
+            <div class="example">
+                A company at PER 5 with -10% revenue growth may look cheap, but it could be a "value trap".
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">5</div><h3>Positive Free Cash Flow (FCF)</h3><span class="threshold">> 0</span>
+            <p class="body">
+                Operating cash flow minus capital expenditures. The real cash left over. <strong>Buffett's starting point for every valuation.</strong> Accounting earnings can be manipulated; FCF cannot lie. Negative FCF means the business depends on outside capital, not its own operations.
+            </p>
+            <div class="example">
+                Pre-profitability growth stocks (early Tesla) often have negative FCF — that's normal. But for mature companies, negative FCF is a red flag.
+            </div>
+        </div>
+
+        <h2 id="improved-4">The Improved 4 — Consistency + Moats</h2>
+        <p>The first 5 are single-year snapshots. Buffett's real edge is asking <strong>"is it consistent over 10 years?"</strong> StockInto's added 4 criteria quantify this multi-year persistence.</p>
+
+        <div class="criterion-box">
+            <div class="num">6</div><h3>ROE Consistency (multi-year 15%+)</h3><span class="threshold">3+ of 5 years passed</span>
+            <p class="body">
+                Is the 15%+ ROE a one-year fluke, or has it persisted for at least <strong>3 out of 5 years</strong>? This separates structural strength from cyclical luck. Buffett's "holding period = forever" depends on this.
+            </p>
+            <div class="example">
+                Coca-Cola has maintained ROE 25%+ nearly every year since the 1980s. This is fundamentally different from a one-year IPO breakout that fades.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">7</div><h3>Gross Margin Stability</h3><span class="threshold">5-year std dev ≤ 5pp</span>
+            <p class="body">
+                Does GM stay relatively flat year to year? Stable GM = <strong>stable pricing power</strong>. Companies subject to commodity prices (oil refiners, steel) see GM swing widely.
+            </p>
+            <div class="example">
+                Microsoft GM stays 65-70% every year · Airlines see GM swing from 10% to 25% with fuel prices (the pattern to avoid).
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">8</div><h3>R&D Investment (% of revenue)</h3><span class="threshold">Tech 5%+, Healthcare 8%+</span>
+            <p class="body">
+                Investing in the future? Tech and healthcare lose competitiveness the moment R&D stops. <strong>Financials/utilities have no R&D concept by nature, so they auto-pass.</strong>
+            </p>
+            <div class="example">
+                Examples: Alphabet R&D ~14% · Pfizer ~16% · Coca-Cola ~0% (consumer staple, irrelevant).
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">9</div><h3>Margin of Safety</h3><span class="threshold">Current price 30%+ below fair value</span>
+            <p class="body">
+                Is StockInto's calculated fair value (DCF + PER + Graham weighted) at least <strong>30% above the current price</strong>? Graham's core concept that Buffett inherited. <em>"Buy a $100 asset for $70."</em> This margin absorbs error in your assumptions.
+            </p>
+            <div class="example">
+                Fair value $200, buy at $130 → margin of safety 35% (pass). Fair value $200, buy at $200 → margin 0% (fail).
+            </div>
+        </div>
+
+        <h2 id="scoring">StockInto's Grading Scale</h2>
+        <p>Among the 9 criteria, those without sufficient data (N/A) are excluded from the denominator. Pass rate determines the grade.</p>
+        <ul>
+            <li><strong style="color:#22c55e;">A+</strong> — 90%+ passed (e.g., 9/9 or 8/8)</li>
+            <li><strong style="color:#22c55e;">A</strong> — 80%+ passed</li>
+            <li><strong style="color:#22c55e;">B</strong> — 70%+ passed</li>
+            <li><strong style="color:#eab308;">C</strong> — 50%+ passed (partial fit)</li>
+            <li><strong style="color:#ef4444;">D</strong> — 30%+ passed (most criteria failed)</li>
+            <li><strong style="color:#ef4444;">F</strong> — under 30% (mostly failed)</li>
+        </ul>
+        <p style="color:#9aa3b2;font-size:0.88rem;">
+            <em>Note:</em> Grades reflect quantitative pass rates, not buy/sell recommendations. Business model, management quality, and industry cycle aren't captured in numbers — use the grade as a screening tool, not a verdict.
+        </p>
+
+        <div class="cta-box" id="try-now">
+            <h3>🎯 Try it on real stocks</h3>
+            <p>Apply Buffett's criteria instantly. Results in 1 second.</p>
+            <p style="margin: 12px 0 16px;">
+                <a href="/stock/AAPL" class="cta-btn" style="margin: 4px;">Analyze Apple →</a>
+                <a href="/stock/BRK-B" class="cta-btn" style="margin: 4px;">Analyze Berkshire →</a>
+                <a href="/stock/KO" class="cta-btn" style="margin: 4px;">Analyze Coca-Cola →</a>
+            </p>
+            <p style="color:#9aa3b2;font-size:0.85rem;margin-top:12px;">Or search any other ticker on the <a href="/en/" style="color:#00d2ff;">homepage</a>.</p>
+        </div>
+
+        <h2>🔗 Related guides</h2>
+        <div class="related-grid">
+            <a href="/en/learn/dcf-guide">📐 DCF Fair Value Guide</a>
+            <a href="/en/about">ℹ About StockInto</a>
+            <a href="/en/picks/buffett-style">🎯 Buffett-style picks</a>
+            <a href="/en/picks/dividend-aristocrats">💰 Dividend Aristocrats</a>
+        </div>
+
+        <div class="back">
+            <a href="/en/" style="color:#888;">← Back to home</a>
+        </div>
+    </article>
+</body>
+</html>

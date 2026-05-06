@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>Dividend Aristocrats — 25+ Years of Consecutive Dividend Hikes | StockInto</title>
+    <meta name="description" content="US Dividend Aristocrats (25+ years of consecutive dividend increases) plus Korean stable dividend payers. Inflation hedge, retirement income, compounding effect. Each stock links to instant StockInto analysis.">
+    <meta name="keywords" content="dividend aristocrats, dividend growth stocks, dividend stocks, US dividend, Korean dividend, dividend ETF alternative, dividend investing, KO PG JNJ">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/en/picks/dividend-aristocrats">
+    <link rel="alternate" hreflang="ko" href="https://stockinto.com/picks/dividend-aristocrats">
+    <link rel="alternate" hreflang="en" href="https://stockinto.com/en/picks/dividend-aristocrats">
+    <link rel="alternate" hreflang="x-default" href="https://stockinto.com/picks/dividend-aristocrats">
+    <meta property="og:title" content="Dividend Aristocrats — 25+ Years of Hikes">
+    <meta property="og:description" content="US Dividend Aristocrats + Korean stable dividend payers for inflation hedge and retirement income.">
+    <meta property="og:url" content="https://stockinto.com/en/picks/dividend-aristocrats">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.7; margin: 0; }
+        .container { max-width: 920px; margin: 0 auto; padding: 30px 20px 80px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,26,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a3e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link img { height: 36px; width: auto; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid #2a2a3e; }
+        .nav-home:hover { background: #0D5FD9; color: #fff; border-color: #0D5FD9; }
+        .lang-toggle { color: #aaa; text-decoration: none; font-size: 0.78rem; padding: 6px 12px; border-radius: 9999px; border: 1px solid #2a2a3e; margin-right: 4px; }
+        .lang-toggle:hover { background: #0D5FD9; color: #fff; }
+        h1 { color: #00d2ff; font-size: 1.9rem; margin: 0 0 8px; letter-spacing: -0.02em; }
+        h2 { color: #1f6feb; font-size: 1.2rem; margin: 32px 0 14px; border-left: 3px solid #1f6feb; padding-left: 12px; }
+        p, li { color: #ccc; font-size: 0.93rem; }
+        .meta { color: #777; font-size: 0.82rem; margin: 0 0 24px; padding-bottom: 14px; border-bottom: 1px solid #232336; }
+        a { color: #00d2ff; text-decoration: none; }
+        strong { color: #fff; }
+        .intro-card { background: linear-gradient(135deg, rgba(34, 197, 94, 0.06), rgba(0, 210, 255, 0.06)); border: 1px solid #2a3a55; border-radius: 14px; padding: 22px 24px; margin: 0 0 24px; }
+        .stocks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin: 16px 0; }
+        .stock-card { background: #161b25; border: 1px solid #232936; border-radius: 12px; padding: 16px 18px; transition: transform 0.15s, border-color 0.15s; display: block; }
+        .stock-card:hover { transform: translateY(-2px); border-color: #22c55e; }
+        .stock-card .ticker { color: #00d2ff; font-size: 1rem; font-weight: 800; }
+        .stock-card .name { color: #fff; font-size: 0.92rem; font-weight: 700; margin-top: 2px; }
+        .stock-card .why { color: #9aa3b2; font-size: 0.82rem; margin-top: 8px; line-height: 1.55; }
+        .stock-card .badge { display: inline-block; background: rgba(34, 197, 94, 0.15); border: 1px solid rgba(34, 197, 94, 0.4); color: #22c55e; font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 9999px; margin-top: 6px; }
+        .stock-card .flag { font-size: 0.85rem; margin-right: 4px; }
+        .disclaimer { background: rgba(244, 67, 54, 0.06); border: 1px solid rgba(244, 67, 54, 0.2); border-radius: 10px; padding: 14px 18px; margin: 28px 0 0; color: #ffcdd2; font-size: 0.85rem; line-height: 1.65; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; margin-top: 12px; }
+        .related-grid a { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 10px 12px; color: #e7eaf2; font-size: 0.85rem; }
+        .back { margin-top: 50px; padding-top: 20px; border-top: 1px solid #2a2a3e; text-align: center; color: #888; font-size: 0.85rem; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid #232936; text-align: left; }
+        th { color: #00d2ff; font-weight: 700; }
+        td { color: #d0d6e0; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/en/" class="brand-link" aria-label="StockInto home"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/picks/dividend-aristocrats" class="lang-toggle">🇰🇷 한국어</a>
+            <a href="/en/picks/buffett-style" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">🎯 Buffett</a>
+            <a href="/en/" class="nav-home">🏠 Home</a>
+        </div>
+    </nav>
+
+    <article class="container">
+        <h1>💰 Dividend Aristocrats — 25+ Years of Hikes</h1>
+        <p class="meta">📅 2026-05-06 · 12 US Aristocrats + 6 Korean dividend payers · StockInto Curation</p>
+
+        <div class="intro-card">
+            <p style="margin:0 0 8px;">What are <strong>Dividend Aristocrats</strong>?</p>
+            <p style="margin:0;color:#c9d0dc;font-size:0.9rem;">S&P 500 companies that have <strong>raised dividends for 25+ consecutive years</strong>. The category Graham and Buffett both prized. 25 years of consecutive hikes means the company generated enough FCF and the management is committed to shareholder returns. Core category for long-term investors targeting inflation hedge, retirement income, and the magic of compounding.</p>
+        </div>
+
+        <h2>📊 Why look at Dividend Aristocrats?</h2>
+        <table>
+            <tr><th>Advantage</th><th>Explanation</th></tr>
+            <tr><td>Inflation hedge</td><td>Dividend grows annually = above-inflation real return</td></tr>
+            <tr><td>Lower volatility</td><td>Mostly large-cap quality, beta 0.5-1.0</td></tr>
+            <tr><td>FCF-validated</td><td>25 consecutive hikes = 25 years of sufficient FCF</td></tr>
+            <tr><td>Compounding effect</td><td>Reinvesting dividends produces large 30+ year compound returns</td></tr>
+            <tr><td>Recession-resistant</td><td>Maintained or raised dividend through 2008/2020 crises</td></tr>
+        </table>
+
+        <h2>🇺🇸 US — Dividend Aristocrats</h2>
+        <div class="stocks-grid">
+            <a href="/stock/KO" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">KO</span></div>
+                <div class="name">Coca-Cola</div>
+                <div class="badge">62 years of hikes</div>
+                <div class="why">Buffett's favorite. Global brand moat. ~3% yield + ~5% annual increase.</div>
+            </a>
+            <a href="/stock/PG" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">PG</span></div>
+                <div class="name">Procter & Gamble</div>
+                <div class="badge">68 years of hikes</div>
+                <div class="why">Consumer staple brands (Gillette, Pampers). ~2.5% yield.</div>
+            </a>
+            <a href="/stock/JNJ" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">JNJ</span></div>
+                <div class="name">Johnson & Johnson</div>
+                <div class="badge">62 years of hikes</div>
+                <div class="why">Pharma + medical devices + consumer goods diversification. AAA credit (same as US Treasury).</div>
+            </a>
+            <a href="/stock/MMM" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">MMM</span></div>
+                <div class="name">3M</div>
+                <div class="badge">66 years of hikes</div>
+                <div class="why">Industrial + healthcare conglomerate. ~5% high yield. Recent volatility from PFAS lawsuits.</div>
+            </a>
+            <a href="/stock/MCD" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">MCD</span></div>
+                <div class="name">McDonald's</div>
+                <div class="badge">48 years of hikes</div>
+                <div class="why">Global brand + real estate assets. ~2.5% yield.</div>
+            </a>
+            <a href="/stock/WMT" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">WMT</span></div>
+                <div class="name">Walmart</div>
+                <div class="badge">51 years of hikes</div>
+                <div class="why">Largest US retailer. Scale moat. ~1% yield.</div>
+            </a>
+            <a href="/stock/PEP" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">PEP</span></div>
+                <div class="name">PepsiCo</div>
+                <div class="badge">52 years of hikes</div>
+                <div class="why">Beverage + snacks (Frito-Lay) dual play. ~3.5% yield.</div>
+            </a>
+            <a href="/stock/CL" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">CL</span></div>
+                <div class="name">Colgate-Palmolive</div>
+                <div class="badge">61 years of hikes</div>
+                <div class="why">Consumer staples (toothpaste, detergents). High emerging-market exposure. ~2% yield.</div>
+            </a>
+            <a href="/stock/TGT" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">TGT</span></div>
+                <div class="name">Target</div>
+                <div class="badge">53 years of hikes</div>
+                <div class="why">#2 US general retailer. ~3% yield range.</div>
+            </a>
+            <a href="/stock/LOW" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">LOW</span></div>
+                <div class="name">Lowe's</div>
+                <div class="badge">61 years of hikes</div>
+                <div class="why">Home Depot's rival. #2 in US home improvement. ~1.7% yield.</div>
+            </a>
+            <a href="/stock/CAT" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">CAT</span></div>
+                <div class="name">Caterpillar</div>
+                <div class="badge">31 years of hikes</div>
+                <div class="why">#1 in heavy equipment. Beneficiary of infra/mining cycles. ~1.5% yield.</div>
+            </a>
+            <a href="/stock/T" class="stock-card">
+                <div><span class="flag">🇺🇸</span><span class="ticker">T</span></div>
+                <div class="name">AT&T</div>
+                <div class="badge">High yield ~5%+</div>
+                <div class="why">Telecom giant. Dividend reset post-spinoff but maintaining high yield.</div>
+            </a>
+        </div>
+
+        <h2>🇰🇷 Korea — Stable Dividend Payers</h2>
+        <p style="color:#9aa3b2;font-size:0.88rem;margin-bottom:8px;">Korea has few US-style "25+ year aristocrats", but here are 5+ year stable payers with 4%+ yields.</p>
+        <div class="stocks-grid">
+            <a href="/stock/105560.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">105560.KS</span></div>
+                <div class="name">KB Financial</div>
+                <div class="badge">~4-5% yield</div>
+                <div class="why">#1 commercial bank in Korea. Aggressive buybacks + cancellations. PBR ~0.5.</div>
+            </a>
+            <a href="/stock/055550.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">055550.KS</span></div>
+                <div class="name">Shinhan Financial</div>
+                <div class="badge">~4%+ yield</div>
+                <div class="why">Big 3 financial group. Quarterly dividends introduced.</div>
+            </a>
+            <a href="/stock/086790.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">086790.KS</span></div>
+                <div class="name">Hana Financial</div>
+                <div class="badge">~5%+ yield</div>
+                <div class="why">Big 4 financial group. Aggressive Southeast Asia expansion. Buyback program ongoing.</div>
+            </a>
+            <a href="/stock/017670.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">017670.KS</span></div>
+                <div class="name">SK Telecom</div>
+                <div class="badge">~6-7% yield</div>
+                <div class="why">#1 Korean telecom. Stable FCF + high dividend policy.</div>
+            </a>
+            <a href="/stock/030200.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">030200.KS</span></div>
+                <div class="name">KT Corp</div>
+                <div class="badge">~5-6% yield</div>
+                <div class="why">#2 Korean telecom + real estate/media subsidiaries.</div>
+            </a>
+            <a href="/stock/005935.KS" class="stock-card">
+                <div><span class="flag">🇰🇷</span><span class="ticker">005935.KS</span></div>
+                <div class="name">Samsung Electronics Pref.</div>
+                <div class="badge">~2.5%+ preferred yield</div>
+                <div class="why">~20% discount vs. common stock + dividend priority.</div>
+            </a>
+        </div>
+
+        <h2>📋 How to use this list</h2>
+        <ol>
+            <li>Click any stock card → StockInto analysis page</li>
+            <li>In Graham's 7 criteria, check if <strong>"Dividend ≥ 1% (inflation hedge)"</strong> passes</li>
+            <li>Open "📆 Trends" tab → verify FCF and revenue trending upward (dividend sustainability)</li>
+            <li>Compare fair value vs. current price → don't overpay just because dividend is good</li>
+        </ol>
+
+        <h2>⚠ Common Pitfalls in Dividend Investing</h2>
+        <ul>
+            <li><strong>Yield Trap</strong> — Stock crashed making yield look like 10%, but a dividend cut may be imminent. If FCF/earnings are declining, be suspicious.</li>
+            <li><strong>Payout ratio &gt;100%</strong> — Paying more in dividends than earnings = funded by debt. Cut is coming.</li>
+            <li><strong>No quarterly dividends in Korea</strong> — Unlike US, most Korean companies pay annually only. Affects cash flow planning.</li>
+        </ul>
+
+        <h2>🔗 Related</h2>
+        <div class="related-grid">
+            <a href="/en/learn/buffett-criteria">📊 Buffett's 9 Criteria</a>
+            <a href="/en/learn/dcf-guide">📐 DCF Fair Value Guide</a>
+            <a href="/en/picks/buffett-style">🎯 Buffett-style picks</a>
+            <a href="/en/about">ℹ About StockInto</a>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠ This is a curation guide, not stock recommendations.</strong> Dividend policies and consecutive-hike counts change over time; stated yields are approximate at time of writing. Verify current data via StockInto's analysis pages. You are solely responsible for your investment decisions.
+        </div>
+
+        <div class="back">
+            <a href="/en/" style="color:#888;">← Back to home</a>
+        </div>
+    </article>
+</body>
+</html>

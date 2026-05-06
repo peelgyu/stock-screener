@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>DCF Fair Value — Understand It in 5 Minutes Without Excel | StockInto</title>
+    <meta name="description" content="DCF (Discounted Cash Flow) calculates a stock's fair value by discounting future cash flows. Understand the 5-year forecast, terminal value, and WACC discount rate, plus StockInto's exact assumptions (1.5% terminal growth, 7.5-14% WACC) and limitations.">
+    <meta name="keywords" content="DCF, DCF calculation, intrinsic value, fair value, WACC, CAPM, terminal growth, Gordon Growth, valuation, discounted cash flow">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/en/learn/dcf-guide">
+    <link rel="alternate" hreflang="ko" href="https://stockinto.com/learn/dcf-guide">
+    <link rel="alternate" hreflang="en" href="https://stockinto.com/en/learn/dcf-guide">
+    <link rel="alternate" hreflang="x-default" href="https://stockinto.com/learn/dcf-guide">
+    <meta property="og:title" content="DCF Fair Value — Understand It in 5 Minutes Without Excel">
+    <meta property="og:description" content="5-year forecast, terminal value, and WACC explained. Plus StockInto's exact assumptions for transparency.">
+    <meta property="og:url" content="https://stockinto.com/en/learn/dcf-guide">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "DCF Fair Value — Understand It in 5 Minutes Without Excel",
+      "description": "An accessible explanation of 5-year forecast, terminal value, and WACC, plus StockInto's exact assumptions and limits.",
+      "author": {"@type": "Organization", "name": "StockInto"},
+      "publisher": {"@type": "Organization", "name": "StockInto", "logo": {"@type": "ImageObject", "url": "https://stockinto.com/static/icon-512.png"}},
+      "image": "https://stockinto.com/static/icon-512.png",
+      "datePublished": "2026-05-06",
+      "dateModified": "2026-05-06",
+      "inLanguage": "en"
+    }
+    </script>
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.8; margin: 0; }
+        .container { max-width: 820px; margin: 0 auto; padding: 30px 20px 80px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,26,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a3e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link img { height: 36px; width: auto; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid #2a2a3e; }
+        .nav-home:hover { background: #0D5FD9; color: #fff; border-color: #0D5FD9; }
+        .lang-toggle { color: #aaa; text-decoration: none; font-size: 0.78rem; padding: 6px 12px; border-radius: 9999px; border: 1px solid #2a2a3e; margin-right: 4px; }
+        .lang-toggle:hover { background: #0D5FD9; color: #fff; }
+        h1 { color: #00d2ff; font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.02em; line-height: 1.3; }
+        h2 { color: #1f6feb; font-size: 1.25rem; margin: 36px 0 12px; border-left: 3px solid #1f6feb; padding-left: 12px; }
+        h3 { color: #fff; font-size: 1.05rem; margin: 24px 0 8px; }
+        p, li { color: #ccc; font-size: 0.94rem; }
+        ul, ol { padding-left: 24px; margin: 8px 0; }
+        li { margin: 6px 0; }
+        .meta { color: #777; font-size: 0.82rem; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #232336; }
+        a { color: #00d2ff; }
+        strong { color: #fff; }
+        em { color: #00d2ff; font-style: normal; }
+        .formula { background: #161b25; border: 1px solid #2a3a55; border-radius: 10px; padding: 14px 18px; margin: 16px 0; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.92rem; color: #00d2ff; line-height: 1.7; overflow-x: auto; }
+        .formula .var { color: #f7768e; font-weight: 700; }
+        .formula .comment { color: #777; font-size: 0.85em; }
+        .step-box { background: #161b25; border: 1px solid #232936; border-radius: 12px; padding: 18px 22px; margin: 18px 0; }
+        .step-box .num { display: inline-block; background: linear-gradient(135deg, #1f6feb, #0D5FD9); color: #fff; font-weight: 800; font-size: 0.85rem; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; margin-right: 8px; vertical-align: middle; }
+        .step-box h3 { display: inline; color: #fff; }
+        .step-box .body { margin: 12px 0 0; color: #d0d6e0; line-height: 1.75; }
+        .data-card { background: linear-gradient(135deg, rgba(0,210,255,0.06), rgba(31,111,235,0.06)); border: 1px solid #2a3a55; border-radius: 12px; padding: 18px 22px; margin: 22px 0; }
+        .warn-card { background: rgba(244, 67, 54, 0.08); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 12px; padding: 16px 22px; margin: 18px 0; }
+        .warn-card strong { color: #ffcdd2; }
+        .cta-box { background: rgba(123, 47, 247, 0.08); border: 1px solid rgba(123, 47, 247, 0.3); border-radius: 14px; padding: 22px 24px; margin: 32px 0 16px; text-align: center; }
+        .cta-box h3 { color: #fff; margin: 0 0 10px; }
+        .cta-btn { display: inline-block; background: #0D5FD9; color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 700; }
+        .cta-btn:hover { background: #1f6feb; color: #fff; }
+        table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.88rem; }
+        th, td { padding: 10px 12px; border-bottom: 1px solid #232936; text-align: left; }
+        th { color: #00d2ff; font-weight: 700; }
+        td { color: #d0d6e0; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; margin-top: 12px; }
+        .related-grid a { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 10px 12px; text-decoration: none; color: #e7eaf2; font-size: 0.85rem; }
+        .toc { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 12px; padding: 16px 22px; margin: 24px 0; }
+        .toc h4 { color: #00d2ff; font-size: 0.88rem; margin: 0 0 8px; }
+        .toc ul { padding-left: 20px; margin: 0; }
+        .toc li { font-size: 0.86rem; margin: 4px 0; }
+        .toc a { text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .back { margin-top: 50px; padding-top: 20px; border-top: 1px solid #2a2a3e; text-align: center; color: #888; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/en/" class="brand-link" aria-label="StockInto home"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/learn/dcf-guide" class="lang-toggle">🇰🇷 한국어</a>
+            <a href="/en/" class="nav-home">🏠 Home</a>
+        </div>
+    </nav>
+
+    <article class="container">
+        <h1>DCF Fair Value — Understand It in 5 Minutes Without Excel</h1>
+        <p class="meta">📅 2026-05-06 · 10 min read · StockInto Guide</p>
+
+        <p>
+            "Is this stock priced fairly?" The most academically honest answer comes from <strong>DCF (Discounted Cash Flow)</strong>. Buffett himself defined intrinsic value as "the sum of all future cash flows discounted to today". This article walks through DCF's three core concepts — forecast, terminal value, discount rate — with a couple of formulas, and discloses StockInto's exact assumptions.
+        </p>
+
+        <div class="data-card">
+            <strong>The one-line summary</strong><br>
+            <span style="color:#9aa3b2;font-size:0.9rem;">Cash the company will earn over the next 5 years + everything earned forever after → all converted to "what if I received it today" → summed → divided by shares outstanding = fair price per share.</span>
+        </div>
+
+        <div class="toc">
+            <h4>📋 Table of Contents</h4>
+            <ul>
+                <li><a href="#why-dcf">Why DCF?</a></li>
+                <li><a href="#step-1">STEP 1 · Forecast 5 years of FCF</a></li>
+                <li><a href="#step-2">STEP 2 · Terminal Value</a></li>
+                <li><a href="#step-3">STEP 3 · Discount with WACC</a></li>
+                <li><a href="#stockinto-assumptions">StockInto's exact assumptions</a></li>
+                <li><a href="#limits">Limits of DCF</a></li>
+                <li><a href="#try-now">Try it on real stocks</a></li>
+            </ul>
+        </div>
+
+        <h2 id="why-dcf">Why DCF?</h2>
+        <p>
+            Relative metrics like PER and PBR tell you <strong>"is this cheap or expensive vs. similar companies?"</strong> But when the entire market is in a bubble, PER comparisons are meaningless. DCF is different — it estimates <em>"how much will this specific company earn in the future?"</em>, giving you an absolute value independent of market mood.
+        </p>
+        <p>The downside: DCF is <strong>extremely sensitive to assumptions</strong>. Changing growth rate by 0.5% can move the fair value by 30%. So conservative assumptions are critical.</p>
+
+        <h2 id="step-1">STEP 1 · Forecast 5 years of FCF</h2>
+        <div class="step-box">
+            <div class="num">1</div><h3>Why 5 years?</h3>
+            <p class="body">
+                FCF (Free Cash Flow) = operating cash flow - capital expenditures (CapEx). The real cash a company keeps each year. 5 years is <strong>long enough to capture a meaningful business cycle</strong> while still being <strong>predictable</strong>. 10-year forecasts are too uncertain; 1-2 years miss the cycle.
+            </p>
+        </div>
+
+        <div class="formula">
+FCF<sub>1</sub> = FCF<sub>0</sub> × (1 + g)
+FCF<sub>2</sub> = FCF<sub>1</sub> × (1 + g)
+... <span class="comment"># build out 5 years</span>
+
+<span class="comment"># g = 5-year growth rate (StockInto: avg of revenue and EPS growth, clamped 2-25%)</span>
+        </div>
+        <p>
+            How is g chosen? The average of revenue growth and EPS growth from historical data. A company growing 30% in the past won't realistically sustain 30% over 5 years, so we <strong>cap at 25%</strong>; even loss-makers get a minimum of 2%.
+        </p>
+
+        <h2 id="step-2">STEP 2 · Terminal Value</h2>
+        <div class="step-box">
+            <div class="num">2</div><h3>What about year 6 and beyond?</h3>
+            <p class="body">
+                If the company doesn't go bankrupt in year 6, those values matter too. Adding infinite years is impossible, so the <strong>Gordon Growth Model</strong> compresses everything beyond year 5 into a single number — "all future value rolled up".
+            </p>
+        </div>
+
+        <div class="formula">
+TV = FCF<sub>5</sub> × (1 + g<sub>terminal</sub>) / (r - g<sub>terminal</sub>)
+
+<span class="comment"># g_terminal = perpetual growth (StockInto: 1.5%, conservative per accountant advice)</span>
+<span class="comment"># r = discount rate = WACC</span>
+        </div>
+        <p>
+            Why 1.5% terminal growth? It's <strong>at or below long-run GDP growth</strong>. US long-term inflation runs ~2-2.5%, so 1.5% is below even inflation — very conservative. Setting it above 3% implies <em>"this company will grow faster than GDP forever"</em> — unrealistic.
+        </p>
+
+        <div class="warn-card">
+            <strong>⚠ Divergence warning</strong><br>
+            <span style="color:#d0d6e0;font-size:0.88rem;">If the denominator (r - g_terminal) approaches 0, terminal value explodes to infinity. Safe assumption: <strong>r > g_terminal + 1%</strong>. StockInto enforces r always sufficiently larger than 1.5% + 1% = 2.5%.</span>
+        </div>
+
+        <h2 id="step-3">STEP 3 · Discount everything with WACC</h2>
+        <div class="step-box">
+            <div class="num">3</div><h3>"$1 in 10 years ≠ $1 today"</h3>
+            <p class="body">
+                $1 received in 10 years is worth less than $1 today (inflation + opportunity cost). The rate that adjusts this is the <strong>discount rate</strong>, and for company valuation we use <strong>WACC (Weighted Average Cost of Capital)</strong>.
+            </p>
+        </div>
+
+        <div class="formula">
+WACC = (E/V) × Re + (D/V) × Rd × (1 - Tc)
+
+<span class="comment"># E = market cap (equity at market value)</span>
+<span class="comment"># D = total debt</span>
+<span class="comment"># V = E + D</span>
+<span class="comment"># Re = cost of equity = Rf + β × ERP   (CAPM)</span>
+<span class="comment"># Rd = cost of debt = interest expense / total debt</span>
+<span class="comment"># Tc = corporate tax rate (US 21%, KR 22%)</span>
+        </div>
+
+        <p>Cost of equity comes from <strong>CAPM (Capital Asset Pricing Model)</strong>:</p>
+        <ul>
+            <li><strong>Rf (risk-free rate)</strong> — 10-year Treasury yield. US ~4.3%, Korea ~3.3%.</li>
+            <li><strong>β (beta)</strong> — Volatility relative to market. KOSPI/S&P 500 average is 1.0. Defensive stocks (KO, PG) ~0.5; high-volatility stocks (TSLA) ~1.8.</li>
+            <li><strong>ERP (equity risk premium)</strong> — Extra return required for stocks vs. bonds. Damodaran global average: 5.5%.</li>
+        </ul>
+
+        <p>Finally, discount all future cash to today and divide by shares:</p>
+
+        <div class="formula">
+Fair price per share = [ Σ FCF<sub>t</sub> / (1+r)<sup>t</sup>  +  TV / (1+r)<sup>5</sup> ] / shares outstanding
+        </div>
+
+        <h2 id="stockinto-assumptions">StockInto Assumptions (full transparency)</h2>
+        <table>
+            <tr><th>Parameter</th><th>Value</th><th>Rationale</th></tr>
+            <tr><td>Terminal growth</td><td>1.5%</td><td>Below inflation, accountant-vetted conservative</td></tr>
+            <tr><td>5-year growth g</td><td>2-25% dynamic</td><td>Avg of revenue + EPS growth, clamped</td></tr>
+            <tr><td>WACC</td><td>7.5-14% clamp</td><td>Outlier protection (defensive ↓, risky ↑)</td></tr>
+            <tr><td>Rf (US)</td><td>4.3%</td><td>10-yr Treasury approx</td></tr>
+            <tr><td>Rf (Korea)</td><td>3.3%</td><td>10-yr Korean bond approx</td></tr>
+            <tr><td>ERP</td><td>5.5%</td><td>Damodaran global</td></tr>
+            <tr><td>Tax rate (US)</td><td>21%</td><td>Federal flat</td></tr>
+            <tr><td>Tax rate (Korea)</td><td>22%</td><td>Large company average</td></tr>
+            <tr><td>β clamp</td><td>0.3 ~ 2.5</td><td>Outlier correction</td></tr>
+        </table>
+
+        <h2 id="limits">Limits of DCF — don't worship it</h2>
+        <ul>
+            <li><strong>Sensitivity to assumptions</strong> — ±1% in growth shifts fair value by ±20%.</li>
+            <li><strong>Underestimates hyper-growth</strong> — DCF inherently assumes "mature company". Companies with explosive 5-year futures (NVIDIA-like) always look expensive on DCF. → StockInto reduces DCF weight to 15% for HYPER_GROWTH category.</li>
+            <li><strong>Useless for unprofitable companies</strong> — Negative FCF makes DCF impossible. → Replaced by P/S (revenue multiple) and analyst consensus.</li>
+            <li><strong>Inappropriate for financials</strong> — Banks and insurers have a different FCF concept. → DCF excluded, PER and Graham used instead.</li>
+        </ul>
+        <p style="color:#9aa3b2;font-size:0.88rem;">
+            That's why StockInto doesn't use DCF alone, but rather a <strong>weighted average of 5 methods (DCF, PER, Graham, analyst target, P/S)</strong>. Weights vary by sector and company category (e.g., tech: DCF 35%, real estate: 15%).
+        </p>
+
+        <div class="cta-box" id="try-now">
+            <h3>📐 See real fair values</h3>
+            <p style="color:#c9d0dc;margin: 0 0 14px;font-size:0.9rem;">Click any stock below to see its DCF + PER + Graham weighted fair value.</p>
+            <p style="margin: 12px 0 16px;">
+                <a href="/stock/AAPL" class="cta-btn" style="margin: 4px;">Apple →</a>
+                <a href="/stock/MSFT" class="cta-btn" style="margin: 4px;">Microsoft →</a>
+                <a href="/stock/GOOGL" class="cta-btn" style="margin: 4px;">Alphabet →</a>
+            </p>
+        </div>
+
+        <h2>🔗 Related guides</h2>
+        <div class="related-grid">
+            <a href="/en/learn/buffett-criteria">📊 Buffett's 9 Criteria</a>
+            <a href="/en/about">ℹ About StockInto</a>
+            <a href="/en/picks/buffett-style">🎯 Buffett-style picks</a>
+            <a href="/en/picks/dividend-aristocrats">💰 Dividend Aristocrats</a>
+        </div>
+
+        <div class="back">
+            <a href="/en/" style="color:#888;">← Back to home</a>
+        </div>
+    </article>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>StockInto — What Would Warren Buffett Buy? Free Stock Screener</title>
+    <meta name="description" content="StockInto automatically scores stocks against the criteria of Warren Buffett, Benjamin Graham, Peter Lynch, William O'Neil, and Philip Fisher. PER, PBR, ROE, fair value, and 5-year financial trends. Free analysis for US and Korean stocks.">
+    <meta name="keywords" content="StockInto, stock screener, Warren Buffett criteria, value investing, fair value, DCF calculator, Korean stocks, US stocks, PER, PBR, ROE, Buffett Graham Lynch O'Neil Fisher">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/en/">
+    <link rel="alternate" hreflang="ko" href="https://stockinto.com/">
+    <link rel="alternate" hreflang="en" href="https://stockinto.com/en/">
+    <link rel="alternate" hreflang="x-default" href="https://stockinto.com/">
+    <meta property="og:title" content="StockInto — What Would Warren Buffett Buy?">
+    <meta property="og:description" content="Free stock screener using Buffett, Graham, Lynch, O'Neil, Fisher criteria. US + Korean equities.">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:url" content="https://stockinto.com/en/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="StockInto">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="StockInto — What Would Warren Buffett Buy?">
+    <meta name="twitter:description" content="Free stock screener using 5 legendary investors' criteria.">
+    <meta name="twitter:image" content="https://stockinto.com/static/icon-512.png">
+
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#0D5FD9">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icon-192.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "StockInto",
+      "url": "https://stockinto.com/en/",
+      "description": "Free stock screener using the criteria of Warren Buffett, Benjamin Graham, Peter Lynch, William O'Neil, and Philip Fisher.",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Web, Android, iOS",
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+      "inLanguage": "en"
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {"@type": "Question", "name": "What PER is considered expensive?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on the sector, not absolute value. Tech stocks normally trade at PER 25-35, while financials are 10-15. StockInto applies sector-median thresholds."}},
+        {"@type": "Question", "name": "Should I always buy A-grade stocks?", "acceptedAnswer": {"@type": "Answer", "text": "No. An A grade just means the stock passes high quantitative criteria — it doesn't predict price. Use it as a screening tool, not a verdict."}},
+        {"@type": "Question", "name": "How is DCF fair value calculated?", "acceptedAnswer": {"@type": "Answer", "text": "5 years of FCF growth + terminal value (Gordon Growth) discounted by WACC. Terminal growth fixed at 1.5%, WACC dynamically computed via CAPM (clamped 7.5-14%)."}},
+        {"@type": "Question", "name": "Is it free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, completely free. No registration. Funded by Google AdSense ads."}},
+        {"@type": "Question", "name": "Are you a licensed financial advisor?", "acceptedAnswer": {"@type": "Answer", "text": "No. StockInto is not a registered investment advisor. All analyses are reference information from public data. You are responsible for your own investment decisions."}}
+      ]
+    }
+    </script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0b0d12; color: #e7eaf2; line-height: 1.7; }
+        .container { max-width: 920px; margin: 0 auto; padding: 30px 20px 60px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(11,13,18,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #232936; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link img { height: 36px; width: auto; }
+        .nav-link { color: #aaa; text-decoration: none; font-size: 0.8rem; font-weight: 600; padding: 6px 12px; border-radius: 9999px; }
+        .nav-link:hover { background: #1f6feb; color: #fff; }
+        .lang-toggle { color: #aaa; text-decoration: none; font-size: 0.78rem; padding: 6px 12px; border-radius: 9999px; border: 1px solid #2a2a3e; margin-right: 4px; }
+        .lang-toggle:hover { background: #0D5FD9; color: #fff; }
+
+        .hero { text-align: center; padding: 36px 20px 24px; }
+        .hero-logo img { height: 48px; }
+        .hero h1 { color: #fff; font-size: 2rem; font-weight: 800; line-height: 1.25; margin: 16px 0 10px; letter-spacing: -0.02em; }
+        .hero h1 .accent { background: linear-gradient(135deg, #00d2ff, #1f6feb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero .sub { color: #9aa3b2; font-size: 0.95rem; max-width: 620px; margin: 0 auto; }
+
+        .search-box { display: flex; gap: 10px; margin: 24px auto 12px; max-width: 580px; }
+        .search-box input { flex: 1; padding: 16px 18px; background: #161b25; border: 1px solid #2a2f3d; border-radius: 12px; color: #fff; font-size: 1rem; outline: none; }
+        .search-box input:focus { border-color: #00d2ff; }
+        .search-box button { padding: 16px 24px; background: linear-gradient(135deg, #00d2ff, #1f6feb); border: 0; border-radius: 12px; color: #fff; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+        .search-box button:hover { opacity: 0.9; }
+
+        .quick-search { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 580px; margin: 0 auto 8px; }
+        .quick-btn { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 9999px; padding: 6px 14px; color: #c9d0dc; font-size: 0.82rem; cursor: pointer; text-decoration: none; }
+        .quick-btn:hover { background: #1f6feb; color: #fff; border-color: #1f6feb; }
+
+        .promo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 28px 0 0; }
+        .promo-card { background: #161b25; border: 1px solid #232936; border-radius: 12px; padding: 16px 18px; text-decoration: none; color: inherit; transition: all 0.15s; position: relative; overflow: hidden; }
+        .promo-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #00d2ff, #1f6feb); opacity: 0.7; }
+        .promo-card:hover { transform: translateY(-2px); border-color: #00d2ff; }
+        .promo-icon { font-size: 1.5rem; margin-bottom: 6px; }
+        .promo-title { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .promo-sub { font-size: 0.82rem; color: #9aa3b2; }
+        .promo-cta { font-size: 0.78rem; color: #00d2ff; font-weight: 700; margin-top: 6px; }
+
+        .seo-section { margin: 48px 0 24px; padding: 28px 24px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px; }
+        .seo-section h2 { color: #00D9FF; font-size: 1.35rem; font-weight: 800; margin: 0 0 14px; letter-spacing: -0.02em; }
+        .seo-section h2:not(:first-child) { font-size: 1.2rem; margin: 28px 0 14px; }
+        .seo-section p { color: #c9d0dc; font-size: 0.93rem; line-height: 1.75; margin: 0 0 12px; }
+        .seo-section p strong { color: #fff; }
+        .seo-section em { color: #00d2ff; font-style: normal; }
+
+        .step-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 8px; }
+        .step-card { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 12px; padding: 16px 18px; }
+        .step-tag { font-size: 0.78rem; font-weight: 700; margin-bottom: 6px; }
+        .step-title { color: #e7eaf2; font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+        .step-desc { color: #9aa3b2; font-size: 0.82rem; line-height: 1.55; }
+
+        .stocks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-bottom: 12px; }
+        .stocks-grid a { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 10px 12px; text-decoration: none; color: #e7eaf2; font-size: 0.85rem; }
+        .stocks-grid a:hover { border-color: #00d2ff; }
+        .stocks-grid a strong { color: #00d2ff; }
+
+        details { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 14px 16px; margin-bottom: 8px; }
+        summary { cursor: pointer; color: #fff; font-size: 0.92rem; font-weight: 700; }
+        details p { color: #c9d0dc; font-size: 0.88rem; line-height: 1.7; margin: 10px 0 0; }
+        details a { color: #00d2ff; }
+
+        .footer { color: #888; font-size: 0.82rem; line-height: 1.7; padding: 24px 0; border-top: 1px solid #232936; margin-top: 32px; text-align: center; }
+        .footer a { color: #aaa; text-decoration: none; margin: 0 6px; }
+        .footer a:hover { color: #00d2ff; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/en/" class="brand-link" aria-label="StockInto home"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/" class="lang-toggle" aria-label="한국어로 보기">🇰🇷 한국어</a>
+            <a href="/en/about" class="nav-link">ℹ About</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <a href="/en/" class="hero-logo" aria-label="StockInto home"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+            <h1>What would <span class="accent">Warren Buffett</span><br>buy today?</h1>
+            <p class="sub">StockInto — 5 legendary investors score every stock. Buffett, Graham, Lynch, O'Neil, Fisher.</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="enTickerInput" placeholder="Ticker (e.g. AAPL, MSFT, NVDA, 005930.KS)" autocomplete="off">
+            <button onclick="goAnalyze()">Analyze</button>
+        </div>
+
+        <div class="quick-search">
+            <a href="/stock/AAPL" class="quick-btn">AAPL</a>
+            <a href="/stock/MSFT" class="quick-btn">MSFT</a>
+            <a href="/stock/NVDA" class="quick-btn">NVDA</a>
+            <a href="/stock/GOOGL" class="quick-btn">GOOGL</a>
+            <a href="/stock/AMZN" class="quick-btn">AMZN</a>
+            <a href="/stock/TSLA" class="quick-btn">TSLA</a>
+            <a href="/stock/BRK-B" class="quick-btn">BRK-B</a>
+            <a href="/stock/KO" class="quick-btn">KO</a>
+            <a href="/stock/JNJ" class="quick-btn">JNJ</a>
+        </div>
+
+        <div class="promo-grid">
+            <a href="/en/learn/buffett-criteria" class="promo-card">
+                <div class="promo-icon">📊</div>
+                <div class="promo-title">Buffett's 9 Criteria</div>
+                <div class="promo-sub">ROE, moats, margin of safety — full guide.</div>
+                <div class="promo-cta">Read guide →</div>
+            </a>
+            <a href="/en/learn/dcf-guide" class="promo-card">
+                <div class="promo-icon">📐</div>
+                <div class="promo-title">DCF Fair Value Guide</div>
+                <div class="promo-sub">Understand WACC, terminal value in 5 minutes.</div>
+                <div class="promo-cta">Read guide →</div>
+            </a>
+        </div>
+
+        <section class="seo-section">
+            <h2>Why score stocks against 5 legendary investors?</h2>
+            <p>
+                The most common pitfall for individual investors is confusing <strong>"a great company"</strong> with <strong>"a great stock"</strong>. A growing business at PER 100 is still expensive; a 30% operating margin business with debt 5x equity is still risky.
+                <strong>Warren Buffett · Benjamin Graham · Peter Lynch · William O'Neil · Philip Fisher</strong> — these five investors left behind quantitative criteria proven over 50-100 years. StockInto encodes their criteria and scores any stock in under a second.
+            </p>
+            <p>
+                For example, <em>Buffett's ROE 15%+ AND positive FCF AND debt-to-equity ≤ 100%</em> applied identically to every stock means objective comparison free from emotion, rumor, or hype.
+            </p>
+
+            <h2>How to use it — 3-step guide</h2>
+            <div class="step-grid">
+                <div class="step-card">
+                    <div class="step-tag" style="color:#7b2ff7;">STEP 1 · SEARCH</div>
+                    <div class="step-title">Enter ticker or name</div>
+                    <div class="step-desc">"AAPL", "Samsung", "005930.KS" all work. Autocomplete helps you find it fast.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-tag" style="color:#1f6feb;">STEP 2 · ANALYZE</div>
+                    <div class="step-title">5-investor scoring + fair value</div>
+                    <div class="step-desc">Pass rates from Buffett, Graham, Lynch, O'Neil, Fisher; weighted DCF + PER + Graham fair price on one screen.</div>
+                </div>
+                <div class="step-card">
+                    <div class="step-tag" style="color:#00d2ff;">STEP 3 · DECIDE</div>
+                    <div class="step-title">Read the evidence, decide yourself</div>
+                    <div class="step-desc">A~F grades are reference. Examine which criteria pass/fail and the margin of safety, then make your own call.</div>
+                </div>
+            </div>
+
+            <h2>🔥 Popular stocks to analyze</h2>
+            <p style="color:#9aa3b2;font-size:0.85rem;margin:0 0 12px;">Click any ticker for instant analysis.</p>
+            <div class="stocks-grid">
+                <a href="/stock/AAPL">🇺🇸 <strong>AAPL</strong> Apple</a>
+                <a href="/stock/MSFT">🇺🇸 <strong>MSFT</strong> Microsoft</a>
+                <a href="/stock/NVDA">🇺🇸 <strong>NVDA</strong> NVIDIA</a>
+                <a href="/stock/GOOGL">🇺🇸 <strong>GOOGL</strong> Alphabet</a>
+                <a href="/stock/TSLA">🇺🇸 <strong>TSLA</strong> Tesla</a>
+                <a href="/stock/AMZN">🇺🇸 <strong>AMZN</strong> Amazon</a>
+                <a href="/stock/META">🇺🇸 <strong>META</strong> Meta</a>
+                <a href="/stock/BRK-B">🇺🇸 <strong>BRK-B</strong> Berkshire</a>
+                <a href="/stock/005930.KS">🇰🇷 <strong>Samsung</strong></a>
+                <a href="/stock/000660.KS">🇰🇷 <strong>SK Hynix</strong></a>
+                <a href="/stock/035420.KS">🇰🇷 <strong>NAVER</strong></a>
+                <a href="/stock/035720.KS">🇰🇷 <strong>Kakao</strong></a>
+                <a href="/stock/005380.KS">🇰🇷 <strong>Hyundai</strong></a>
+                <a href="/stock/373220.KS">🇰🇷 <strong>LG Energy</strong></a>
+                <a href="/stock/207940.KS">🇰🇷 <strong>Samsung Bio</strong></a>
+                <a href="/stock/068270.KS">🇰🇷 <strong>Celltrion</strong></a>
+            </div>
+            <p style="text-align:center;margin:12px 0 0;">
+                <a href="/en/picks/buffett-style" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:8px 16px;border:1px solid #2a3a55;border-radius:9999px;margin:4px;">🎯 Buffett-style picks →</a>
+                <a href="/en/picks/dividend-aristocrats" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:8px 16px;border:1px solid #2a3a55;border-radius:9999px;margin:4px;">💰 Dividend Aristocrats →</a>
+            </p>
+
+            <h2>Frequently Asked Questions</h2>
+            <details>
+                <summary>What PER is considered expensive?</summary>
+                <p>It depends on the <strong>sector</strong>, not absolute value. Tech stocks (Apple, MSFT) usually trade at PER 25-35, while financials trade at 10-15. StockInto applies sector-median thresholds. See the <a href="/en/learn/dcf-guide">DCF Guide</a> for valuation details.</p>
+            </details>
+            <details>
+                <summary>Should I always buy A-grade stocks?</summary>
+                <p>No. An A grade just means the stock <strong>passes a high percentage of quantitative criteria</strong>; it does not predict future price movement. Business model, management quality, industry cycles, and macro environment aren't captured in numbers. Use grades as a screening filter only.</p>
+            </details>
+            <details>
+                <summary>How is DCF fair value calculated?</summary>
+                <p>5 years of FCF growth + terminal value (Gordon Growth) discounted by WACC. Terminal growth fixed at <strong>1.5%</strong> (below inflation, conservative). Discount rate computed dynamically via CAPM-based WACC (clamped 7.5-14%). Full breakdown in the <a href="/en/learn/dcf-guide">DCF Guide</a>.</p>
+            </details>
+            <details>
+                <summary>Where does the Korean stock data come from?</summary>
+                <p>Prices from <strong>FinanceDataReader (KRX)</strong>, financials from <strong>DART (Korean SEC equivalent)</strong>. yfinance has known issues with Korean data, so we don't use it for Korea. US stocks use <strong>SEC EDGAR</strong> 10-K and 10-Q for self-calculated TTM (trailing 12 months) figures.</p>
+            </details>
+            <details>
+                <summary>Is it free? Do I need to register?</summary>
+                <p><strong>Completely free, no registration.</strong> Funded by Google AdSense ads. Watchlist is stored only in your browser — no personal data on our servers.</p>
+            </details>
+            <details>
+                <summary>Are you responsible if I lose money?</summary>
+                <p>No. StockInto is <strong>not a registered investment advisor</strong> under Korean Capital Markets Act, nor a licensed financial services provider. All analyses are reference information from public data. Investment decisions and outcomes are solely your responsibility. See <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
+            </details>
+            <details>
+                <summary>Can I install it as an app?</summary>
+                <p>Yes, as a PWA (Progressive Web App). Works on Android, iOS, Windows. No download required — installable from your browser in 30 seconds. <a href="/install">Installation guide →</a></p>
+            </details>
+
+            <p style="margin:24px 0 0;text-align:center;color:#9aa3b2;font-size:0.85rem;">
+                Learn more →
+                <a href="/en/about" style="color:#00d2ff;text-decoration:none;margin:0 6px;">About</a> ·
+                <a href="/en/learn/buffett-criteria" style="color:#00d2ff;text-decoration:none;margin:0 6px;">Buffett Guide</a> ·
+                <a href="/en/learn/dcf-guide" style="color:#00d2ff;text-decoration:none;margin:0 6px;">DCF Guide</a> ·
+                <a href="/en/picks/buffett-style" style="color:#00d2ff;text-decoration:none;margin:0 6px;">Buffett picks</a>
+            </p>
+        </section>
+
+        <div class="footer">
+            <p style="color:#666;font-size:0.78rem;">
+                <strong style="color:#aaa;">⚠ Disclaimer:</strong> StockInto is for reference only and does not constitute investment advice. We are not a licensed financial services provider under Korean Capital Markets Act. Use at your own risk.
+            </p>
+            <p style="margin-top:12px;">
+                <a href="/en/about">About</a> ·
+                <a href="/en/learn/buffett-criteria">Buffett Guide</a> ·
+                <a href="/en/learn/dcf-guide">DCF Guide</a> ·
+                <a href="/en/picks/buffett-style">Buffett Picks</a> ·
+                <a href="/en/picks/dividend-aristocrats">Dividend</a> ·
+                <a href="/terms">Terms</a> ·
+                <a href="/privacy">Privacy</a> ·
+                <a href="/" style="color:#00d2ff;">🇰🇷 한국어</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function goAnalyze() {
+            const input = document.getElementById('enTickerInput');
+            const ticker = (input.value || '').trim().toUpperCase();
+            if (!ticker) {
+                input.focus();
+                return;
+            }
+            window.location.href = '/stock/' + encodeURIComponent(ticker);
+        }
+        document.getElementById('enTickerInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') goAnalyze();
+        });
+    </script>
+</body>
+</html>

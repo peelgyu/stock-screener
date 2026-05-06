@@ -24,6 +24,9 @@
     <script>window.__STOCKINTO_AUTO_TICKER = {{ stock_ticker|tojson }};</script>
     {% else %}
     <link rel="canonical" href="https://stockinto.com/">
+    <link rel="alternate" hreflang="ko" href="https://stockinto.com/">
+    <link rel="alternate" hreflang="en" href="https://stockinto.com/en/">
+    <link rel="alternate" hreflang="x-default" href="https://stockinto.com/">
     {% endif %}
 
     <!-- PWA 매니페스트 -->
@@ -933,6 +936,7 @@
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
         <div class="topnav-right">
+            {% if not stock_ticker %}<a href="/en/" class="topnav-link" aria-label="View in English" style="border:1px solid #2a2a3e;">🇺🇸 EN</a>{% endif %}
             <a href="/about" class="topnav-link">ℹ 소개</a>
             <a href="/glossary" class="topnav-link">📚 용어</a>
             <a href="/install" class="topnav-link">📱 앱</a>

@@ -371,6 +371,13 @@ def sitemap_xml():
         ("/learn/dcf-guide", "monthly", "0.85"),
         ("/picks/buffett-style", "weekly", "0.85"),
         ("/picks/dividend-aristocrats", "weekly", "0.85"),
+        # 영어 페이지 (i18n Phase 1)
+        ("/en/", "daily", "0.9"),
+        ("/en/about", "monthly", "0.8"),
+        ("/en/learn/buffett-criteria", "monthly", "0.8"),
+        ("/en/learn/dcf-guide", "monthly", "0.8"),
+        ("/en/picks/buffett-style", "weekly", "0.8"),
+        ("/en/picks/dividend-aristocrats", "weekly", "0.8"),
         ("/install", "monthly", "0.7"),
         ("/contact", "monthly", "0.6"),
         ("/terms", "yearly", "0.4"),
@@ -476,6 +483,46 @@ def picks_topic(topic: str):
     tpl = PICKS_TEMPLATES.get(topic)
     if not tpl:
         return redirect("/", code=302)
+    return render_template(tpl)
+
+
+# ===== 영어 라우트 (i18n Phase 1) =====
+# 분석 결과는 한국어 /stock/<ticker> 재사용 (Phase 1 타협).
+# Phase 2에서 영어 종목 페이지·동적 분석 결과 영어화 예정.
+EN_LEARN_TEMPLATES = {
+    "buffett-criteria": "en/learn_buffett.html",
+    "dcf-guide": "en/learn_dcf.html",
+}
+EN_PICKS_TEMPLATES = {
+    "buffett-style": "en/picks_buffett.html",
+    "dividend-aristocrats": "en/picks_dividend.html",
+}
+
+
+@app.route("/en/")
+@app.route("/en")
+def en_index():
+    return render_template("en/index.html")
+
+
+@app.route("/en/about")
+def en_about():
+    return render_template("en/about.html")
+
+
+@app.route("/en/learn/<topic>")
+def en_learn(topic: str):
+    tpl = EN_LEARN_TEMPLATES.get(topic)
+    if not tpl:
+        return redirect("/en/", code=302)
+    return render_template(tpl)
+
+
+@app.route("/en/picks/<topic>")
+def en_picks(topic: str):
+    tpl = EN_PICKS_TEMPLATES.get(topic)
+    if not tpl:
+        return redirect("/en/", code=302)
     return render_template(tpl)
 
 
