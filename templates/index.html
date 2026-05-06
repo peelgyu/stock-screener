@@ -933,10 +933,17 @@
     <button class="vs-toggle" onclick="toggleVolumeSidebar()">📊 거래량 TOP</button>
     <button class="install-btn" id="installBtn" onclick="triggerInstall()">📱 앱으로 설치</button>
 
+    <!-- 영어 사용자 안내 배너 — 영어 메인에서 들어왔거나 lang_pref=en 저장돼 있으면 표시 -->
+    <div id="enUserBanner" style="display:none;background:linear-gradient(90deg,#0D5FD9,#1f6feb);color:#fff;padding:10px 16px;text-align:center;font-size:0.85rem;position:relative;">
+        <strong>🇺🇸 English visitor?</strong> Stock analysis is currently in Korean only — but the data (PER, ROE, fair value, charts) is universal.
+        <a href="/en/" style="color:#fff;text-decoration:underline;font-weight:700;margin-left:6px;">← Back to English site</a>
+        <button onclick="dismissEnBanner()" aria-label="Dismiss" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 10px;">✕</button>
+    </div>
+
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
         <div class="topnav-right">
-            {% if not stock_ticker %}<a href="/en/" class="topnav-link" aria-label="View in English" style="border:1px solid #2a2a3e;">🇺🇸 EN</a>{% endif %}
+            <a href="/en/" class="topnav-link" aria-label="View in English" style="border:1px solid #2a2a3e;" id="enToggle">🇺🇸 EN</a>
             <a href="/about" class="topnav-link">ℹ 소개</a>
             <a href="/glossary" class="topnav-link">📚 용어</a>
             <a href="/install" class="topnav-link">📱 앱</a>
@@ -2580,6 +2587,30 @@
             });
             chartInstances.push(chart);
         }
+    </script>
+
+    <script>
+        // 영어 사용자 감지·기억 — referrer가 /en/* 또는 localStorage.lang_pref=en이면 안내 배너 표시
+        function dismissEnBanner() {
+            try { localStorage.setItem('lang_pref', 'ko'); } catch (e) {}
+            var b = document.getElementById('enUserBanner');
+            if (b) b.style.display = 'none';
+        }
+        (function() {
+            try {
+                var pref = localStorage.getItem('lang_pref');
+                var ref = document.referrer || '';
+                var fromEn = ref.indexOf('/en/') !== -1 || ref.endsWith('/en');
+                if (fromEn) {
+                    localStorage.setItem('lang_pref', 'en');
+                    pref = 'en';
+                }
+                if (pref === 'en') {
+                    var banner = document.getElementById('enUserBanner');
+                    if (banner) banner.style.display = 'block';
+                }
+            } catch (e) { /* localStorage 차단 환경 무시 */ }
+        })();
     </script>
 </body>
 </html>

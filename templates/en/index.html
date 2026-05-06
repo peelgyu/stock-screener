@@ -284,6 +284,9 @@
     </div>
 
     <script>
+        // 영어 메인 진입 시 언어 선호 저장 — stock 페이지에서 안내 배너 노출에 사용
+        try { localStorage.setItem('lang_pref', 'en'); } catch (e) {}
+
         function goAnalyze() {
             const input = document.getElementById('enTickerInput');
             const ticker = (input.value || '').trim().toUpperCase();
