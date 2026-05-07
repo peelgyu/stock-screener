@@ -291,15 +291,37 @@ def _csrf_origin_check():
 
 @app.after_request
 def _security_headers(resp):
-    """4종 보안 헤더 — 클릭재킹·MIME 스니핑·HTTPS 다운그레이드·Referer 누출 방어.
+    """5종 보안 헤더 — 클릭재킹·MIME 스니핑·HTTPS 다운그레이드·Referer 누출·CSP Report-Only.
 
-    CSP는 의도적 제외 — TradingView·GA4·AdSense 인라인 스크립트 호환성 검증 후 별도 추가.
+    CSP는 Report-Only 모드 — 위반은 차단하지 않고 콘솔에만 기록.
+    리팩터 3단계 후 인라인 <script>·onclick 모두 제거됨 → 'script-src self' 가능.
+    inline style="..." 233건 잔재 → 'style-src unsafe-inline' 임시 허용 (다음 정리 대상).
     """
     resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
-    # HTTPS 다운그레이드 차단 — 1년 + 서브도메인 포함
     resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    # CSP Report-Only — 차단 X, 위반만 콘솔 로그 → 며칠 모니터링 후 enforce 전환
+    resp.headers.setdefault("Content-Security-Policy-Report-Only", (
+        "default-src 'self'; "
+        "script-src 'self' "
+        "https://cdn.jsdelivr.net https://s3.tradingview.com "
+        "https://www.googletagmanager.com https://www.google-analytics.com "
+        "https://pagead2.googlesyndication.com https://*.googlesyndication.com "
+        "https://*.adtrafficquality.google; "
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "img-src 'self' data: https: blob:; "
+        "font-src 'self' data: https://cdn.jsdelivr.net; "
+        "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com "
+        "https://*.googlesyndication.com https://*.adtrafficquality.google "
+        "https://stats.g.doubleclick.net; "
+        "frame-src https://s.tradingview.com https://www.tradingview.com "
+        "https://*.tradingview-widget.com https://*.googlesyndication.com "
+        "https://*.doubleclick.net; "
+        "object-src 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self';"
+    ))
     return resp
 
 
