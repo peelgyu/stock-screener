@@ -229,7 +229,7 @@
             if (favs.length === 0) { sec.style.display = 'none'; return; }
             sec.style.display = '';
             list.innerHTML = favs.map(f =>
-                `<button class="quick-btn" onclick="quickSearch('${escapeHtml(f.ticker.replace(/'/g,''))}')" title="${escapeHtml(f.name)}">⭐ ${escapeHtml(f.name)}</button>`
+                `<button class="quick-btn" data-action="quickSearch" data-ticker="${escapeHtml(f.ticker.replace(/'/g,''))}" title="${escapeHtml(f.name)}">⭐ ${escapeHtml(f.name)}</button>`
             ).join('');
         }
 
@@ -240,7 +240,7 @@
             if (hist.length === 0) { sec.style.display = 'none'; return; }
             sec.style.display = '';
             list.innerHTML = hist.map(h =>
-                `<button class="quick-btn" onclick="quickSearch('${escapeHtml(h.ticker.replace(/'/g,''))}')" title="${escapeHtml(h.name)}">${escapeHtml(h.name)}</button>`
+                `<button class="quick-btn" data-action="quickSearch" data-ticker="${escapeHtml(h.ticker.replace(/'/g,''))}" title="${escapeHtml(h.name)}">${escapeHtml(h.name)}</button>`
             ).join('');
         }
 
@@ -272,7 +272,7 @@
         // URL 쿼리(?q=AAPL) 또는 /stock/{ticker} 라우트로 진입 시 자동 검색
         (function() {
             const params = new URLSearchParams(location.search);
-            const q = params.get('q') || params.get('ticker') || (window.__STOCKINTO_AUTO_TICKER || '');
+            const q = params.get('q') || params.get('ticker') || (document.body.dataset.autoTicker || '');
             if (q) {
                 setTimeout(() => {
                     const inp = document.getElementById('tickerInput');
@@ -346,7 +346,7 @@
                 const volStr = item.volume >= 1e6 ? (item.volume/1e6).toFixed(1)+'M'
                     : item.volume >= 1e3 ? (item.volume/1e3).toFixed(0)+'K' : item.volume;
                 const displayTicker = item.display_ticker || item.ticker;
-                return `<div class="vs-item" onclick="vsQuickAnalyze('${item.ticker}')">
+                return `<div class="vs-item" data-action="vsQuickAnalyze" data-ticker="${item.ticker}">
                     <div class="vs-rank">${i+1}</div>
                     <div class="vs-main">
                         <div class="vs-ticker">${displayTicker}</div>
@@ -515,7 +515,7 @@
                     <div style="color:#888;padding:36px 20px;text-align:center;">
                         <div style="font-size:1.05rem;margin-bottom:8px;">📰 뉴스 일시 불가</div>
                         <div style="font-size:0.85rem;color:#666;margin-bottom:18px;">${escapeHtml(errMsg)}</div>
-                        <button onclick="newsLoaded=false; loadNewsLazy();" style="padding:10px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--accent-cyan);cursor:pointer;font-size:0.85rem;font-weight:600;font-family:inherit;">🔄 다시 시도</button>
+                        <button data-action="retryNews" style="padding:10px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--accent-cyan);cursor:pointer;font-size:0.85rem;font-weight:600;font-family:inherit;">🔄 다시 시도</button>
                     </div>`;
                 return;
             }
@@ -645,8 +645,8 @@
                     <span>· 분석 ${meta.analysisTimeKST || tsKR}</span>
                 </div>
                 <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">
-                    <button id="favBtn" onclick="toggleFavorite()" aria-pressed="false" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;">☆ 관심 종목 추가</button>
-                    <button onclick="shareStock()" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;" aria-label="이 종목 분석 링크 공유">🔗 공유</button>
+                    <button id="favBtn" data-action="toggleFavorite" aria-pressed="false" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;">☆ 관심 종목 추가</button>
+                    <button data-action="shareStock" style="padding:11px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--text-secondary);cursor:pointer;font-size:0.82rem;font-weight:600;font-family:inherit;transition:all 0.15s;" aria-label="이 종목 분석 링크 공유">🔗 공유</button>
                 </div>`;
             updateFavBtn();
             window._latestDataMeta = data.dataMeta || {};
@@ -1086,7 +1086,7 @@
 
                 html += `
                     <div class="investor-card">
-                        <div class="investor-header" onclick="toggleCard(${i})">
+                        <div class="investor-header" data-action="toggleCard" data-card-idx="${i}">
                             <div class="investor-left">
                                 <div class="investor-icon icon-${inv.icon}">${icons[inv.icon]}</div>
                                 <div><div class="investor-name">${inv.label || inv.name + '이라면?'}</div><div class="investor-sub">${tt(inv.sub)}</div></div>
@@ -1189,7 +1189,7 @@
                         <div style="font-size:1.4rem;margin-bottom:10px;">😅</div>
                         <div style="color:#ddd;margin-bottom:12px;font-weight:600;">${errMsg}</div>
                         <div style="color:#888;font-size:0.82rem;margin-bottom:18px;">한국거래소 응답이 지연되거나 일시적으로 막혔을 수 있습니다.</div>
-                        <button onclick="krxLoaded=false; loadKRXLazy();" style="padding:10px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--accent-cyan);cursor:pointer;font-size:0.85rem;font-weight:600;font-family:inherit;">🔄 다시 시도</button>
+                        <button data-action="retryKrx" style="padding:10px 18px;min-height:44px;border-radius:9999px;border:1px solid var(--border);background:transparent;color:var(--accent-cyan);cursor:pointer;font-size:0.85rem;font-weight:600;font-family:inherit;">🔄 다시 시도</button>
                     </div>`;
                 return;
             }
@@ -1372,3 +1372,51 @@
                 }
             } catch (e) { /* localStorage 차단 환경 무시 */ }
         })();
+
+
+/* ============================================================
+ * 이벤트 위임 — onclick 인라인 핸들러 대체 (CSP·XSS 방어)
+ * 모든 클릭 가능한 요소는 data-action="함수명" + 필요시 data-* 인자
+ * ============================================================ */
+(function setupEventDelegation() {
+    // 액션 → 핸들러 매핑. el은 data-action을 가진 요소(closest 매치)
+    const actions = {
+        // 헤더·전역 UI
+        toggleVolumeSidebar: () => toggleVolumeSidebar(),
+        triggerInstall:      () => triggerInstall(),
+        dismissEnBanner:     () => dismissEnBanner(),
+        toggleLang:          () => setLang(getLang() === 'en' ? 'ko' : 'en'),
+        // 거래량 사이드바
+        refreshMostActive:   () => loadMostActive(true),
+        switchVSTab:         (el) => switchVSTab(el.dataset.market),
+        vsQuickAnalyze:      (el) => vsQuickAnalyze(el.dataset.ticker),
+        // 동의 모달
+        acceptConsent:       () => acceptConsent(),
+        // 검색 + 퀵서치
+        analyze:             () => analyze(),
+        quickSearch:         (el) => quickSearch(el.dataset.ticker),
+        clearHistory:        () => clearHistory(),
+        // 일일 브리핑 모달
+        closeBriefingModal:    () => closeBriefingModal(),
+        dontShowBriefingToday: () => dontShowBriefingToday(),
+        // 종목 상세 — 탭·즐겨찾기·공유
+        switchTab:    (el) => switchTab(el.dataset.tab),
+        toggleFavorite: () => toggleFavorite(),
+        shareStock:   () => shareStock(),
+        toggleCard:   (el) => toggleCard(parseInt(el.dataset.cardIdx, 10)),
+        // lazy 로드 재시도
+        retryNews:    () => { newsLoaded = false; loadNewsLazy(); },
+        retryKrx:     () => { krxLoaded = false; loadKRXLazy(); },
+    };
+
+    document.addEventListener('click', (e) => {
+        const target = e.target.closest('[data-action]');
+        if (!target) return;
+        const handler = actions[target.dataset.action];
+        if (handler) {
+            handler(target);
+        } else if (typeof console !== 'undefined') {
+            console.warn('[delegation] 알 수 없는 data-action:', target.dataset.action);
+        }
+    });
+})();

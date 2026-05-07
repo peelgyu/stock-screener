@@ -21,7 +21,6 @@
     <meta name="naver-site-verification" content="92dd12c559228f28cf393399f5ffed65bc1f5541" />
     {% if stock_ticker %}
     <link rel="canonical" href="https://stockinto.com/stock/{{ stock_ticker }}">
-    <script>window.__STOCKINTO_AUTO_TICKER = {{ stock_ticker|tojson }};</script>
     {% else %}
     <link rel="canonical" href="https://stockinto.com/">
     <link rel="alternate" hreflang="ko" href="https://stockinto.com/">
@@ -114,21 +113,21 @@
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
-<body>
-    <button class="vs-toggle" onclick="toggleVolumeSidebar()">📊 거래량 TOP</button>
-    <button class="install-btn" id="installBtn" onclick="triggerInstall()">📱 앱으로 설치</button>
+<body data-auto-ticker="{{ stock_ticker or '' }}">
+    <button class="vs-toggle" data-action="toggleVolumeSidebar">📊 거래량 TOP</button>
+    <button class="install-btn" id="installBtn" data-action="triggerInstall">📱 앱으로 설치</button>
 
     <!-- 영어 사용자 안내 배너 — 영어 메인에서 들어왔거나 lang_pref=en 저장돼 있으면 표시 -->
     <div id="enUserBanner" style="display:none;background:linear-gradient(90deg,#0D5FD9,#1f6feb);color:#fff;padding:10px 16px;text-align:center;font-size:0.85rem;position:relative;">
         <strong>🇺🇸 English visitor?</strong> Stock analysis is currently in Korean only — but the data (PER, ROE, fair value, charts) is universal.
         <a href="/en/" style="color:#fff;text-decoration:underline;font-weight:700;margin-left:6px;">← Back to English site</a>
-        <button onclick="dismissEnBanner()" aria-label="Dismiss" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 10px;">✕</button>
+        <button data-action="dismissEnBanner" aria-label="Dismiss" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 10px;">✕</button>
     </div>
 
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
         <div class="topnav-right">
-            <button onclick="setLang(getLang() === 'en' ? 'ko' : 'en')" class="topnav-link" id="langToggle" style="border:1px solid #2a2a3e;background:transparent;cursor:pointer;font:inherit;color:inherit;" data-i18n-aria-label="nav.lang_to_en_aria"></button>
+            <button data-action="toggleLang" class="topnav-link" id="langToggle" style="border:1px solid #2a2a3e;background:transparent;cursor:pointer;font:inherit;color:inherit;" data-i18n-aria-label="nav.lang_to_en_aria"></button>
             <a href="/about" class="topnav-link" data-i18n="nav.about">ℹ 소개</a>
             <a href="/glossary" class="topnav-link" data-i18n="nav.glossary">📚 용어</a>
             <a href="/install" class="topnav-link" data-i18n="nav.install">📱 앱</a>
@@ -139,11 +138,11 @@
     <aside class="volume-sidebar" id="volumeSidebar">
         <div class="vs-header">
             <div class="vs-title">📊 거래량 TOP 10</div>
-            <button class="vs-refresh" onclick="loadMostActive(true)">↻</button>
+            <button class="vs-refresh" data-action="refreshMostActive">↻</button>
         </div>
         <div class="vs-tabs">
-            <div class="vs-tab active" data-market="us" onclick="switchVSTab('us')">🇺🇸 US</div>
-            <div class="vs-tab" data-market="kr" onclick="switchVSTab('kr')">🇰🇷 KR</div>
+            <div class="vs-tab active" data-market="us" data-action="switchVSTab" data-market="us">🇺🇸 US</div>
+            <div class="vs-tab" data-market="kr" data-action="switchVSTab" data-market="kr">🇰🇷 KR</div>
         </div>
         <div class="vs-list active" id="vsListUs"><div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로딩 중…</div></div>
         <div class="vs-list" id="vsListKr"><div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로딩 중…</div></div>
@@ -169,7 +168,7 @@
                 <a href="/terms" target="_blank">이용약관 전문</a>
                 <a href="/privacy" target="_blank">개인정보처리방침</a>
             </div>
-            <button class="consent-btn" onclick="acceptConsent()">이해했으며 참고용으로만 이용합니다</button>
+            <button class="consent-btn" data-action="acceptConsent">이해했으며 참고용으로만 이용합니다</button>
         </div>
     </div>
 
@@ -186,7 +185,7 @@
                 <input type="text" id="tickerInput" placeholder="종목명 또는 티커 (예: 애플, 삼성전자, NVDA)" autocomplete="off"
                        aria-label="종목명 또는 티커 입력" aria-describedby="searchHint" aria-autocomplete="list" aria-controls="autocomplete"
                        data-i18n-placeholder="search.placeholder">
-                <button id="searchBtn" onclick="analyze()" aria-label="종목 분석 시작" data-i18n="search.button" data-i18n-aria-label="search.aria">분석</button>
+                <button id="searchBtn" data-action="analyze" aria-label="종목 분석 시작" data-i18n="search.button" data-i18n-aria-label="search.aria">분석</button>
             </div>
             <span id="searchHint" class="sr-only" data-i18n="search.hint">종목명 또는 티커를 입력하고 분석 버튼을 누르거나 엔터를 치세요. 자동완성 목록이 나타나면 화살표 키로 선택할 수 있습니다.</span>
             <div class="autocomplete" id="autocomplete" role="listbox" aria-label="검색 자동완성"></div>
@@ -198,20 +197,20 @@
         </div>
 
         <div class="quick-search-wrap" id="historySection" style="display:none;">
-            <div class="quick-search-label"><span data-i18n="quick.history">🕓 최근 본 종목</span> <button onclick="clearHistory()" aria-label="최근 본 종목 초기화" style="background:none;border:none;color:#666;font-size:0.75rem;cursor:pointer;font-weight:400;margin-left:6px;padding:10px 12px;min-height:44px;min-width:44px;" data-i18n="quick.clear" data-i18n-aria-label="quick.clear_aria">초기화</button></div>
+            <div class="quick-search-label"><span data-i18n="quick.history">🕓 최근 본 종목</span> <button data-action="clearHistory" aria-label="최근 본 종목 초기화" style="background:none;border:none;color:#666;font-size:0.75rem;cursor:pointer;font-weight:400;margin-left:6px;padding:10px 12px;min-height:44px;min-width:44px;" data-i18n="quick.clear" data-i18n-aria-label="quick.clear_aria">초기화</button></div>
             <div class="quick-search" id="historyList"></div>
         </div>
 
         <div class="quick-search-wrap">
             <div class="quick-search-label" data-i18n="quick.popular">🔥 지금 많이 찾는 종목</div>
             <div class="quick-search">
-                <button class="quick-btn" onclick="quickSearch('AAPL')">AAPL</button>
-                <button class="quick-btn" onclick="quickSearch('MSFT')">MSFT</button>
-                <button class="quick-btn" onclick="quickSearch('삼성전자')">삼성전자</button>
-                <button class="quick-btn" onclick="quickSearch('TSLA')">TSLA</button>
-                <button class="quick-btn" onclick="quickSearch('NVDA')">NVDA</button>
-                <button class="quick-btn" onclick="quickSearch('카카오')">카카오</button>
-                <button class="quick-btn" onclick="quickSearch('NVAX')">NVAX</button>
+                <button class="quick-btn" data-action="quickSearch" data-ticker="AAPL">AAPL</button>
+                <button class="quick-btn" data-action="quickSearch" data-ticker="MSFT">MSFT</button>
+                <button class="quick-btn" data-action="quickSearch" data-ticker="삼성전자">삼성전자</button>
+                <button class="quick-btn" data-action="quickSearch" data-ticker="TSLA">TSLA</button>
+                <button class="quick-btn" data-action="quickSearch" data-ticker="NVDA">NVDA</button>
+                <button class="quick-btn" data-action="quickSearch" data-ticker="카카오">카카오</button>
+                <button class="quick-btn" data-action="quickSearch" data-ticker="NVAX">NVAX</button>
             </div>
         </div>
 
@@ -233,7 +232,7 @@
         <!-- 일일 브리핑 모달 (페이지 첫 진입 시 자동 표시, 하루 1회) -->
         <div id="briefingModalBackdrop" class="briefing-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="briefingModalTitle" style="display:none;">
             <div class="briefing-modal-card" id="briefingModalCard">
-                <button class="briefing-modal-close" onclick="closeBriefingModal()" aria-label="닫기">✕</button>
+                <button class="briefing-modal-close" data-action="closeBriefingModal" aria-label="닫기">✕</button>
                 <div class="briefing-modal-header">
                     <h2 id="briefingModalTitle">📊 전날 시황 브리핑</h2>
                     <div class="briefing-modal-date" id="briefingModalDate">로딩 중...</div>
@@ -246,7 +245,7 @@
                 </div>
                 <div class="briefing-modal-footer">
                     <a href="/briefing" class="briefing-modal-btn-primary">📄 전체 보기</a>
-                    <button onclick="dontShowBriefingToday()" class="briefing-modal-btn-secondary">오늘 그만 보기</button>
+                    <button data-action="dontShowBriefingToday" class="briefing-modal-btn-secondary">오늘 그만 보기</button>
                 </div>
                 <div style="text-align:center;margin-top:8px;">
                     <label style="font-size:0.7rem;color:#666;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
@@ -272,13 +271,13 @@
             <div id="rsCard"></div>
 
             <div class="tabs" role="tablist" aria-label="분석 결과 탭">
-                <button class="tab-btn active" onclick="switchTab('investors')" role="tab" id="tabbtn-investors" aria-controls="tab-investors" aria-selected="true" data-i18n="tab.investors">🧠 워렌 버핏이라면?</button>
-                <button class="tab-btn" onclick="switchTab('trend')" role="tab" id="tabbtn-trend" aria-controls="tab-trend" aria-selected="false" data-i18n="tab.trend">📆 재무 추세</button>
-                <button class="tab-btn" id="tabbtn-krx" style="display:none;" onclick="switchTab('krx')" role="tab" aria-controls="tab-krx" aria-selected="false" data-i18n="tab.krx">🇰🇷 수급</button>
-                <button class="tab-btn" onclick="switchTab('news')" role="tab" id="tabbtn-news" aria-controls="tab-news" aria-selected="false" data-i18n="tab.news">📰 관련 뉴스</button>
-                <button class="tab-btn" onclick="switchTab('sentiment')" role="tab" id="tabbtn-sentiment" aria-controls="tab-sentiment" aria-selected="false" data-i18n="tab.sentiment">😱 탐욕지수</button>
-                <button class="tab-btn" onclick="switchTab('positions')" role="tab" id="tabbtn-positions" aria-controls="tab-positions" aria-selected="false" data-i18n="tab.positions">📊 숏/롱</button>
-                <button class="tab-btn" onclick="switchTab('options')" role="tab" id="tabbtn-options" aria-controls="tab-options" aria-selected="false" data-i18n="tab.options">🎯 옵션</button>
+                <button class="tab-btn active" data-action="switchTab" data-tab="investors" role="tab" id="tabbtn-investors" aria-controls="tab-investors" aria-selected="true" data-i18n="tab.investors">🧠 워렌 버핏이라면?</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="trend" role="tab" id="tabbtn-trend" aria-controls="tab-trend" aria-selected="false" data-i18n="tab.trend">📆 재무 추세</button>
+                <button class="tab-btn" id="tabbtn-krx" style="display:none;" data-action="switchTab" data-tab="krx" role="tab" aria-controls="tab-krx" aria-selected="false" data-i18n="tab.krx">🇰🇷 수급</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="news" role="tab" id="tabbtn-news" aria-controls="tab-news" aria-selected="false" data-i18n="tab.news">📰 관련 뉴스</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="sentiment" role="tab" id="tabbtn-sentiment" aria-controls="tab-sentiment" aria-selected="false" data-i18n="tab.sentiment">😱 탐욕지수</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="positions" role="tab" id="tabbtn-positions" aria-controls="tab-positions" aria-selected="false" data-i18n="tab.positions">📊 숏/롱</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="options" role="tab" id="tabbtn-options" aria-controls="tab-options" aria-selected="false" data-i18n="tab.options">🎯 옵션</button>
             </div>
 
             <div class="tab-content active" id="tab-investors" role="tabpanel" aria-labelledby="tabbtn-investors">

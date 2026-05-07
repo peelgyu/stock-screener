@@ -66,9 +66,9 @@
         <p style="color:#888;">브라우저에서 바로 설치할 수 있는 웹앱(PWA) 방식과 APK 다운로드 방식 모두 지원합니다.</p>
 
         <div class="tabs">
-            <div class="tab active" onclick="showTab('android')">📱 Android</div>
-            <div class="tab" onclick="showTab('ios')">🍎 iPhone</div>
-            <div class="tab" onclick="showTab('apk')">📦 APK</div>
+            <div class="tab active" data-action="showTab" data-tab="android">📱 Android</div>
+            <div class="tab" data-action="showTab" data-tab="ios">🍎 iPhone</div>
+            <div class="tab" data-action="showTab" data-tab="apk">📦 APK</div>
         </div>
 
         <!-- Android -->
@@ -126,12 +126,6 @@
         </div>
     </div>
 
-    <script>
-        function showTab(name) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.textContent.toLowerCase().includes(name)));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.getElementById('tab-' + name).classList.add('active');
-        }
-    </script>
+    <script src="{{ url_for('static', filename='js/install.js') }}" defer></script>
 </body>
 </html>
