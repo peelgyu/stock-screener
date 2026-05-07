@@ -20,6 +20,14 @@ SRC_DIR="$(cd "$(dirname "$0")" && pwd)"
 TMP_DIR="/tmp/stock-screener-sync-$$"
 DEPLOY_REPO="https://github.com/peelgyu/stock-screener.git"
 
+# 원본 레포의 git 정체 그대로 사용 (전역 fallback 포함)
+GIT_EMAIL="$(git -C "$SRC_DIR" config user.email 2>/dev/null || true)"
+GIT_NAME="$(git -C "$SRC_DIR" config user.name 2>/dev/null || true)"
+if [ -z "$GIT_EMAIL" ] || [ -z "$GIT_NAME" ]; then
+  echo "❌ git user.email / user.name 미설정 — 'git config --global user.email/name' 먼저 설정해 주세요" >&2
+  exit 1
+fi
+
 echo "==> 1/4 stock-screener 클론"
 git clone --depth=1 "$DEPLOY_REPO" "$TMP_DIR" 2>&1 | tail -2
 
@@ -35,8 +43,8 @@ find "$TMP_DIR" -name "*.pyc" -delete 2>/dev/null || true
 
 echo "==> 4/4 commit + push"
 cd "$TMP_DIR"
-git config user.email "smartphone11446@gmail.com"
-git config user.name "peelgyu"
+git config user.email "$GIT_EMAIL"
+git config user.name "$GIT_NAME"
 git add -A
 
 if git diff --cached --quiet; then
