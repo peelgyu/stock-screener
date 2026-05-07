@@ -3,6 +3,8 @@
 import os
 import math
 import time
+import hmac
+import ipaddress
 import urllib.request
 import urllib.parse
 import json as json_lib
@@ -88,12 +90,18 @@ from analysis.evaluators import (
 app = Flask(__name__)
 app.json = SafeJSONProvider(app)
 
+# Reverse proxy 신뢰 — Railway/Render의 X-Forwarded-* 헤더를 정상 처리.
+# x_for=1: 신뢰 가능한 proxy 1단계만(가장 마지막 hop) 사용 → 클라이언트 X-Forwarded-For 위조 차단.
+from werkzeug.middleware.proxy_fix import ProxyFix
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=0, x_port=0)
+
 # Rate limit — 메서드/엔드포인트별 차등 적용
 RATE_LIMIT_POST_PER_MIN = 20   # 분석·옵션·KRX 같은 무거운 POST: 분당 20회
 RATE_LIMIT_GET_PER_MIN = 60    # 검색·캐시 통계 같은 가벼운 GET: 분당 60회
 RATE_LIMIT_BURST_PER_10S = 8   # 10초 내 8회 초과 시 일시 차단 (봇 폭주 방지)
 _rate_bucket: dict = defaultdict(list)
 _rate_bucket_burst: dict = defaultdict(list)
+_RATE_BUCKET_MAX = 10000       # IP 엔트리 한도 — 봇 다중 IP 폭주 시 RAM 폭주 방지
 
 
 CANONICAL_HOST = "stockinto.com"
@@ -124,9 +132,18 @@ def _canonical_redirect():
     return None
 
 
+def _is_local_or_private_ip() -> bool:
+    """클라이언트 IP가 loopback/사설 대역인지 — 디버그·진단 게이팅용."""
+    try:
+        ip = ipaddress.ip_address(request.remote_addr or "")
+        return ip.is_loopback or ip.is_private
+    except (ValueError, TypeError):
+        return False
+
+
 def _diag_enabled() -> bool:
-    """진단 모드 활성 — env STOCKINTO_DEBUG=1 일 때만 (헤더 토큰은 진단 끝나면서 제거)."""
-    return os.getenv("STOCKINTO_DEBUG") == "1"
+    """진단 모드 — STOCKINTO_DEBUG=1 + 로컬/사설 IP에서만 (운영 실수 방어)."""
+    return os.getenv("STOCKINTO_DEBUG") == "1" and _is_local_or_private_ip()
 
 
 @app.errorhandler(500)
@@ -161,6 +178,18 @@ def _handle_exc(e):
     raise e
 
 
+def _prune_rate_buckets(now: float) -> None:
+    """오래된 엔트리 정리 — IP 엔트리가 한도 초과 시 만료된 IP부터 제거."""
+    if len(_rate_bucket) > _RATE_BUCKET_MAX:
+        cutoff = now - 60
+        for ip in [ip for ip, ts in _rate_bucket.items() if not ts or max(ts) < cutoff]:
+            _rate_bucket.pop(ip, None)
+    if len(_rate_bucket_burst) > _RATE_BUCKET_MAX:
+        cutoff = now - 10
+        for ip in [ip for ip, ts in _rate_bucket_burst.items() if not ts or max(ts) < cutoff]:
+            _rate_bucket_burst.pop(ip, None)
+
+
 @app.before_request
 def _rate_limit():
     """3중 rate limit: 분당(메서드별) + 10초 burst.
@@ -169,11 +198,13 @@ def _rate_limit():
     - POST는 분당 20회 (분석은 무거우니 엄격)
     - GET은 분당 60회 (검색은 가벼우니 느슨)
     - 10초 안 8회 초과는 모든 요청 일시 429 (봇 폭주 차단)
+    - ProxyFix가 X-Forwarded-For의 마지막 신뢰 hop을 remote_addr로 세팅 → 위조 불가
     """
     if not request.path.startswith("/api/"):
         return None
-    ip = (request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0]).strip()
+    ip = request.remote_addr or "unknown"
     now = time.time()
+    _prune_rate_buckets(now)
 
     # 1) Burst 체크 (10초)
     burst = [t for t in _rate_bucket_burst[ip] if now - t < 10]
@@ -256,6 +287,20 @@ def _csrf_origin_check():
             return jsonify({"error": "잘못된 요청 출처입니다."}), 403
     # Origin·Referer 둘 다 없는 경우는 허용 (curl·서버사이드 호출 등)
     return None
+
+
+@app.after_request
+def _security_headers(resp):
+    """4종 보안 헤더 — 클릭재킹·MIME 스니핑·HTTPS 다운그레이드·Referer 누출 방어.
+
+    CSP는 의도적 제외 — TradingView·GA4·AdSense 인라인 스크립트 호환성 검증 후 별도 추가.
+    """
+    resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    # HTTPS 다운그레이드 차단 — 1년 + 서브도메인 포함
+    resp.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+    return resp
 
 
 # evaluators 함수들은 analysis/evaluators.py로 이동 (3일차 분리)
@@ -532,10 +577,21 @@ def search_stocks():
     1) 친근 별명 (KR_STOCKS 89개) — 정확 일치 + 부분 일치
     2) KRX 전체 상장 종목 (~2,500개) — 정식 종목명·코드 매칭
     3) Yahoo Finance 검색 — 미국·해외 ETF 등
+
+    Yahoo amplification 방어 — 동일 쿼리 5분 캐시 (외부 API 부하 차단).
     """
     q = request.args.get("q", "").strip()
     if len(q) < 1:
         return jsonify([])
+    # 입력 검증 — 비정상 문자열은 즉시 거절 (Yahoo 호출 방지)
+    if len(q) > 30 or not is_safe_query(q):
+        return jsonify([])
+
+    cache_key = f"search:{q.lower()}"
+    cached_result = cache.get(cache_key)
+    if cached_result is not None:
+        return jsonify(cached_result)
+
     results = []
     seen = set()
 
@@ -575,7 +631,9 @@ def search_stocks():
         except Exception as e:
             app.logger.debug(f"Yahoo /api/search supplemental failed: {type(e).__name__}")
 
-    return jsonify(results[:8])
+    final = results[:8]
+    cache.set(cache_key, final, ttl=300)  # 5분 캐시 — Yahoo 부하 amplification 차단
+    return jsonify(final)
 
 
 @app.route("/api/analyze", methods=["POST"])
@@ -1204,8 +1262,9 @@ def cron_briefing():
     expected = os.getenv("CRON_TOKEN")
     if not expected:
         return jsonify({"error": "CRON_TOKEN 환경변수 미설정"}), 503
-    provided = request.headers.get("X-Cron-Token") or request.args.get("token")
-    if provided != expected:
+    provided = request.headers.get("X-Cron-Token") or request.args.get("token") or ""
+    # 상수 시간 비교 — 토큰 길이·내용 추측 timing attack 방어
+    if not hmac.compare_digest(provided, expected):
         return jsonify({"error": "forbidden"}), 403
 
     try:
@@ -1366,8 +1425,14 @@ def cache_stats():
 
 
 def _debug_enabled() -> bool:
-    """디버그 엔드포인트는 STOCKINTO_DEBUG=1 환경변수가 있을 때만 활성화."""
-    return os.getenv("STOCKINTO_DEBUG", "0") == "1"
+    """디버그 엔드포인트는 STOCKINTO_DEBUG=1 + 로컬/사설 IP에서만 활성.
+
+    운영서버에서 누군가 실수로 STOCKINTO_DEBUG=1을 켜도 외부 IP는 접근 불가
+    (DART 키 prefix·env 길이 leak 방지).
+    """
+    if os.getenv("STOCKINTO_DEBUG", "0") != "1":
+        return False
+    return _is_local_or_private_ip()
 
 
 @app.route("/api/debug/echo", methods=["POST"])
@@ -1426,4 +1491,6 @@ def dart_debug():
 if __name__ == "__main__":
     debug = os.getenv("FLASK_DEBUG", "0") == "1"
     port = int(os.getenv("PORT", "5000"))
-    app.run(debug=debug, host="0.0.0.0", port=port)
+    # 기본은 localhost — LAN 무방비 노출 방지. 외부 노출 필요시 HOST=0.0.0.0 명시
+    host = os.getenv("HOST", "127.0.0.1")
+    app.run(debug=debug, host=host, port=port)

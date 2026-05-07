@@ -1516,7 +1516,7 @@
             if (favs.length === 0) { sec.style.display = 'none'; return; }
             sec.style.display = '';
             list.innerHTML = favs.map(f =>
-                `<button class="quick-btn" onclick="quickSearch('${f.ticker.replace(/'/g,'')}')" title="${f.name}">⭐ ${f.name}</button>`
+                `<button class="quick-btn" onclick="quickSearch('${escapeHtml(f.ticker.replace(/'/g,''))}')" title="${escapeHtml(f.name)}">⭐ ${escapeHtml(f.name)}</button>`
             ).join('');
         }
 
@@ -1527,7 +1527,7 @@
             if (hist.length === 0) { sec.style.display = 'none'; return; }
             sec.style.display = '';
             list.innerHTML = hist.map(h =>
-                `<button class="quick-btn" onclick="quickSearch('${h.ticker.replace(/'/g,'')}')" title="${h.name}">${h.name}</button>`
+                `<button class="quick-btn" onclick="quickSearch('${escapeHtml(h.ticker.replace(/'/g,''))}')" title="${escapeHtml(h.name)}">${escapeHtml(h.name)}</button>`
             ).join('');
         }
 
@@ -1914,15 +1914,15 @@
                 ? `<div style="margin-top:6px;font-size:0.85rem;line-height:1.5;color:#bbb;">📝 ${escHTML(data.stock.description)}</div>`
                 : '';
             const meta = data.dataMeta || {};
-            const finEndDate = meta.financialEndDate ? `<span title="공시 기준일 — 분석에 사용된 재무 데이터가 보고된 시점">📊 재무 ${meta.financialEndDate} (${meta.financialPeriodType || ''})</span>` : '';
-            const finSource = meta.financialSourceShort ? `<span title="${meta.financialSource || ''}">🏛 ${meta.financialSourceShort}</span>` : '';
+            const finEndDate = meta.financialEndDate ? `<span title="공시 기준일 — 분석에 사용된 재무 데이터가 보고된 시점">📊 재무 ${escHTML(meta.financialEndDate)} (${escHTML(meta.financialPeriodType || '')})</span>` : '';
+            const finSource = meta.financialSourceShort ? `<span title="${escHTML(meta.financialSource || '')}">🏛 ${escHTML(meta.financialSourceShort)}</span>` : '';
             document.getElementById('stockCard').innerHTML = `
-                <div class="stock-name">${data.stock.name}<span class="stock-ticker">${data.ticker}</span></div>
+                <div class="stock-name">${escHTML(data.stock.name)}<span class="stock-ticker">${escHTML(data.ticker)}</span></div>
                 <div class="stock-meta">
-                    <span>${data.stock.sector}</span>
-                    <span>${data.stock.industry}</span>
-                    <span>${data.stock.price}</span>
-                    <span>시총 ${data.stock.marketCap}</span>
+                    <span>${escHTML(data.stock.sector)}</span>
+                    <span>${escHTML(data.stock.industry)}</span>
+                    <span>${escHTML(data.stock.price)}</span>
+                    <span>시총 ${escHTML(data.stock.marketCap)}</span>
                 </div>
                 ${descHTML}
                 <div style="display:flex;gap:10px;flex-wrap:wrap;font-size:0.7rem;color:#777;margin-top:6px;align-items:center;">
