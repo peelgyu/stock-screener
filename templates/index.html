@@ -1409,6 +1409,7 @@
                 </div>`;
 
             const fxStr = fx.usd_krw ? '₩' + Math.round(fx.usd_krw).toLocaleString('ko-KR') : '—';
+            const fxTime = fx.fetched_at ? `<div style="font-size:0.6rem;color:#999;margin-top:2px;">${escapeBriefHtml(fx.fetched_at)}</div>` : '';
             const fgScore = fg.score != null ? fg.score : '—';
             const fgLabel = fg.label || '';
             const fgColor = fgScore < 25 ? '#f44336' : fgScore < 55 ? '#fbbf24' : '#4caf50';
@@ -1418,6 +1419,7 @@
                     <div>
                         <div style="font-size:0.7rem;color:#888;">USD/KRW</div>
                         <div style="font-size:0.95rem;font-weight:700;">${fxStr}</div>
+                        ${fxTime}
                     </div>
                     <div>
                         <div style="font-size:0.7rem;color:#888;">공포탐욕</div>

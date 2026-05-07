@@ -258,6 +258,9 @@
                     {% if briefing.fx and briefing.fx.usd_krw %}
                         <div class="value">₩{{ "{:,.0f}".format(briefing.fx.usd_krw) }}</div>
                         <div class="change neutral">달러당</div>
+                        {% if briefing.fx.fetched_at %}
+                        <div style="font-size:0.65rem;color:#999;margin-top:6px;">기준: {{ briefing.fx.fetched_at }}</div>
+                        {% endif %}
                     {% else %}
                         <div class="value" style="color:#666;">—</div>
                     {% endif %}

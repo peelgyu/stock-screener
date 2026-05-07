@@ -108,11 +108,16 @@ def _fetch_kr_index_fdr(code: str) -> Optional[dict]:
         return None
 
 
-def _fetch_fx_usd_krw() -> Optional[float]:
-    """USD/KRW 환율."""
+def _fetch_fx_usd_krw() -> Optional[dict]:
+    """USD/KRW 환율 + 기준 시각."""
     try:
-        from .fx import get_usd_krw
-        return get_usd_krw()
+        from .fx import get_usd_krw_meta
+        meta = get_usd_krw_meta()
+        return {
+            "usd_krw": meta.get("rate"),
+            "fetched_at": meta.get("fetched_at"),
+            "source": meta.get("source"),
+        }
     except Exception:
         return None
 
@@ -208,9 +213,7 @@ def generate_briefing(date_str: Optional[str] = None) -> dict:
             "kospi":  _fetch_kr_index_fdr("KS11"),
             "kosdaq": _fetch_kr_index_fdr("KQ11"),
         },
-        "fx": {
-            "usd_krw": _fetch_fx_usd_krw(),
-        },
+        "fx": _fetch_fx_usd_krw() or {"usd_krw": None, "fetched_at": None, "source": None},
         "fear_greed": _fetch_fear_greed(),
         "top_movers_us": _fetch_top_movers_us(count=5),
         "top_movers_kr": _fetch_top_movers_kr(count=5),
