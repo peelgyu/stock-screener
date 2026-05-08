@@ -5,5 +5,6 @@
 """
 from .cron import cron_bp
 from .debug import debug_bp
+from .api_market import api_market_bp
 
-__all__ = ["cron_bp", "debug_bp"]
+__all__ = ["cron_bp", "debug_bp", "api_market_bp"]

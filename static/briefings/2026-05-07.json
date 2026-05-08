@@ -1,0 +1,62 @@
+{
+  "date": "2026-05-07",
+  "generated_at_kst": "2026-05-08 15:51 KST",
+  "weekday_kr": "금",
+  "us_indices": {
+    "sp500": {
+      "symbol": "^GSPC",
+      "value": 7337.11,
+      "change": -28.01,
+      "change_pct": -0.38
+    },
+    "nasdaq": {
+      "symbol": "^IXIC",
+      "value": 25806.2,
+      "change": -32.74,
+      "change_pct": -0.13
+    },
+    "dow": {
+      "symbol": "^DJI",
+      "value": 49596.97,
+      "change": -313.62,
+      "change_pct": -0.63
+    }
+  },
+  "kr_indices": {
+    "kospi": {
+      "symbol": "KS11",
+      "value": 7501.2,
+      "change": 11.15,
+      "change_pct": 0.15
+    },
+    "kosdaq": {
+      "symbol": "KQ11",
+      "value": 1206.34,
+      "change": 7.16,
+      "change_pct": 0.6
+    }
+  },
+  "fx": {
+    "usd_krw": 1468.5,
+    "fetched_at": "2026-05-08 15:51 KST",
+    "source": "yfinance"
+  },
+  "fear_greed": null,
+  "top_movers_us": {
+    "gainers": [],
+    "losers": []
+  },
+  "top_movers_kr": {
+    "gainers": [],
+    "losers": []
+  },
+  "news_us": [],
+  "news_kr": [],
+  "data_sources": {
+    "indices": "yfinance · FinanceDataReader (KRX)",
+    "news": "네이버 검색 API (투자 시그널 필터)",
+    "fx": "yfinance",
+    "fear_greed": "StockInto 자체 계산 (6지표 가중평균)"
+  },
+  "disclaimer": "본 브리핑은 정보 제공 목적이며, 투자 자문이 아닙니다. 투자 판단과 그 결과의 책임은 이용자 본인에게 있습니다."
+}
