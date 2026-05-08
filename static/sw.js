@@ -1,6 +1,6 @@
-// StockInto Service Worker - v49 (📅 전날 시황 + KST 08:30 갱신 — 시장 마감 데이터 정확화)
+// StockInto Service Worker - v50 (🐛 JS·CSS 캐시 우선 → 네트워크 우선 — 배포 즉시 반영 버그 수정)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v49';
+const CACHE_NAME = 'stockinto-v50';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
@@ -50,7 +50,22 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 정적 자원(이미지·아이콘)만 캐시 우선
+  // JS·CSS는 네트워크 우선 (배포 즉시 반영 — cache-first면 옛 버전 영원히 잡혀 있는 버그)
+  // 네트워크 실패 시에만 캐시 폴백 (오프라인 안정성)
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
+    event.respondWith(
+      fetch(req).then((res) => {
+        if (res.ok && res.type === 'basic') {
+          const resClone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(req, resClone));
+        }
+        return res;
+      }).catch(() => caches.match(req))
+    );
+    return;
+  }
+
+  // 진짜 정적 자원(이미지·아이콘·폰트)만 캐시 우선
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
