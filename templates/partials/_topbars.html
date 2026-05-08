@@ -1,0 +1,37 @@
+    <button class="vs-toggle" data-action="toggleVolumeSidebar">📊 거래량 TOP</button>
+    <button class="install-btn" id="installBtn" data-action="triggerInstall">📱 앱으로 설치</button>
+
+    <!-- 영어 사용자 안내 배너 — 영어 메인에서 들어왔거나 lang_pref=en 저장돼 있으면 표시 -->
+    <div id="enUserBanner" style="display:none;background:linear-gradient(90deg,#0D5FD9,#1f6feb);color:#fff;padding:10px 16px;text-align:center;font-size:0.85rem;position:relative;">
+        <strong>🇺🇸 English visitor?</strong> Stock analysis is currently in Korean only — but the data (PER, ROE, fair value, charts) is universal.
+        <a href="/en/" style="color:#fff;text-decoration:underline;font-weight:700;margin-left:6px;">← Back to English site</a>
+        <button data-action="dismissEnBanner" aria-label="Dismiss" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 10px;">✕</button>
+    </div>
+
+    <nav class="topnav">
+        <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div class="topnav-right">
+            <button data-action="toggleLang" class="topnav-link" id="langToggle" style="border:1px solid #2a2a3e;background:transparent;cursor:pointer;font:inherit;color:inherit;" data-i18n-aria-label="nav.lang_to_en_aria"></button>
+            <a href="/about" class="topnav-link" data-i18n="nav.about">ℹ 소개</a>
+            <a href="/glossary" class="topnav-link" data-i18n="nav.glossary">📚 용어</a>
+            <a href="/install" class="topnav-link" data-i18n="nav.install">📱 앱</a>
+            <a href="/contact" class="topnav-link" data-i18n="nav.contact">✉ 문의</a>
+        </div>
+    </nav>
+
+    <aside class="volume-sidebar" id="volumeSidebar">
+        <div class="vs-header">
+            <div class="vs-title">📊 거래량 TOP 10</div>
+            <button class="vs-refresh" data-action="refreshMostActive">↻</button>
+        </div>
+        <div class="vs-tabs">
+            <div class="vs-tab active" data-market="us" data-action="switchVSTab" data-market="us">🇺🇸 US</div>
+            <div class="vs-tab" data-market="kr" data-action="switchVSTab" data-market="kr">🇰🇷 KR</div>
+        </div>
+        <div class="vs-list active" id="vsListUs"><div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로딩 중…</div></div>
+        <div class="vs-list" id="vsListKr"><div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로딩 중…</div></div>
+    </aside>
+
+    <div class="top-warning">
+        ⚠ <strong>투자 참고용</strong>이며 투자 권유가 아닙니다. 모든 투자 판단과 결과에 대한 책임은 이용자 본인에게 있습니다.
+    </div>

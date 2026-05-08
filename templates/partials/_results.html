@@ -1,0 +1,40 @@
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p data-i18n="analysis.loading">데이터 분석 중...</p>
+        </div>
+        <div class="error-msg" id="errorMsg"></div>
+
+        <div id="results">
+            <div id="marketBanner"></div>
+            <div id="verdictCard"></div>
+            <div id="dataWarnings"></div>
+            <div class="stock-card" id="stockCard"></div>
+            <div id="tvChartCard"></div>
+            <div id="fvCard"></div>
+            <div id="rsCard"></div>
+
+            <div class="tabs" role="tablist" aria-label="분석 결과 탭">
+                <button class="tab-btn active" data-action="switchTab" data-tab="investors" role="tab" id="tabbtn-investors" aria-controls="tab-investors" aria-selected="true" data-i18n="tab.investors">🧠 워렌 버핏이라면?</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="trend" role="tab" id="tabbtn-trend" aria-controls="tab-trend" aria-selected="false" data-i18n="tab.trend">📆 재무 추세</button>
+                <button class="tab-btn" id="tabbtn-krx" style="display:none;" data-action="switchTab" data-tab="krx" role="tab" aria-controls="tab-krx" aria-selected="false" data-i18n="tab.krx">🇰🇷 수급</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="news" role="tab" id="tabbtn-news" aria-controls="tab-news" aria-selected="false" data-i18n="tab.news">📰 관련 뉴스</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="sentiment" role="tab" id="tabbtn-sentiment" aria-controls="tab-sentiment" aria-selected="false" data-i18n="tab.sentiment">😱 탐욕지수</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="positions" role="tab" id="tabbtn-positions" aria-controls="tab-positions" aria-selected="false" data-i18n="tab.positions">📊 숏/롱</button>
+                <button class="tab-btn" data-action="switchTab" data-tab="options" role="tab" id="tabbtn-options" aria-controls="tab-options" aria-selected="false" data-i18n="tab.options">🎯 옵션</button>
+            </div>
+
+            <div class="tab-content active" id="tab-investors" role="tabpanel" aria-labelledby="tabbtn-investors">
+                <div class="overall-card" id="overallCard"></div>
+                <div id="investorCards"></div>
+            </div>
+            <div class="tab-content" id="tab-trend" role="tabpanel" aria-labelledby="tabbtn-trend">
+                <div id="qualityCard"></div>
+                <div id="trendCharts"></div>
+            </div>
+            <div class="tab-content" id="tab-krx" role="tabpanel" aria-labelledby="tabbtn-krx"><div id="krxCard"></div></div>
+            <div class="tab-content" id="tab-news" role="tabpanel" aria-labelledby="tabbtn-news"><div id="newsCard"></div></div>
+            <div class="tab-content" id="tab-sentiment" role="tabpanel" aria-labelledby="tabbtn-sentiment"><div class="fg-card" id="fgCard"></div></div>
+            <div class="tab-content" id="tab-positions" role="tabpanel" aria-labelledby="tabbtn-positions"><div class="pos-card" id="posCard"></div></div>
+            <div class="tab-content" id="tab-options" role="tabpanel" aria-labelledby="tabbtn-options"><div class="opt-card" id="optCard"></div></div>
+
+        </div>

@@ -1,0 +1,25 @@
+        <!-- 일일 브리핑 모달 (페이지 첫 진입 시 자동 표시, 하루 1회) -->
+        <div id="briefingModalBackdrop" class="briefing-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="briefingModalTitle" style="display:none;">
+            <div class="briefing-modal-card" id="briefingModalCard">
+                <button class="briefing-modal-close" data-action="closeBriefingModal" aria-label="닫기">✕</button>
+                <div class="briefing-modal-header">
+                    <h2 id="briefingModalTitle">📊 전날 시황 브리핑</h2>
+                    <div class="briefing-modal-date" id="briefingModalDate">로딩 중...</div>
+                </div>
+                <div class="briefing-modal-body" id="briefingModalBody">
+                    <div style="text-align:center;padding:30px;color:#888;">
+                        <div class="spinner" style="margin:0 auto 12px;"></div>
+                        시황 데이터 로딩 중...
+                    </div>
+                </div>
+                <div class="briefing-modal-footer">
+                    <a href="/briefing" class="briefing-modal-btn-primary">📄 전체 보기</a>
+                    <button data-action="dontShowBriefingToday" class="briefing-modal-btn-secondary">오늘 그만 보기</button>
+                </div>
+                <div style="text-align:center;margin-top:8px;">
+                    <label style="font-size:0.7rem;color:#666;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+                        <input type="checkbox" id="briefingNeverAgain" style="margin:0;"> 다시는 보지 않기
+                    </label>
+                </div>
+            </div>
+        </div>

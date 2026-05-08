@@ -1,0 +1,11 @@
+        <div class="search-wrap">
+            <label for="tickerInput" class="sr-only">종목 검색 입력</label>
+            <div class="search-box">
+                <input type="text" id="tickerInput" placeholder="종목명 또는 티커 (예: 애플, 삼성전자, NVDA)" autocomplete="off"
+                       aria-label="종목명 또는 티커 입력" aria-describedby="searchHint" aria-autocomplete="list" aria-controls="autocomplete"
+                       data-i18n-placeholder="search.placeholder">
+                <button id="searchBtn" data-action="analyze" aria-label="종목 분석 시작" data-i18n="search.button" data-i18n-aria-label="search.aria">분석</button>
+            </div>
+            <span id="searchHint" class="sr-only" data-i18n="search.hint">종목명 또는 티커를 입력하고 분석 버튼을 누르거나 엔터를 치세요. 자동완성 목록이 나타나면 화살표 키로 선택할 수 있습니다.</span>
+            <div class="autocomplete" id="autocomplete" role="listbox" aria-label="검색 자동완성"></div>
+        </div>
