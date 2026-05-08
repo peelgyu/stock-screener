@@ -331,74 +331,8 @@ def _security_headers(resp):
 
 
 # evaluators 함수들은 analysis/evaluators.py로 이동 (3일차 분리)
-
-
-@cached(ttl=7200)  # 2시간 캐시 — "시세 15분 지연" UI 표기와 일치, Yahoo 호출 4배 절감
-def get_stock_data(ticker: str) -> dict | None:
-    """yfinance·FDR 통합 fetch + 2시간 캐시. 분석 핵심 진입점."""
-    fetched = fetch_stock_data(ticker)
-    if fetched is None:
-        return None
-    return fetched
-
-
-
-import re
-
-# 입력 검증 — 안전한 종목 검색어만 허용 (SSRF·Injection 차단)
-# 허용: 영문, 숫자, 한글, 공백, 점, 하이픈. 길이 1~30
-_SAFE_QUERY_RE = re.compile(r"^[\w가-힣\.\-\s]{1,30}$", re.UNICODE)
-
-
-def is_safe_query(query: str) -> bool:
-    if not query or len(query) > 30:
-        return False
-    return bool(_SAFE_QUERY_RE.match(query))
-
-
-def resolve_ticker(query: str) -> str | None:
-    q = query.strip()
-    if q.isascii() and q.upper() == q and q.replace("-", "").replace(".", "").isalpha() and len(q) <= 6:
-        return q.upper()
-    if q.isdigit() and len(q) == 6:
-        # 6자리 숫자만 입력 시 KOSPI 우선 → 없으면 KOSDAQ
-        full_kospi = q + ".KS"
-        full_kosdaq = q + ".KQ"
-        # KRX 전체 리스트에서 정확한 거래소 확인
-        for item in kr_listing.get_all_listings():
-            if item["symbol"] == full_kospi:
-                return full_kospi
-            if item["symbol"] == full_kosdaq:
-                return full_kosdaq
-        return full_kospi  # 폴백
-    # 1) 친근 별명 매핑 (89개)
-    if q in KR_STOCKS:
-        return KR_STOCKS[q][0]
-    if q in US_STOCKS_KR:
-        return US_STOCKS_KR[q]
-    for name, (ticker, _) in KR_STOCKS.items():
-        if q in name:
-            return ticker
-    for kr_name, ticker in US_STOCKS_KR.items():
-        if q in kr_name:
-            return ticker
-    # 2) KRX 전체 리스트 (~2,500개) 정식 종목명 매칭
-    kr_match = kr_listing.find_by_name(q)
-    if kr_match:
-        return kr_match
-    # 3) Yahoo 검색 fallback (미국 종목·해외 ETF 등)
-    try:
-        encoded = urllib.parse.quote(q)
-        url = f"https://query2.finance.yahoo.com/v1/finance/search?q={encoded}&quotesCount=1&newsCount=0&listsCount=0"
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        resp = urllib.request.urlopen(req, timeout=5)
-        data = json_lib.loads(resp.read())
-        quotes = data.get("quotes", [])
-        if quotes:
-            return quotes[0]["symbol"]
-    except Exception as e:
-        app.logger.debug(f"Yahoo search resolve failed for '{q}': {type(e).__name__}")
-    return None
+# 공유 헬퍼는 utils.py로 이동 — is_safe_query, resolve_ticker, get_stock_data
+from utils import is_safe_query, resolve_ticker, get_stock_data
 
 
 @app.route("/")
