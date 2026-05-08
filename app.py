@@ -91,10 +91,11 @@ app.json = SafeJSONProvider(app)
 
 # Blueprint 등록 — 라우트 분리 (routes/ 폴더)
 # 진행 순서: cron→debug 우선 분리됨 (다음: pages, api_market, api_stock)
-from routes import cron_bp, debug_bp, api_market_bp
+from routes import cron_bp, debug_bp, api_market_bp, pages_bp
 app.register_blueprint(cron_bp)
 app.register_blueprint(debug_bp)
 app.register_blueprint(api_market_bp)
+app.register_blueprint(pages_bp)
 
 # Reverse proxy 신뢰 — Railway/Render의 X-Forwarded-* 헤더를 정상 처리.
 # x_for=1: 신뢰 가능한 proxy 1단계만(가장 마지막 hop) 사용 → 클라이언트 X-Forwarded-For 위조 차단.
@@ -334,205 +335,6 @@ def _security_headers(resp):
 # evaluators 함수들은 analysis/evaluators.py로 이동 (3일차 분리)
 # 공유 헬퍼는 utils.py로 이동 — is_safe_query, resolve_ticker, get_stock_data
 from utils import is_safe_query, resolve_ticker, get_stock_data
-
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-
-@app.route("/sw.js")
-def sw_js_root():
-    # Service Worker는 스코프 문제로 루트에서 서빙
-    return send_from_directory("static", "sw.js", mimetype="application/javascript")
-
-
-@app.route("/ads.txt")
-def ads_txt():
-    """Google AdSense ads.txt — 광고 사기 방지 표준."""
-    return send_from_directory("static", "ads.txt", mimetype="text/plain")
-
-
-@app.route("/robots.txt")
-def robots_txt():
-    return send_from_directory("static", "robots.txt", mimetype="text/plain")
-
-
-@app.route("/favicon.ico")
-def favicon():
-    """루트 favicon — 구글·네이버 검색 결과용. 정적 캐시 1년."""
-    resp = send_from_directory("static", "favicon.ico", mimetype="image/x-icon")
-    resp.headers["Cache-Control"] = "public, max-age=31536000, immutable"
-    return resp
-
-
-@app.route("/sitemap.xml")
-def sitemap_xml():
-    """정적 페이지 + 인기 종목 100여개 동적 sitemap 생성."""
-    static_pages = [
-        ("/", "daily", "1.0"),
-        ("/about", "monthly", "0.9"),
-        ("/glossary", "weekly", "0.8"),
-        ("/briefing", "daily", "0.9"),
-        ("/learn/buffett-criteria", "monthly", "0.85"),
-        ("/learn/dcf-guide", "monthly", "0.85"),
-        ("/picks/buffett-style", "weekly", "0.85"),
-        ("/picks/dividend-aristocrats", "weekly", "0.85"),
-        # 영어 페이지 (i18n Phase 1)
-        ("/en/", "daily", "0.9"),
-        ("/en/about", "monthly", "0.8"),
-        ("/en/learn/buffett-criteria", "monthly", "0.8"),
-        ("/en/learn/dcf-guide", "monthly", "0.8"),
-        ("/en/picks/buffett-style", "weekly", "0.8"),
-        ("/en/picks/dividend-aristocrats", "weekly", "0.8"),
-        ("/install", "monthly", "0.7"),
-        ("/contact", "monthly", "0.6"),
-        ("/terms", "yearly", "0.4"),
-        ("/privacy", "yearly", "0.4"),
-    ]
-    # 인기 종목 (한국 50개 + 미국 50개)
-    pop_us = ["AAPL","MSFT","GOOGL","AMZN","META","TSLA","NVDA","AMD","INTC","NFLX",
-              "JPM","BAC","V","MA","DIS","KO","PEP","WMT","COST","HD","NKE","SBUX","MCD",
-              "PG","JNJ","UNH","XOM","CVX","BA","CAT","GE","F","GM","T","VZ","CRM","ORCL",
-              "ADBE","CSCO","IBM","QCOM","TXN","BRK-B","BLK","GS","MS","C","WFC","PYPL","SQ"]
-    pop_kr = []
-    for kr_name, (ticker, _eng) in list(KR_STOCKS.items())[:50]:
-        pop_kr.append(ticker)
-
-    parts = ['<?xml version="1.0" encoding="UTF-8"?>',
-             '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">']
-    for path, freq, prio in static_pages:
-        parts.append(f'  <url><loc>https://stockinto.com{path}</loc><changefreq>{freq}</changefreq><priority>{prio}</priority></url>')
-    for tk in pop_us + pop_kr:
-        parts.append(f'  <url><loc>https://stockinto.com/stock/{tk}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>')
-    parts.append('</urlset>')
-    from flask import Response
-    return Response("\n".join(parts), mimetype="application/xml")
-
-
-@app.route("/stock/<ticker>")
-def stock_detail(ticker: str):
-    """종목별 정적 SEO 페이지 — `/stock/AAPL`, `/stock/005930.KS`.
-
-    프론트는 메인 페이지 그대로 자동 검색. 차이점은 SEO 메타가 종목 특화.
-    """
-    if not ticker or len(ticker) > 15:
-        return redirect("/", code=302)
-    # 안전한 형식만 허용 (영문·숫자·점·하이픈)
-    if not re.match(r"^[A-Za-z0-9.\-]{1,15}$", ticker):
-        return redirect("/", code=302)
-    ticker = ticker.upper()
-    # 한국 명칭 매핑이 있으면 사용
-    display_name = ticker
-    for kr_name, (tk, eng_name) in KR_STOCKS.items():
-        if tk == ticker:
-            display_name = f"{kr_name} ({ticker})"
-            break
-    return render_template("index.html", stock_ticker=ticker, stock_name=display_name)
-
-
-@app.route("/install")
-def install_guide():
-    return render_template("install.html")
-
-
-@app.route("/glossary")
-def glossary():
-    return render_template("glossary.html")
-
-
-@app.route("/terms")
-def terms():
-    return render_template("terms.html")
-
-
-@app.route("/privacy")
-def privacy():
-    return render_template("privacy.html")
-
-
-@app.route("/contact")
-def contact():
-    return render_template("contact.html")
-
-
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
-
-# ===== 학습 가이드 (장문 SEO 콘텐츠) =====
-LEARN_TEMPLATES = {
-    "buffett-criteria": "learn_buffett.html",
-    "dcf-guide": "learn_dcf.html",
-}
-
-
-@app.route("/learn/<topic>")
-def learn_topic(topic: str):
-    """장문 학습 가이드 — 봇·검색 친화 SEO 콘텐츠."""
-    tpl = LEARN_TEMPLATES.get(topic)
-    if not tpl:
-        return redirect("/", code=302)
-    return render_template(tpl)
-
-
-# ===== 큐레이션 (종목 모음) =====
-PICKS_TEMPLATES = {
-    "buffett-style": "picks_buffett.html",
-    "dividend-aristocrats": "picks_dividend.html",
-}
-
-
-@app.route("/picks/<topic>")
-def picks_topic(topic: str):
-    """종목 큐레이션 페이지 — 내부 링크 강화 + SEO."""
-    tpl = PICKS_TEMPLATES.get(topic)
-    if not tpl:
-        return redirect("/", code=302)
-    return render_template(tpl)
-
-
-# ===== 영어 라우트 (i18n Phase 1) =====
-# 분석 결과는 한국어 /stock/<ticker> 재사용 (Phase 1 타협).
-# Phase 2에서 영어 종목 페이지·동적 분석 결과 영어화 예정.
-EN_LEARN_TEMPLATES = {
-    "buffett-criteria": "en/learn_buffett.html",
-    "dcf-guide": "en/learn_dcf.html",
-}
-EN_PICKS_TEMPLATES = {
-    "buffett-style": "en/picks_buffett.html",
-    "dividend-aristocrats": "en/picks_dividend.html",
-}
-
-
-@app.route("/en/")
-@app.route("/en")
-def en_index():
-    return render_template("en/index.html")
-
-
-@app.route("/en/about")
-def en_about():
-    return render_template("en/about.html")
-
-
-@app.route("/en/learn/<topic>")
-def en_learn(topic: str):
-    tpl = EN_LEARN_TEMPLATES.get(topic)
-    if not tpl:
-        return redirect("/en/", code=302)
-    return render_template(tpl)
-
-
-@app.route("/en/picks/<topic>")
-def en_picks(topic: str):
-    tpl = EN_PICKS_TEMPLATES.get(topic)
-    if not tpl:
-        return redirect("/en/", code=302)
-    return render_template(tpl)
-
-
 
 
 @app.route("/api/analyze", methods=["POST"])
@@ -1135,29 +937,6 @@ def _build_data_meta(info: dict, ticker: str, is_kr: bool, history_data: dict | 
         "marketCurrency": "KRW" if is_kr else "USD",
         "disclaimer": "본 분석은 위 시점의 공시 데이터 기준이며, 그 이후 시장 변동은 미반영. 투자 자문이 아닌 정보 제공입니다.",
     }
-
-
-@app.route("/briefing")
-@app.route("/briefing/<date_str>")
-def briefing_page(date_str=None):
-    """일일 금융 브리핑 페이지 — 매일 자동 갱신.
-
-    /briefing → 오늘
-    /briefing/2026-05-04 → 특정 날짜 아카이브
-    """
-    import re as _re_date
-    if date_str and not _re_date.fullmatch(r"\d{4}-\d{2}-\d{2}", date_str):
-        return "Invalid date", 400
-
-    briefing = daily_briefing.get_or_generate(date_str)
-    archives = daily_briefing.list_archives(limit=14)
-
-    if not briefing:
-        # 과거 날짜인데 데이터 없음
-        from flask import abort
-        abort(404)
-
-    return render_template("briefing.html", briefing=briefing, archives=archives)
 
 
 @app.route("/api/news", methods=["POST"])
