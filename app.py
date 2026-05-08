@@ -3,7 +3,6 @@
 import os
 import math
 import time
-import hmac
 import ipaddress
 import urllib.request
 import urllib.parse
@@ -89,6 +88,12 @@ from analysis.evaluators import (
 
 app = Flask(__name__)
 app.json = SafeJSONProvider(app)
+
+# Blueprint 등록 — 라우트 분리 (routes/ 폴더)
+# 진행 순서: cron→debug 우선 분리됨 (다음: pages, api_market, api_stock)
+from routes import cron_bp, debug_bp
+app.register_blueprint(cron_bp)
+app.register_blueprint(debug_bp)
 
 # Reverse proxy 신뢰 — Railway/Render의 X-Forwarded-* 헤더를 정상 처리.
 # x_for=1: 신뢰 가능한 proxy 1단계만(가장 마지막 hop) 사용 → 클라이언트 X-Forwarded-For 위조 차단.
@@ -1308,41 +1313,6 @@ def briefing_summary():
     })
 
 
-@app.route("/cron/daily-briefing", methods=["POST", "GET"])
-def cron_briefing():
-    """외부 cron이 호출 — 매일 오전 9:30 KST에 브리핑 자동 생성.
-
-    인증: X-Cron-Token 헤더 또는 ?token= 쿼리스트링 필수.
-    환경변수 CRON_TOKEN과 일치해야 실행.
-    """
-    expected = os.getenv("CRON_TOKEN")
-    if not expected:
-        return jsonify({"error": "CRON_TOKEN 환경변수 미설정"}), 503
-    provided = request.headers.get("X-Cron-Token") or request.args.get("token") or ""
-    # 상수 시간 비교 — 토큰 길이·내용 추측 timing attack 방어
-    if not hmac.compare_digest(provided, expected):
-        return jsonify({"error": "forbidden"}), 403
-
-    try:
-        briefing = daily_briefing.generate_briefing()
-        path = daily_briefing.save_briefing(briefing)
-        # 캐시도 갱신
-        cache.set(f"daily_briefing:{briefing['date']}", briefing, ttl=3600)
-        return jsonify({
-            "ok": True,
-            "date": briefing["date"],
-            "saved_to": path,
-            "summary": {
-                "us_sp500": briefing.get("us_indices", {}).get("sp500"),
-                "kr_kospi": briefing.get("kr_indices", {}).get("kospi"),
-                "news_count": len(briefing.get("news_us", [])) + len(briefing.get("news_kr", [])),
-            },
-        })
-    except Exception as e:
-        app.logger.exception("briefing cron failed")
-        return jsonify({"error": f"{type(e).__name__}: {str(e)[:200]}"}), 500
-
-
 @app.route("/api/news", methods=["POST"])
 def analyze_news():
     """종목 관련 뉴스 — 네이버 검색 API. 탭 클릭 시 lazy load.
@@ -1478,70 +1448,6 @@ def api_most_active():
 @app.route("/api/cache/stats")
 def cache_stats():
     return jsonify(cache.stats())
-
-
-def _debug_enabled() -> bool:
-    """디버그 엔드포인트는 STOCKINTO_DEBUG=1 + 로컬/사설 IP에서만 활성.
-
-    운영서버에서 누군가 실수로 STOCKINTO_DEBUG=1을 켜도 외부 IP는 접근 불가
-    (DART 키 prefix·env 길이 leak 방지).
-    """
-    if os.getenv("STOCKINTO_DEBUG", "0") != "1":
-        return False
-    return _is_local_or_private_ip()
-
-
-@app.route("/api/debug/echo", methods=["POST"])
-def debug_echo():
-    """body가 어떻게 들어오는지 확인 (STOCKINTO_DEBUG=1 일 때만)."""
-    if not _debug_enabled():
-        return jsonify({"error": "Not Found"}), 404
-    raw_bytes = request.get_data()
-    raw_text = raw_bytes.decode("utf-8", errors="replace")
-    body_json = request.get_json(force=True, silent=True)
-    try:
-        manual = json_lib.loads(raw_text or "{}")
-    except Exception as e:
-        manual = {"parse_error": str(e)}
-    from kr_stocks import search_kr_stocks, KR_STOCKS
-    ticker_in = (body_json or {}).get("ticker") or manual.get("ticker") or ""
-    # kr_stocks 매핑 테스트
-    mapped = KR_STOCKS.get(ticker_in)
-    search_hit = search_kr_stocks(ticker_in)[:3] if ticker_in else []
-    return jsonify({
-        "content_type": request.content_type,
-        "raw_bytes_len": len(raw_bytes),
-        "raw_bytes_hex": raw_bytes.hex()[:200],
-        "raw_text": raw_text[:300],
-        "body_json_parsed": body_json,
-        "manual_parsed": manual,
-        "ticker_in": ticker_in,
-        "ticker_in_len": len(ticker_in),
-        "ticker_in_codepoints": [hex(ord(c)) for c in ticker_in[:20]],
-        "kr_stocks_direct": mapped,
-        "search_results": search_hit,
-    })
-
-
-@app.route("/api/debug/dart")
-def dart_debug():
-    """DART 연결 진단 (STOCKINTO_DEBUG=1 일 때만)."""
-    if not _debug_enabled():
-        return jsonify({"error": "Not Found"}), 404
-    key = os.getenv("DART_API_KEY") or ""
-    info = {
-        "env_key_set": bool(key),
-        "env_key_len": len(key),
-        "env_key_prefix": key[:4] + "..." if key else "",
-        "is_available": dart_client.is_available(),
-    }
-    try:
-        m = dart_client._load_corp_map()
-        info["corp_map_size"] = len(m)
-        info["sample_samsung"] = m.get("005930", "NOT_FOUND")
-    except Exception as e:
-        info["corp_map_error"] = str(e)[:200]
-    return jsonify(info)
 
 
 if __name__ == "__main__":
