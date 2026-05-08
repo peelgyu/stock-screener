@@ -677,6 +677,13 @@ def analyze():
     if ticker is None:
         ticker = raw_query.upper()
 
+    # 응답 전체 캐시 — 같은 종목 반복 분석 시 즉시 응답
+    # 30분 TTL: get_stock_data 캐시(2h)·DART(24h)·SEC(24h)와 일관 (UI도 "시세 15분 지연" 표기)
+    analyze_cache_key = f"analyze_full:{ticker}"
+    cached_response = cache.get(analyze_cache_key)
+    if cached_response is not None:
+        return jsonify(cached_response)
+
     data = get_stock_data(ticker)
     if data is None:
         error_type = detect_fetch_error_type(ticker)
@@ -972,24 +979,50 @@ def analyze():
         # (정확한 계산은 주식수 변동 고려해야 하지만, 근사치로 유용)
 
     market_cache_key = f"market_regime:{is_kr}"
-    market_data = cache.get(market_cache_key)
-    if market_data is None:
-        market_data = _safe_call(get_market_regime, {"available": False}, is_kr=is_kr)
-        if market_data.get("available"):
-            cache.set(market_cache_key, market_data, ttl=900)
 
-    rs_data = _safe_call(calculate_rs_rating, {"available": False}, ticker, hist=hist)
-    history_data = _safe_call(get_historical_metrics, {"available": False}, stock)
+    # 외부 API 호출 wave 병렬화 — 독립 호출들을 ThreadPoolExecutor로 묶어 동시 실행
+    # 7초 순차 → 3~4초 병렬 (가장 느린 한 호출 시간 + 작은 오버헤드)
+    import concurrent.futures as _cf
+
+    def _fetch_market():
+        cached_md = cache.get(market_cache_key)
+        if cached_md is not None:
+            return cached_md
+        md = _safe_call(get_market_regime, {"available": False}, is_kr=is_kr)
+        if md.get("available"):
+            cache.set(market_cache_key, md, ttl=900)
+        return md
+
+    with _cf.ThreadPoolExecutor(max_workers=6, thread_name_prefix="analyze") as _ex:
+        _fut_market = _ex.submit(_fetch_market)
+        _fut_rs = _ex.submit(_safe_call, calculate_rs_rating, {"available": False}, ticker, hist)
+        _fut_history = _ex.submit(_safe_call, get_historical_metrics, {"available": False}, stock)
+        _fut_dart_fin = None
+        _fut_dart_div = None
+        _fut_sec_fin = None
+        _fut_sec_ttm = None
+        if is_kr and dart_client.is_available():
+            _fut_dart_fin = _ex.submit(_safe_call, dart_client.fetch_financials, None, ticker, 5)
+            _fut_dart_div = _ex.submit(_safe_call, dart_client.fetch_dividend, None, ticker)
+        elif (not is_kr) and sec_client.is_available():
+            _fut_sec_fin = _ex.submit(_safe_call, sec_client.fetch_financials, None, ticker, 6)
+            _fut_sec_ttm = _ex.submit(_safe_call, sec_client.fetch_ttm_metrics, None, ticker)
+
+        market_data = _fut_market.result(timeout=20)
+        rs_data = _fut_rs.result(timeout=20)
+        history_data = _fut_history.result(timeout=20)
+        dart_fin = _fut_dart_fin.result(timeout=20) if _fut_dart_fin else None
+        dart_div = _fut_dart_div.result(timeout=20) if _fut_dart_div else None
+        sec_fin = _fut_sec_fin.result(timeout=20) if _fut_sec_fin else None
+        sec_ttm = _fut_sec_ttm.result(timeout=20) if _fut_sec_ttm else None
 
     # 한국 주식(.KS/.KQ)은 DART 공시 데이터로 재무 history 보강 (더 정확)
-    if is_kr and dart_client.is_available():
-        dart_fin = _safe_call(dart_client.fetch_financials, None, ticker, years=5)
+    if is_kr:
         if dart_fin and dart_fin.get("years"):
             history_data = _merge_dart_into_history(history_data, dart_fin)
             info["_data_source_dart"] = True
             _populate_info_from_dart(info, dart_fin)
         # 배당 공시
-        dart_div = _safe_call(dart_client.fetch_dividend, None, ticker)
         if dart_div:
             dps = dart_div.get("dps")
             y = dart_div.get("yield_pct")
@@ -1005,8 +1038,7 @@ def analyze():
 
     # 미국 주식은 SEC EDGAR 공시 데이터로 재무 history 보강 (yfinance 부실 응답 보완)
     # SEC EDGAR = Public Domain (17 USC §105) → 상업 이용 무제한
-    if (not is_kr) and sec_client.is_available():
-        sec_fin = _safe_call(sec_client.fetch_financials, None, ticker, years=6)
+    if not is_kr:
         if sec_fin and sec_fin.get("years"):
             history_data = _merge_dart_into_history(history_data, sec_fin)  # 일반화된 병합
             info["_data_source_sec"] = True
@@ -1026,7 +1058,6 @@ def analyze():
         # SEC TTM 비율 — 미국 종목의 모든 비율 지표를 정부 공시 기반으로 정확화
         # yfinance 형식 변경(dividendYield 100배 등) 사고 영구 차단
         # D/E는 yfinance 정의(LT+ST debt만)가 더 정확해서 yfinance 우선 유지
-        sec_ttm = _safe_call(sec_client.fetch_ttm_metrics, None, ticker)
         if sec_ttm:
             info["_sec_ttm"] = True
 
@@ -1146,7 +1177,7 @@ def analyze():
     verdict = _safe_call(generate_verdict, {"decision": "관망", "color": "yellow", "reasons": [], "warnings": [], "confidence": "low"},
                          overall, rs_data, market_data, fair_value, quality_data, fear_greed)
 
-    return jsonify({
+    response_data = {
         "stock": stock_info,
         "ticker": ticker,
         "sectorThresholds": sector_t,
@@ -1164,7 +1195,10 @@ def analyze():
         "krx": krx_data,
         "dataWarnings": info.get("_data_warnings", []),
         "dataMeta": _build_data_meta(info, ticker, is_kr, history_data),
-    })
+    }
+    # 응답 캐시 — 30분 (다음 동일 ticker 분석 요청에 즉시 응답)
+    cache.set(analyze_cache_key, response_data, ttl=1800)
+    return jsonify(response_data)
 
 
 def _build_data_meta(info: dict, ticker: str, is_kr: bool, history_data: dict | None) -> dict:
