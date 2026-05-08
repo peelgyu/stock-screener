@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 import json
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone, timedelta
 from typing import Optional
 
@@ -200,25 +201,49 @@ def generate_briefing(date_str: Optional[str] = None) -> dict:
     date_str = date_str or _briefing_target_date()
     now = _kst_now()
 
+    # 11개 외부 API 호출을 병렬화 — 순차 30~60초 → 병렬 5~10초
+    # 각 호출은 내부에서 이미 try/except로 감싸져 None/{} 반환하므로 future.result()도 안전
+    with ThreadPoolExecutor(max_workers=11, thread_name_prefix="briefing") as ex:
+        futures = {
+            "sp500":  ex.submit(_fetch_index, "^GSPC"),
+            "nasdaq": ex.submit(_fetch_index, "^IXIC"),
+            "dow":    ex.submit(_fetch_index, "^DJI"),
+            "kospi":  ex.submit(_fetch_kr_index_fdr, "KS11"),
+            "kosdaq": ex.submit(_fetch_kr_index_fdr, "KQ11"),
+            "fx":     ex.submit(_fetch_fx_usd_krw),
+            "fg":     ex.submit(_fetch_fear_greed),
+            "us_mov": ex.submit(_fetch_top_movers_us, count=5),
+            "kr_mov": ex.submit(_fetch_top_movers_kr, count=5),
+            "us_news": ex.submit(_fetch_market_news, "미국 증시", count=6),
+            "kr_news": ex.submit(_fetch_market_news, "코스피", count=6),
+        }
+        # 각 future가 내부에서 예외 안 던지도록 짜여 있음 — 안전망으로 한 번 더 감쌈
+        results = {}
+        for k, f in futures.items():
+            try:
+                results[k] = f.result(timeout=30)
+            except Exception:
+                results[k] = None
+
     return {
         "date": date_str,
         "generated_at_kst": now.strftime("%Y-%m-%d %H:%M KST"),
         "weekday_kr": ["월", "화", "수", "목", "금", "토", "일"][now.weekday()],
         "us_indices": {
-            "sp500":  _fetch_index("^GSPC"),
-            "nasdaq": _fetch_index("^IXIC"),
-            "dow":    _fetch_index("^DJI"),
+            "sp500":  results["sp500"],
+            "nasdaq": results["nasdaq"],
+            "dow":    results["dow"],
         },
         "kr_indices": {
-            "kospi":  _fetch_kr_index_fdr("KS11"),
-            "kosdaq": _fetch_kr_index_fdr("KQ11"),
+            "kospi":  results["kospi"],
+            "kosdaq": results["kosdaq"],
         },
-        "fx": _fetch_fx_usd_krw() or {"usd_krw": None, "fetched_at": None, "source": None},
-        "fear_greed": _fetch_fear_greed(),
-        "top_movers_us": _fetch_top_movers_us(count=5),
-        "top_movers_kr": _fetch_top_movers_kr(count=5),
-        "news_us": _fetch_market_news("미국 증시", count=6),
-        "news_kr": _fetch_market_news("코스피", count=6),
+        "fx": results["fx"] or {"usd_krw": None, "fetched_at": None, "source": None},
+        "fear_greed": results["fg"],
+        "top_movers_us": results["us_mov"],
+        "top_movers_kr": results["kr_mov"],
+        "news_us": results["us_news"],
+        "news_kr": results["kr_news"],
         "data_sources": {
             "indices": "yfinance · FinanceDataReader (KRX)",
             "news": "네이버 검색 API (투자 시그널 필터)",

@@ -328,9 +328,9 @@ def _security_headers(resp):
 # evaluators 함수들은 analysis/evaluators.py로 이동 (3일차 분리)
 
 
-@cached(ttl=1800)  # 30분 캐시 — Yahoo 레이트리밋 완화
+@cached(ttl=7200)  # 2시간 캐시 — "시세 15분 지연" UI 표기와 일치, Yahoo 호출 4배 절감
 def get_stock_data(ticker: str) -> dict | None:
-    """yfinance·FDR 통합 fetch + 30분 캐시. 분석 핵심 진입점."""
+    """yfinance·FDR 통합 fetch + 2시간 캐시. 분석 핵심 진입점."""
     fetched = fetch_stock_data(ticker)
     if fetched is None:
         return None
