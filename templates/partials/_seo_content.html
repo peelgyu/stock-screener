@@ -1,3 +1,28 @@
+        <!-- 종목 페이지 전용 고유 SEO 도입부 — Google "thin content" 회피용. 각 /stock/<ticker> 페이지가 서버사이드에서 고유 본문을 갖도록. -->
+        {% if stock_ticker %}
+        <section class="seo-section" aria-label="{{ stock_name|default(stock_ticker) }} 분석 페이지" style="margin: 32px 0 16px; padding: 24px 22px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
+            <h1 style="color:#fff;font-size:1.4rem;font-weight:800;margin:0 0 10px;letter-spacing:-0.02em;">{{ stock_name|default(stock_ticker) }} 종목 분석</h1>
+            <p class="lang-ko" style="color:#c9d0dc;font-size:0.95rem;line-height:1.75;margin:0 0 10px;">
+                <strong style="color:#fff;">{{ stock_name|default(stock_ticker) }}</strong> 주식의 PER·PBR·ROE·부채비율·FCF 등 핵심 지표를 워렌 버핏·벤저민 그레이엄·피터 린치·윌리엄 오닐·필립 피셔 <strong style="color:#fff;">5인 투자 거장의 정량 기준</strong>으로 자동 채점합니다. DCF·PER·Graham 가중평균으로 계산한 <strong style="color:#fff;">{{ stock_ticker }} 적정주가</strong>와 5년 재무 추세, 안전마진까지 한 화면에 표시됩니다.
+            </p>
+            <p class="lang-ko" style="color:#9aa3b2;font-size:0.88rem;line-height:1.7;margin:0;">
+                {% if '.KS' in stock_ticker or '.KQ' in stock_ticker %}
+                한국 종목 데이터는 <strong>금융감독원 DART 공시</strong> + <strong>FinanceDataReader(KRX)</strong>를 직접 가져와 yfinance 한국 데이터의 누락·오류를 우회합니다. 시세·재무·배당 모두 원화(₩) 기준으로 표시되며, 자체 계산 베타로 KOSPI 시장 변동성에 맞춘 할인율(WACC)을 적용합니다.
+                {% else %}
+                미국 종목은 <strong>SEC EDGAR</strong>의 10-K·10-Q 원본 공시에서 TTM(최근 12개월) 지표를 직접 계산해 yfinance 의존도를 낮췄습니다. 적정주가는 5년 FCF 성장 + 영구가치(g=1.5%)를 CAPM 기반 동적 WACC(7.5~14% 클램프)로 할인해 산출합니다.
+                {% endif %}
+            </p>
+            <p class="lang-en" style="color:#c9d0dc;font-size:0.93rem;line-height:1.7;margin:10px 0 0;">
+                Quantitative analysis of <strong style="color:#fff;">{{ stock_ticker }}</strong> across PER, PBR, ROE, debt-to-equity, and FCF — scored against the proven criteria of <strong style="color:#fff;">Buffett, Graham, Lynch, O'Neil, and Fisher</strong>. Fair price computed via weighted DCF + PER + Graham, with 5-year financial trends and margin of safety on a single screen.
+            </p>
+            <p style="margin:14px 0 0;">
+                <a href="/" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:6px 12px;border:1px solid #2a3a55;border-radius:9999px;margin:2px;"><span class="lang-ko">← 다른 종목 검색</span><span class="lang-en">← Search another stock</span></a>
+                <a href="/picks/buffett-style" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:6px 12px;border:1px solid #2a3a55;border-radius:9999px;margin:2px;"><span class="lang-ko">🎯 버핏 스타일 종목</span><span class="lang-en">🎯 Buffett-style picks</span></a>
+                <a href="/picks/dividend-aristocrats" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:6px 12px;border:1px solid #2a3a55;border-radius:9999px;margin:2px;"><span class="lang-ko">💰 배당 귀족주</span><span class="lang-en">💰 Dividend aristocrats</span></a>
+            </p>
+        </section>
+        {% endif %}
+
         {% if not stock_ticker %}
         <!-- SEO 콘텐츠 섹션 — 메인 진입 시에만 노출. 봇이 인식할 본문 텍스트 + 내부 링크 강화 -->
         <section class="seo-section" aria-label="StockInto 소개 및 가이드" style="margin: 48px 0 24px; padding: 28px 24px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
