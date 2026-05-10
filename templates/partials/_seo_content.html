@@ -21,6 +21,167 @@
                 <a href="/picks/dividend-aristocrats" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:6px 12px;border:1px solid #2a3a55;border-radius:9999px;margin:2px;"><span class="lang-ko">💰 배당 귀족주</span><span class="lang-en">💰 Dividend aristocrats</span></a>
             </p>
         </section>
+
+        <!-- 섹션 2: 핵심 지표 가이드 -->
+        <section class="seo-section lang-ko" aria-label="{{ stock_ticker }} 핵심 지표" style="margin: 16px 0; padding: 22px 22px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
+            <h2 style="color:#00D9FF;font-size:1.15rem;font-weight:800;margin:0 0 12px;letter-spacing:-0.02em;">📊 {{ stock_ticker }} 핵심 지표 — 이 5개만 제대로 보세요</h2>
+            <p style="color:#c9d0dc;font-size:0.92rem;line-height:1.75;margin:0 0 14px;">
+                {{ stock_name|default(stock_ticker) }} 분석 결과 화면에서 가장 먼저 눈여겨봐야 할 숫자는 다음 다섯 개입니다. 어느 하나라도 빠지면 판단이 한쪽으로 쏠려요. 절대값보다 <strong style="color:#fff;">섹터 평균 대비</strong>가 본질이라는 점을 잊지 마세요.
+            </p>
+
+            <div style="border-left:3px solid #1f6feb;padding:8px 14px;margin:10px 0;">
+                <strong style="color:#fff;font-size:0.95rem;">PER — 이익 대비 가격</strong>
+                <p style="color:#9aa3b2;font-size:0.86rem;line-height:1.7;margin:4px 0 0;">"이 회사가 1년에 버는 이익을 몇 년치 모으면 시가총액과 같아지나"입니다. 기술주는 25~35가 흔하고 금융주는 8~12, 유틸리티는 15~18. {{ stock_ticker }}의 PER만 보지 말고 같은 섹터 종목 평균과 비교하세요. PER이 음수면 적자, 분석에서 자동 제외됩니다.</p>
+            </div>
+
+            <div style="border-left:3px solid #1f6feb;padding:8px 14px;margin:10px 0;">
+                <strong style="color:#fff;font-size:0.95rem;">PBR — 자본 대비 가격</strong>
+                <p style="color:#9aa3b2;font-size:0.86rem;line-height:1.7;margin:4px 0 0;">자본 1원당 시장이 얼마를 매겼는가. 1.0 미만이면 장부가치보다 싸게 거래되는 셈인데, 그게 매력일 수도 있고 시장이 "이 자본은 가짜다"라고 보는 신호일 수도 있어요. 그레이엄은 1.5 이하를 선호했지만 무형자산이 큰 IT 기업에는 PBR 자체가 의미가 약합니다.</p>
+            </div>
+
+            <div style="border-left:3px solid #1f6feb;padding:8px 14px;margin:10px 0;">
+                <strong style="color:#fff;font-size:0.95rem;">ROE — 자본 효율성 (가장 중요)</strong>
+                <p style="color:#9aa3b2;font-size:0.86rem;line-height:1.7;margin:4px 0 0;">버핏이 단 하나의 지표만 본다면 이걸 봅니다. 15%+ 양호, 20%+ 우수, 30%+ 거의 독점적. 단, 자사주 매입으로 자본을 줄이면 ROE가 인위적으로 부풀려져요(Apple 150%가 그 케이스). 부채비율과 함께 봐야 진짜 실력이 보입니다.</p>
+            </div>
+
+            <div style="border-left:3px solid #1f6feb;padding:8px 14px;margin:10px 0;">
+                <strong style="color:#fff;font-size:0.95rem;">부채비율 — 빚으로 굴리는가</strong>
+                <p style="color:#9aa3b2;font-size:0.86rem;line-height:1.7;margin:4px 0 0;">자본 대비 총부채. 100% 이하면 보수적, 200% 넘어가면 위험 구간. 단 산업별로 기준이 달라요 — 은행은 400%까지 정상, 유틸리티는 본질적으로 인프라 투자라 200% 안팎이 표준. {{ stock_ticker }}가 속한 섹터의 표준치와 비교하세요.</p>
+            </div>
+
+            <div style="border-left:3px solid #1f6feb;padding:8px 14px;margin:10px 0;">
+                <strong style="color:#fff;font-size:0.95rem;">FCF — 진짜 남는 현금</strong>
+                <p style="color:#9aa3b2;font-size:0.86rem;line-height:1.7;margin:4px 0 0;">영업현금흐름에서 설비투자(CapEx)를 뺀 진짜 자유로운 현금. 장부이익은 회계 처리로 부풀릴 수 있지만 FCF는 거짓말을 못 합니다. 성장 초기엔 음수가 정상이지만(과거 테슬라처럼), 성숙기업이 FCF 음수면 적신호. DCF 적정주가의 기반이 되는 숫자라 5년 추세를 꼭 확인하세요.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 3: 5인 거장의 시선 -->
+        <section class="seo-section lang-ko" aria-label="{{ stock_ticker }} 거장 분석" style="margin: 16px 0; padding: 22px 22px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
+            <h2 style="color:#00D9FF;font-size:1.15rem;font-weight:800;margin:0 0 12px;letter-spacing:-0.02em;">🎯 {{ stock_ticker }}를 5인 거장이라면 어떻게 볼까</h2>
+            <p style="color:#c9d0dc;font-size:0.92rem;line-height:1.75;margin:0 0 14px;">
+                같은 종목이라도 보는 사람에 따라 매력 포인트가 완전히 다릅니다. {{ stock_name|default(stock_ticker) }}가 어느 스타일에 맞는지 본인의 투자 성향과 매칭하면 의사결정이 한결 쉬워져요.
+            </p>
+
+            <div style="background:#1a1f2b;border-radius:10px;padding:14px 16px;margin:8px 0;">
+                <strong style="color:#fff;">🪙 워렌 버핏 — "훌륭한 회사를 적정가에"</strong>
+                <p style="color:#b0b8c4;font-size:0.86rem;line-height:1.7;margin:6px 0 0;">버핏이 1988년 코카콜라 매수 후 35년째 보유 중인 이유는 단순합니다. ROE 15%+ 5년 일관, 부채비율 100% 이하, 사업 모델이 단순. {{ stock_ticker }}가 이 세 조건을 모두 통과하면 버핏형 종목입니다. <a href="/learn/buffett-criteria" style="color:#00d2ff;">버핏 9기준 가이드 →</a></p>
+            </div>
+
+            <div style="background:#1a1f2b;border-radius:10px;padding:14px 16px;margin:8px 0;">
+                <strong style="color:#fff;">📚 벤저민 그레이엄 — "안전마진 33% 이상"</strong>
+                <p style="color:#b0b8c4;font-size:0.86rem;line-height:1.7;margin:6px 0 0;">"내재가치보다 33% 이상 싸게" 사라는 게 그레이엄의 핵심. PER 15 이하 + PBR 1.5 이하 + 부채 보수적이 표준 조건이고, 더 엄격한 net-net 조건(운전자본 - 부채 &gt; 시총)은 약세장 기회 사냥용. {{ stock_ticker }}의 안전마진 수치를 확인하세요.</p>
+            </div>
+
+            <div style="background:#1a1f2b;border-radius:10px;padding:14px 16px;margin:8px 0;">
+                <strong style="color:#fff;">🔎 피터 린치 — "PEG ≤ 1, 내가 아는 비즈니스"</strong>
+                <p style="color:#b0b8c4;font-size:0.86rem;line-height:1.7;margin:6px 0 0;">PER을 성장률로 나눈 PEG가 1 이하면 매력. PER 30이라도 30%씩 성장하면 PEG=1, 합리적이라는 게 린치의 시각. 다만 그는 "마트에서 본 제품, 출퇴근길에 보는 회사"처럼 본인이 이해할 수 있는 사업만 사라고 했어요. {{ stock_ticker }}가 그런 종류인지 본인 판단.</p>
+            </div>
+
+            <div style="background:#1a1f2b;border-radius:10px;padding:14px 16px;margin:8px 0;">
+                <strong style="color:#fff;">🚀 윌리엄 오닐 — "CANSLIM, 신고가 근처"</strong>
+                <p style="color:#b0b8c4;font-size:0.86rem;line-height:1.7;margin:6px 0 0;">분기 EPS 25%+ 성장, 매출 25%+ 성장, 신고가 부근(RS rating 80+). 모멘텀 추격형 — 가치투자자와는 정반대 결. {{ stock_ticker }}의 RS 점수와 EPS 성장률을 보면 이 스타일에 맞는지 1초에 판단됩니다.</p>
+            </div>
+
+            <div style="background:#1a1f2b;border-radius:10px;padding:14px 16px;margin:8px 0;">
+                <strong style="color:#fff;">🌱 필립 피셔 — "초장기 성장주, 직접 조사"</strong>
+                <p style="color:#b0b8c4;font-size:0.86rem;line-height:1.7;margin:6px 0 0;">15가지 정성 기준(R&D 강도, 노사관계, 경영진 정직성 등)이 핵심. StockInto는 그중 정량화 가능한 R&D 비율·연구개발 투자만 채점. {{ stock_ticker }}가 R&D를 매출의 5% 이상 쓰는지 보세요 — 미래에 베팅하는 회사인지 가르는 단순한 척도입니다.</p>
+            </div>
+        </section>
+
+        <!-- 섹션 4: 관련/유사 종목 (KR vs US 분기) -->
+        <section class="seo-section lang-ko" aria-label="{{ stock_ticker }} 관련 종목" style="margin: 16px 0; padding: 22px 22px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
+            {% if '.KS' in stock_ticker or '.KQ' in stock_ticker %}
+            <h2 style="color:#00D9FF;font-size:1.15rem;font-weight:800;margin:0 0 10px;letter-spacing:-0.02em;">🇰🇷 {{ stock_ticker }}와 함께 비교해 볼 KOSPI 종목</h2>
+            <p style="color:#9aa3b2;font-size:0.88rem;margin:0 0 12px;">같은 시장의 다른 대형주와 PER·ROE를 비교하면 {{ stock_ticker }}의 상대적 위치가 명확해집니다.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:8px;">
+                <a href="/stock/005930.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>삼성전자</strong></a>
+                <a href="/stock/000660.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>SK하이닉스</strong></a>
+                <a href="/stock/035420.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>NAVER</strong></a>
+                <a href="/stock/035720.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>카카오</strong></a>
+                <a href="/stock/005380.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>현대차</strong></a>
+                <a href="/stock/373220.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>LG에너지솔루션</strong></a>
+                <a href="/stock/207940.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>삼성바이오</strong></a>
+                <a href="/stock/068270.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>셀트리온</strong></a>
+                <a href="/stock/051910.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>LG화학</strong></a>
+                <a href="/stock/006400.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>삼성SDI</strong></a>
+                <a href="/stock/105560.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>KB금융</strong></a>
+                <a href="/stock/055550.KS" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇰🇷 <strong>신한지주</strong></a>
+            </div>
+            {% else %}
+            <h2 style="color:#00D9FF;font-size:1.15rem;font-weight:800;margin:0 0 10px;letter-spacing:-0.02em;">🇺🇸 {{ stock_ticker }}와 함께 보면 좋은 미국 대형주</h2>
+            <p style="color:#9aa3b2;font-size:0.88rem;margin:0 0 12px;">같은 S&P 500 내 종목과 비교하면 {{ stock_ticker }}의 상대 가치가 보입니다.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:8px;">
+                <a href="/stock/AAPL" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>AAPL</strong> Apple</a>
+                <a href="/stock/MSFT" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>MSFT</strong> Microsoft</a>
+                <a href="/stock/NVDA" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>NVDA</strong> NVIDIA</a>
+                <a href="/stock/GOOGL" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>GOOGL</strong> Alphabet</a>
+                <a href="/stock/AMZN" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>AMZN</strong> Amazon</a>
+                <a href="/stock/META" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>META</strong> Meta</a>
+                <a href="/stock/TSLA" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>TSLA</strong> Tesla</a>
+                <a href="/stock/BRK-B" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>BRK-B</strong> Berkshire</a>
+                <a href="/stock/JPM" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>JPM</strong> JPMorgan</a>
+                <a href="/stock/V" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>V</strong> Visa</a>
+                <a href="/stock/JNJ" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>JNJ</strong> J&amp;J</a>
+                <a href="/stock/KO" style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:10px 12px;text-decoration:none;color:#e7eaf2;font-size:0.85rem;">🇺🇸 <strong>KO</strong> Coca-Cola</a>
+            </div>
+            {% endif %}
+        </section>
+
+        <!-- 섹션 5: FAQ + JSON-LD -->
+        <section class="seo-section lang-ko" aria-label="{{ stock_ticker }} 자주 묻는 질문" style="margin: 16px 0 24px; padding: 22px 22px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
+            <h2 style="color:#00D9FF;font-size:1.15rem;font-weight:800;margin:0 0 12px;letter-spacing:-0.02em;">❓ {{ stock_ticker }} 분석에 대해 자주 묻는 질문</h2>
+
+            <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">{{ stock_ticker }} PER이 몇이면 비싼 건가요?</summary>
+                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">절대값으로는 답이 안 나옵니다. {{ stock_ticker }}가 속한 섹터 중앙값과 비교하세요. 기술주(반도체·소프트웨어)는 PER 25~35가 흔하고, 금융주는 8~12, 유틸리티는 15~18, 산업재는 12~18 수준입니다. StockInto의 분석 결과 화면 상단에 나오는 "섹터 평균 대비" 표시를 참고하시면 됩니다.</p>
+            </details>
+
+            <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">{{ stock_ticker }}는 5인 거장 중 누구의 스타일에 가장 적합한가요?</summary>
+                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">분석 결과 화면의 5명 통과율 그래프를 보면 한눈에 파악됩니다. 모든 거장이 동시에 통과하는 종목은 거의 없어요 — 보통 1~2명에서 강하게, 다른 1~2명에서 약하게 나옵니다. 본인 투자 성향이 가치(버핏·그레이엄)인지 모멘텀(오닐)인지 성장(린치·피셔)인지에 따라 결정 기준 거장을 정하세요.</p>
+            </details>
+
+            <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">분석 결과를 보고 바로 매수해도 되나요?</summary>
+                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">아닙니다. StockInto의 등급은 정량 기준 통과율이고, 미래 주가를 보장하지 않습니다. 사업 모델, 경영진, 산업 사이클, 거시 환경 같은 정성 요소는 숫자에 안 잡힙니다. {{ stock_ticker }}가 A 등급이라도 본인이 그 사업을 이해하지 못하면 보류하는 게 맞아요. 본 서비스는 1차 필터·후보 발굴 도구로 사용하시고 최종 판단은 본인 책임입니다.</p>
+            </details>
+
+            <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">{{ stock_ticker }}의 적정주가는 어떻게 산출되나요?</summary>
+                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">DCF(현금흐름할인)·PER 배수·Graham 공식 세 방법을 가중 평균합니다. DCF는 5년 FCF 성장 + 영구가치(g=1.5%)를 CAPM 기반 동적 WACC로 할인. PER 배수는 섹터 중앙값 적용. Graham은 EPS × (8.5 + 2g)에 채권금리 보정. 한국 종목은 모두 ₩(원화), 미국 종목은 $(USD) 표시. 자세한 가정은 <a href="/learn/dcf-guide" style="color:#00d2ff;">DCF 가이드</a>를 참고하세요.</p>
+            </details>
+
+            <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">{{ stock_ticker }} 데이터는 어디서 가져오나요?</summary>
+                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">{% if '.KS' in stock_ticker or '.KQ' in stock_ticker %}한국 종목은 시세를 FinanceDataReader(KRX 공식 데이터), 재무는 금융감독원 DART 공시 원본에서 가져옵니다. yfinance의 한국 데이터는 누락·오류가 많아 의도적으로 사용하지 않습니다.{% else %}미국 종목은 시세를 yfinance(Yahoo Finance), 재무는 SEC EDGAR의 10-K·10-Q 원본 공시에서 직접 TTM(최근 12개월)을 계산합니다. 시세 15분 지연이며 장중 데이터는 캐시 1~2시간 지연 가능.{% endif %}</p>
+            </details>
+
+            <!-- JSON-LD: Article + about Corporation 스키마 (Google 리치 결과 후보) -->
+            <script type="application/ld+json">
+            {
+              "@context": "https://schema.org",
+              "@type": "Article",
+              "headline": "{{ stock_name|default(stock_ticker) }} 종목 분석 — PER·ROE·적정주가",
+              "about": {
+                "@type": "Corporation",
+                "name": "{{ stock_name|default(stock_ticker) }}",
+                "tickerSymbol": "{{ stock_ticker }}"
+              },
+              "author": {"@type": "Organization", "name": "StockInto"},
+              "publisher": {"@type": "Organization", "name": "StockInto", "logo": {"@type": "ImageObject", "url": "https://stockinto.com/static/icon-512.png"}},
+              "image": "https://stockinto.com/static/icon-512.png",
+              "url": "https://stockinto.com/stock/{{ stock_ticker }}",
+              "mainEntity": {
+                "@type": "FAQPage",
+                "mainEntity": [
+                  {"@type": "Question", "name": "{{ stock_ticker }} PER이 몇이면 비싼 건가요?", "acceptedAnswer": {"@type": "Answer", "text": "절대값보다 섹터 평균 대비가 본질입니다. 기술주는 PER 25~35, 금융주 8~12, 유틸리티 15~18 수준이 표준입니다."}},
+                  {"@type": "Question", "name": "{{ stock_ticker }}는 5인 거장 중 누구의 스타일에 적합한가요?", "acceptedAnswer": {"@type": "Answer", "text": "분석 결과 화면의 5명 통과율 그래프를 확인하세요. 보통 1~2명에서 강하게, 다른 1~2명에서 약하게 나옵니다."}},
+                  {"@type": "Question", "name": "{{ stock_ticker }} 적정주가는 어떻게 산출되나요?", "acceptedAnswer": {"@type": "Answer", "text": "DCF(현금흐름할인)·PER 배수·Graham 공식 세 방법을 가중 평균합니다. 한국 종목은 원화, 미국은 USD로 표시됩니다."}}
+                ]
+              }
+            }
+            </script>
+        </section>
         {% endif %}
 
         {% if not stock_ticker %}
