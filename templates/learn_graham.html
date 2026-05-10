@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>벤저민 그레이엄의 가치투자 7가지 원칙 — 안전마진·Net-net·Mr.Market | StockInto</title>
+    <meta name="description" content="가치투자의 아버지 벤저민 그레이엄이 「현명한 투자자」에서 정리한 방어형 투자자 7가지 기준. 안전마진 33%+, Net-net 공식, Mr.Market 우화, PER 15·PBR 1.5 임계값. 실전 사례·흔한 실수까지.">
+    <meta name="keywords" content="벤저민 그레이엄, 가치투자, 안전마진, Net-net, Mr.Market, 현명한 투자자, 방어형 투자자, PER 15, PBR 1.5, StockInto 그레이엄">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/learn/graham-criteria">
+    <meta property="og:title" content="벤저민 그레이엄의 가치투자 7가지 원칙">
+    <meta property="og:description" content="안전마진·Net-net·Mr.Market — 가치투자 원조 그레이엄의 정량 기준을 한눈에.">
+    <meta property="og:url" content="https://stockinto.com/learn/graham-criteria">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="article">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": "벤저민 그레이엄의 가치투자 7가지 원칙",
+      "description": "안전마진·Net-net 공식·Mr.Market 우화 — 가치투자 원조의 정량 기준을 정리한 가이드.",
+      "author": {"@type": "Organization", "name": "StockInto"},
+      "publisher": {"@type": "Organization", "name": "StockInto", "logo": {"@type": "ImageObject", "url": "https://stockinto.com/static/icon-512.png"}},
+      "image": "https://stockinto.com/static/icon-512.png",
+      "datePublished": "2026-05-10",
+      "dateModified": "2026-05-10"
+    }
+    </script>
+
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f0f1a; color: #e0e0e0; line-height: 1.8; margin: 0; }
+        .container { max-width: 820px; margin: 0 auto; padding: 30px 20px 80px; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(15,15,26,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #2a2a3e; padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link { display: flex; align-items: center; text-decoration: none; transition: opacity 0.2s; }
+        .brand-link img { height: 36px; width: auto; display: block; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid #2a2a3e; transition: all 0.15s; }
+        .nav-home:hover { background: #0D5FD9; color: #fff; border-color: #0D5FD9; }
+        h1 { color: #00d2ff; font-size: 2rem; margin: 0 0 8px; letter-spacing: -0.02em; line-height: 1.3; }
+        h2 { color: #1f6feb; font-size: 1.25rem; margin: 36px 0 12px; border-left: 3px solid #1f6feb; padding-left: 12px; }
+        h3 { color: #fff; font-size: 1.05rem; margin: 24px 0 8px; }
+        p, li { color: #ccc; font-size: 0.94rem; }
+        ul, ol { padding-left: 24px; margin: 8px 0; }
+        li { margin: 6px 0; }
+        .meta { color: #777; font-size: 0.82rem; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid #232336; }
+        a { color: #00d2ff; }
+        strong { color: #fff; }
+        em { color: #00d2ff; font-style: normal; }
+        .criterion-box { background: #161b25; border: 1px solid #232936; border-radius: 12px; padding: 18px 22px; margin: 18px 0; }
+        .criterion-box .num { display: inline-block; background: linear-gradient(135deg, #4a148c, #7b1fa2); color: #fff; font-weight: 800; font-size: 0.85rem; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; margin-right: 8px; vertical-align: middle; }
+        .criterion-box h3 { display: inline; color: #fff; font-size: 1.05rem; }
+        .criterion-box .threshold { display: inline-block; background: rgba(0,210,255,0.1); border: 1px solid rgba(0,210,255,0.3); color: #00d2ff; font-size: 0.78rem; font-weight: 700; padding: 3px 10px; border-radius: 9999px; margin-left: 8px; }
+        .criterion-box .body { margin: 12px 0 0; color: #d0d6e0; font-size: 0.92rem; line-height: 1.75; }
+        .criterion-box .example { margin-top: 10px; padding: 10px 14px; background: rgba(31, 111, 235, 0.06); border-left: 3px solid #1f6feb; border-radius: 6px; font-size: 0.85rem; color: #b0b8c4; }
+        .data-card { background: linear-gradient(135deg, rgba(0,210,255,0.06), rgba(31,111,235,0.06)); border: 1px solid #2a3a55; border-radius: 12px; padding: 18px 22px; margin: 22px 0; }
+        .cta-box { background: rgba(123, 47, 247, 0.08); border: 1px solid rgba(123, 47, 247, 0.3); border-radius: 14px; padding: 22px 24px; margin: 32px 0 16px; text-align: center; }
+        .cta-box h3 { color: #fff; margin: 0 0 10px; }
+        .cta-box p { color: #c9d0dc; margin: 0 0 14px; font-size: 0.9rem; }
+        .cta-btn { display: inline-block; background: #0D5FD9; color: #fff; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 700; transition: background 0.15s; }
+        .cta-btn:hover { background: #1f6feb; color: #fff; }
+        .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 12px; }
+        .related-grid a { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 10px; padding: 10px 12px; text-decoration: none; color: #e7eaf2; font-size: 0.85rem; }
+        .toc { background: #1a1f2b; border: 1px solid #2a2f3d; border-radius: 12px; padding: 16px 22px; margin: 24px 0; }
+        .toc h4 { color: #00d2ff; font-size: 0.88rem; margin: 0 0 8px; }
+        .toc ul { padding-left: 20px; margin: 0; }
+        .toc li { font-size: 0.86rem; margin: 4px 0; }
+        .toc a { text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .back { margin-top: 50px; padding-top: 20px; border-top: 1px solid #2a2a3e; text-align: center; color: #888; font-size: 0.85rem; }
+        blockquote { border-left: 3px solid #7b2ff7; padding: 8px 18px; margin: 18px 0; color: #c9d0dc; font-style: italic; background: rgba(123, 47, 247, 0.04); border-radius: 0 8px 8px 0; }
+    </style>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
+            <a href="/about" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">ℹ 소개</a>
+            <a href="/" class="nav-home">🏠 메인</a>
+        </div>
+    </nav>
+
+    <article class="container">
+        <h1>벤저민 그레이엄의 가치투자 7가지 원칙</h1>
+        <p class="meta">📅 2026-05-10 · 약 9분 분량 · StockInto 가이드</p>
+
+        <p>
+            벤저민 그레이엄(Benjamin Graham, 1894-1976)은 <strong>가치투자의 아버지</strong>입니다. 컬럼비아 비즈니스스쿨에서 워렌 버핏을 가르친 사람이고, 그가 1934년에 쓴 「Security Analysis」와 1949년 「The Intelligent Investor」는 지금도 가치투자자의 교과서로 읽힙니다. 버핏이 단 한 권의 투자책을 추천한다면 「현명한 투자자」를 든다는 건 유명한 일화죠.
+        </p>
+
+        <p>
+            그레이엄의 사상은 단순합니다 — <em>"가격은 단기적으로 인기 투표지만 장기적으로는 가치 저울"</em>. 시장이 가끔 미쳐서 좋은 회사를 헐값에 던지면 그때 사라는 거예요. 이 글은 그가 「현명한 투자자」에서 정리한 정량 기준 7가지를 풀어 설명합니다.
+        </p>
+
+        <div class="data-card">
+            <strong>이 글에서 다루는 것</strong><br>
+            <span style="color:#9aa3b2;font-size:0.88rem;">방어형 투자자 7가지 정량 기준 → Net-net 공식 → Mr.Market 우화 → 안전마진 33% 의미 → 실전 사례·흔한 실수.</span>
+        </div>
+
+        <div class="toc">
+            <h4>📋 목차</h4>
+            <ul>
+                <li><a href="#why-graham">왜 그레이엄을 읽어야 하나</a></li>
+                <li><a href="#defensive-7">방어형 투자자 7가지 기준</a></li>
+                <li><a href="#net-net">Net-net 공식 (적극형 투자자용)</a></li>
+                <li><a href="#mr-market">Mr.Market 우화</a></li>
+                <li><a href="#safety-margin">안전마진 33% — 핵심 개념</a></li>
+                <li><a href="#real-cases">실전 사례 — GEICO와 1973-74 약세장</a></li>
+                <li><a href="#mistakes">개인 투자자의 흔한 5가지 실수</a></li>
+                <li><a href="#try-now">직접 분석해 보기</a></li>
+            </ul>
+        </div>
+
+        <h2 id="why-graham">왜 그레이엄을 읽어야 하나</h2>
+        <p>
+            현대 시장은 그레이엄 시대(1930-50년대)와 많이 다릅니다. 정보 비대칭은 줄었고, 인덱스 펀드가 시장의 절반을 가져갔으며, 알고리즘이 1초에 수만 번 거래합니다. 그런데도 그의 원칙이 살아있는 이유는 단순합니다 — <strong>인간 심리는 100년 전이나 지금이나 똑같기 때문</strong>이에요. 공포에 던지고 욕심에 사들이는 패턴은 변하지 않습니다.
+        </p>
+        <p>
+            그레이엄은 두 가지 투자자 유형을 구분했습니다. <strong>방어형(Defensive)</strong>은 분석에 시간 못 쓰는 보통 사람을 위한 안전 위주 접근, <strong>적극형(Enterprising)</strong>은 분석에 시간 쓸 수 있는 사람을 위한 공격적 발굴. 대부분 개인 투자자는 방어형 기준만으로 충분합니다.
+        </p>
+
+        <h2 id="defensive-7">방어형 투자자 7가지 기준</h2>
+        <p>「현명한 투자자」 14장에서 정리한 7가지. 한 가지씩 보면 쉬워 보이지만 7개를 모두 통과하는 종목은 시장에 그리 많지 않습니다. 이게 곧 그레이엄식 필터의 강점이기도 하고요.</p>
+
+        <div class="criterion-box">
+            <div class="num">1</div><h3>적정 규모 — 충분히 큰 회사</h3><span class="threshold">시가총액 충분</span>
+            <p class="body">
+                작은 회사는 변동성이 크고 부도 위험이 높습니다. 그레이엄은 산업기업 매출 $1억+, 유틸리티 자산 $5천만+를 제시했는데, 인플레 보정하면 오늘날 약 <strong>$5억~10억(시가총액 기준)</strong> 수준. 한국 시장은 KOSPI 200 편입 종목 정도가 적정선입니다.
+            </p>
+            <div class="example">
+                예: 코스닥 1만원짜리 종목보다 KOSPI 우량주에서 골라야 함. 부도·관리종목 위험 회피.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">2</div><h3>강한 재무 상태</h3><span class="threshold">유동비율 ≥ 2:1</span>
+            <p class="body">
+                유동자산이 유동부채의 2배 이상. 그리고 장기부채가 운전자본(유동자산-유동부채)을 넘지 않을 것. 한 마디로 <strong>"단기 위기에도 죽지 않을 회사"</strong>. 이 조건 하나로 부도 위험 회사가 자동 걸러집니다.
+            </p>
+            <div class="example">
+                예: 코로나 직격탄 맞은 항공·여행사들이 무더기로 탈락. 반대로 현금 부자 IT 기업은 통과.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">3</div><h3>이익 안정성</h3><span class="threshold">10년 연속 흑자</span>
+            <p class="body">
+                지난 10년간 단 한 해도 적자가 없을 것. 경기 불황에도 살아남은 회사를 고르는 단순하고 강력한 필터. <strong>주기적 적자가 있는 회사는 본질적으로 사이클에 약하다</strong>는 신호.
+            </p>
+            <div class="example">
+                예: 자동차·항공·반도체는 본질적으로 cyclical → 그레이엄식 방어형에 부적합. 소비재·헬스케어는 통과 가능성 높음.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">4</div><h3>배당 기록</h3><span class="threshold">20년 이상 무중단 배당</span>
+            <p class="body">
+                지난 20년간 단 한 해도 배당을 끊지 않았는가. 배당은 <strong>"실제 현금이 흐르고 있다"는 가장 정직한 증거</strong>입니다. 회계 이익은 부풀릴 수 있어도 현금 배당은 못 합니다. 한국 시장은 배당 문화가 짧아 이 기준이 빡빡하게 적용되면 통과 종목이 많지 않습니다.
+            </p>
+            <div class="example">
+                예: 미국 Dividend Aristocrats(25년+ 배당 증액 종목들)가 거의 그레이엄 4번 통과. 코카콜라·존슨앤존슨 등.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">5</div><h3>이익 성장</h3><span class="threshold">10년간 EPS 33%+ 성장</span>
+            <p class="body">
+                10년 전 평균 EPS 대비 최근 3년 평균 EPS가 33% 이상 성장. 연 환산하면 약 3% 성장으로, 인플레이션을 약간 넘는 수준. <em>폭발적 성장이 아니라 꾸준한 우상향</em>이 그레이엄의 기준이라는 점이 중요합니다.
+            </p>
+            <div class="example">
+                예: 같은 EPS를 10년째 유지하는 회사는 인플레 감안 시 사실상 후퇴. 통과 X.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">6</div><h3>적정 PER</h3><span class="threshold">≤ 15배</span>
+            <p class="body">
+                지난 3년 평균 EPS 기준 PER 15배 이하. 그레이엄 시대엔 평균 PER 10이 정상이었지만, 현대 시장에선 PER 15가 합리적 상한선입니다. <strong>섹터별 차이를 무시한 절대 기준</strong>이라 기술주는 거의 다 탈락하고, 가치주가 살아남습니다.
+            </p>
+            <div class="example">
+                예: 한국 은행·통신주 PER 5~8 통과. 미국 빅테크 PER 25~35 탈락.
+            </div>
+        </div>
+
+        <div class="criterion-box">
+            <div class="num">7</div><h3>적정 PBR</h3><span class="threshold">PER × PBR ≤ 22.5</span>
+            <p class="body">
+                PBR 단독 기준이 아니라 <strong>"PER × PBR이 22.5 이하"</strong>. 즉 PER 15 × PBR 1.5 = 22.5가 상한. 가치를 두 각도에서 동시에 검증하는 그레이엄식 영리함. 한 쪽이 낮으면 다른 쪽이 좀 높아도 괜찮다는 유연성.
+            </p>
+            <div class="example">
+                예: PER 18 + PBR 1.2 = 21.6 (통과). PER 12 + PBR 2 = 24 (탈락).
+            </div>
+        </div>
+
+        <h2 id="net-net">Net-net 공식 — 적극형 투자자용</h2>
+        <p>
+            그레이엄이 가장 자랑스러워했던 발굴법. <strong>"운전자본 - 모든 부채 &gt; 시가총액"</strong>인 종목. 즉, 회사가 지금 당장 청산해서 자산을 다 팔아도 시가총액보다 많이 남는 회사를 사라는 거예요.
+        </p>
+        <blockquote>
+            Net-net의 의미: 이 종목은 사실상 "회사 본체는 공짜로 받는" 가격에 팔리고 있다.
+        </blockquote>
+        <p>
+            그레이엄은 1929 대공황 이후 1930년대 내내 net-net 종목들을 사들였고, 평균 보유 5년에 50%+ 수익률을 냈습니다. 현대 시장에선 net-net이 거의 사라졌지만(시장 효율성 증가), <strong>약세장 막바지엔 가끔 출현</strong>합니다. 1973-74 약세장, 2008 금융위기, 2020 3월 코로나 폭락 시 일부 종목이 net-net으로 떨어졌어요.
+        </p>
+        <p style="color:#9aa3b2;font-size:0.88rem;">
+            <em>현실 적용:</em> 한국 코스닥 동전주에서 net-net 종목이 종종 보이지만, <strong>거버넌스 리스크</strong>(대주주 횡령·사기상장)가 같이 따라옵니다. 청산가치만 보지 말고 경영진 평판도 함께 검증해야 합니다.
+        </p>
+
+        <h2 id="mr-market">Mr.Market 우화</h2>
+        <p>
+            「현명한 투자자」에서 가장 유명한 비유. 시장을 의인화한 비유입니다.
+        </p>
+        <blockquote>
+            당신에게 정신 나간 동업자 Mr.Market이 있다고 상상하세요. 그는 매일 아침 회사 지분 가격을 제시합니다. 어떤 날엔 흥분해서 비싼 가격을, 어떤 날엔 우울해서 헐값을 부릅니다. 당신의 일은 단순합니다 — <strong>그가 미쳐 비싸게 부를 땐 팔고, 미쳐 싸게 부를 땐 사라</strong>. 그의 변덕에 휘둘리지 말고 본인의 가치 평가만 믿어라.
+        </blockquote>
+        <p>
+            현대 행동경제학이 50년 뒤에 입증한 것을 그레이엄은 직관으로 알고 있었습니다. 시장은 본질적으로 인간 심리의 집합체라 이성적이지 않다는 거죠. 그래서 우리에게 가끔 기회를 줍니다.
+        </p>
+
+        <h2 id="safety-margin">안전마진 33% — 핵심 개념</h2>
+        <p>
+            그레이엄 사상의 중심에 있는 단 하나의 개념. <strong>"적정가 100원짜리를 67원에 사라"</strong> — 즉 안전마진 33% 이상. 왜 33%냐면, 본인의 가치 평가가 33% 틀려도 손해 보지 않을 마진입니다.
+        </p>
+        <p>
+            안전마진은 <em>"틀릴 권리"</em>를 사는 비용입니다. DCF 적정가 추정엔 항상 가정의 오류가 끼어들고, 미래는 예측 불가능합니다. 33% 마진은 그 불확실성을 흡수하는 쿠션이에요.
+        </p>
+        <p>
+            StockInto의 등급 시스템에서 안전마진은 결정적 가중치를 가집니다. <strong>9가지 기준 중 8개를 통과해도 안전마진이 0%면 등급이 한 단계 떨어집니다</strong>. 비싼 우량주를 사면 향후 5년 수익률이 거의 없을 수 있다는 사실을 그레이엄은 100년 전에 경고했어요.
+        </p>
+
+        <h2 id="real-cases">실전 사례 — GEICO와 1973-74 약세장</h2>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">GEICO 인수 (1948년)</h3>
+            <p class="body">
+                그레이엄이 자기 펀드 자금의 25%를 GEICO에 몰빵했습니다. 당시 GEICO는 보험업계 신생사였지만, 그레이엄은 직접보험(중개사 없는) 모델이 비용 우위라는 점을 봤어요. 결과: 그의 펀드 수익의 절반 이상이 GEICO 한 종목에서 나왔고, 이후 버핏도 평생 보유한 종목이 됐습니다. <em>방어형 7기준은 통과 안 했지만 적극형 분석으로 발굴한 케이스.</em>
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">1973-74 약세장 — Net-net의 부활</h3>
+            <p class="body">
+                다우지수 -45% 폭락기간. 그레이엄은 은퇴 상태였지만 인터뷰에서 "이건 1932년 이후 가장 좋은 net-net 시즌"이라고 평가했어요. 실제로 당시 다수 우량주가 운전자본 이하로 떨어졌고, 이후 5년간 평균 200%+ 수익. <strong>약세장은 기회</strong>라는 그레이엄식 사고의 직접 증거.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">한국 시장 적용 — IMF·금융위기·코로나</h3>
+            <p class="body">
+                IMF 외환위기(1997-98) 직후, 한국 우량주들이 PBR 0.5 이하로 거래됐습니다. 삼성전자가 PBR 0.7, POSCO가 PBR 0.4 같은 식. 당시 매수했다면 <strong>10년 후 5~10배</strong>. 2008·2020 폭락기에도 비슷한 기회 출현. 그레이엄식 방어형 기준은 약세장에서 진가를 발휘합니다.
+            </p>
+        </div>
+
+        <h2 id="mistakes">개인 투자자의 흔한 5가지 실수</h2>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">1. PER만 보고 사기</h3>
+            <p class="body">
+                "PER 8이면 무조건 싸다"는 건 그레이엄식 사고의 절반만 가져온 것. <strong>가치 함정(value trap)</strong>이라 부르는 종목들 — PER이 낮은 이유가 사업이 쇠퇴 중이거나 회계 조작 의심이 있을 수 있습니다. 7가지 기준을 함께 봐야 진짜 가치주.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">2. 사업의 질 무시</h3>
+            <p class="body">
+                정량 기준만 보면 사업 모델이 무너지고 있는 회사를 사게 됩니다. 그레이엄 본인도 후일 "정성적 분석을 더 많이 했어야 했다"고 인정. 특히 <strong>산업의 구조적 변화</strong>(예: 신문산업의 디지털 전환)는 숫자에 안 잡힙니다.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">3. 인플레이션 무시</h3>
+            <p class="body">
+                EPS가 10년째 같은 회사는 통과한 게 아니라 사실 후퇴 중입니다. <strong>실질 EPS</strong>(인플레 보정)로 보면 -20%~-30% 감소가 보이거든요. 명목 수치만 보지 말고 실질 추세를 확인하세요.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">4. 분산 부족</h3>
+            <p class="body">
+                Net-net 종목 발견했다고 자산 절반을 넣는 분들이 있는데, 그레이엄 본인이 "최소 10~30 종목 분산"을 명시했습니다. 약세장 net-net은 본질적으로 망할 가능성도 있는 종목이라, <strong>한 종목 망해도 포트폴리오는 살아남게</strong> 분산이 필수.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">5. Mr.Market에 휘둘리기</h3>
+            <p class="body">
+                A 등급 종목을 적정가 -30%에 샀는데 다음 주 -40%로 더 떨어지면 패닉 매도하는 패턴. <em>"왜 내려갔지?"</em>를 따지는 게 아니라 본인의 평가가 여전히 유효한가를 봐야 합니다. 가치 평가가 그대로면 <strong>더 싸게 살 기회</strong>이지 매도 신호가 아니에요.
+            </p>
+        </div>
+
+        <div class="cta-box" id="try-now">
+            <h3>📊 그레이엄 기준으로 직접 분석</h3>
+            <p>StockInto에서 종목을 검색하면 그레이엄 안전마진과 7가지 기준 통과 여부를 자동으로 확인할 수 있습니다.</p>
+            <p style="margin: 12px 0 16px;">
+                <a href="/stock/JNJ" class="cta-btn" style="margin: 4px;">J&J 분석 →</a>
+                <a href="/stock/KO" class="cta-btn" style="margin: 4px;">코카콜라 분석 →</a>
+                <a href="/stock/005930.KS" class="cta-btn" style="margin: 4px;">삼성전자 분석 →</a>
+            </p>
+        </div>
+
+        <h2>🔗 관련 가이드</h2>
+        <div class="related-grid">
+            <a href="/learn/buffett-criteria">📊 버핏 9가지 기준</a>
+            <a href="/learn/lynch-criteria">🔎 린치 PEG·6 카테고리</a>
+            <a href="/learn/oneil-criteria">🚀 오닐 CANSLIM</a>
+            <a href="/learn/fisher-criteria">🌱 피셔 15-Point</a>
+            <a href="/learn/dcf-guide">📐 DCF 가이드</a>
+            <a href="/glossary">📚 용어 사전</a>
+        </div>
+
+        <div class="back">
+            <a href="/" style="color:#888;text-decoration:none;">← 메인으로 돌아가기</a>
+        </div>
+    </article>
+</body>
+</html>

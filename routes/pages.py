@@ -60,6 +60,10 @@ def sitemap_xml():
         ("/briefing", "daily", "0.9"),
         ("/learn/buffett-criteria", "monthly", "0.85"),
         ("/learn/dcf-guide", "monthly", "0.85"),
+        ("/learn/graham-criteria", "monthly", "0.85"),
+        ("/learn/lynch-criteria", "monthly", "0.85"),
+        ("/learn/oneil-criteria", "monthly", "0.85"),
+        ("/learn/fisher-criteria", "monthly", "0.85"),
         ("/picks/buffett-style", "weekly", "0.85"),
         ("/picks/dividend-aristocrats", "weekly", "0.85"),
         # 영어 페이지 (i18n Phase 1)
@@ -154,6 +158,10 @@ def about():
 LEARN_TEMPLATES = {
     "buffett-criteria": "learn_buffett.html",
     "dcf-guide": "learn_dcf.html",
+    "graham-criteria": "learn_graham.html",
+    "lynch-criteria": "learn_lynch.html",
+    "oneil-criteria": "learn_oneil.html",
+    "fisher-criteria": "learn_fisher.html",
 }
 
 
