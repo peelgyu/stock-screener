@@ -226,6 +226,98 @@ WACC = (E/V) × Re + (D/V) × Rd × (1 - Tc)
             그래서 StockInto는 DCF를 단독으로 쓰지 않고 <strong>PER·Graham·애널리스트 목표가·P/S 5종을 가중평균</strong>합니다. 가중치는 섹터별·종목 카테고리별로 다르게 적용(예: 기술주는 DCF 35%, 부동산은 15%).
         </p>
 
+        <h2 id="walkthrough">실전 워크스루 — Apple 적정가 직접 계산해 보기</h2>
+        <p>이론은 그만 보고 한 번 실제로 굴려 봅시다. 아래는 실제 데이터로 단순화한 계산이라 정확한 산출가와는 차이가 있을 수 있지만, 사고 과정은 똑같습니다.</p>
+
+        <div class="data-card">
+            <strong>① 인풋 정리</strong><br>
+            <span style="color:#9aa3b2;font-size:0.88rem;line-height:1.8;">
+                FCF (TTM): 약 1,000억 달러 ($100B) — SEC 10-K 기준<br>
+                매출 성장률 (5년): 평균 약 8%<br>
+                현재 주가: 가정 ~$180 · 발행주식: 약 154억주<br>
+                10년 국채 금리: 약 4.5% · Beta: 1.27 · 시장 리스크 프리미엄: 5.5%
+            </span>
+        </div>
+
+        <p><strong>② WACC 산출 (CAPM 공식)</strong></p>
+        <p style="color:#c9d0dc;font-size:0.92rem;line-height:1.75;">
+            할인율 = 무위험 금리 + Beta × 리스크 프리미엄 = 4.5% + 1.27 × 5.5% ≈ <strong>11.5%</strong>. 단, StockInto는 7.5~14% 클램프를 적용해 극단값을 방지하므로 11.5%는 그대로 사용. 부채 비중이 큰 회사라면 자본비용·부채비용을 가중평균해야 하지만 Apple은 부채가 작아 자기자본비용 ≈ WACC로 근사.
+        </p>
+
+        <p><strong>③ 5년 FCF 예측 (성장률 8% 가정)</strong></p>
+        <ul>
+            <li>1년차: 100B × 1.08 = 108B</li>
+            <li>2년차: 108B × 1.08 = 117B</li>
+            <li>3년차: 117B × 1.08 = 126B</li>
+            <li>4년차: 126B × 1.08 = 136B</li>
+            <li>5년차: 136B × 1.08 = 147B</li>
+        </ul>
+
+        <p><strong>④ 영구가치 (TV) 계산</strong></p>
+        <p style="color:#c9d0dc;font-size:0.92rem;line-height:1.75;">
+            5년 후 영구 가치 = 6년차 FCF / (WACC − g) = (147B × 1.015) / (0.115 − 0.015) = 149B / 0.10 = <strong>약 1.49조 달러</strong>. 이게 5년 시점의 영구가치이므로, 다시 5년 동안 할인해 현재가치로 환산해야 합니다.
+        </p>
+
+        <p><strong>⑤ 모두 현재가로 할인 (DCF 본체)</strong></p>
+        <p style="color:#c9d0dc;font-size:0.92rem;line-height:1.75;">
+            각 연도 FCF를 (1+WACC)^년수로 나누고, TV는 (1+WACC)^5로 나눕니다. 대략적으로:
+        </p>
+        <ul>
+            <li>1~5년 FCF 현재가치 합: 약 470B</li>
+            <li>TV 현재가치: 1,490B / (1.115)^5 ≈ <strong>약 870B</strong></li>
+            <li>기업가치 (EV) 합계: 470B + 870B ≈ <strong>1.34조 달러</strong></li>
+        </ul>
+
+        <p><strong>⑥ 주당 적정가</strong></p>
+        <p style="color:#c9d0dc;font-size:0.92rem;line-height:1.75;">
+            EV 1.34조 ÷ 발행주식 154억주 ≈ <strong>주당 $87</strong>. 현재가 $180 대비 안전마진 음수 — 즉 DCF만 보면 "비싸다"는 결론. 하지만 Apple은 자사주 매입·서비스 매출 폭증·iPhone 락인 같은 정성 요인이 강해 PER 배수와 그레이엄 공식에선 다르게 나옵니다. 그래서 단독 DCF가 아니라 <strong>5종 가중평균</strong>을 쓰는 거예요.
+        </p>
+
+        <div class="data-card" style="background: rgba(255, 200, 0, 0.06); border-color: rgba(255, 200, 0, 0.3);">
+            <strong>💡 이 계산에서 배울 점</strong><br>
+            <span style="color:#9aa3b2;font-size:0.88rem;line-height:1.8;">
+                같은 회사라도 성장률 가정을 8% → 12%로 올리면 적정가가 $87 → $130으로 50% 점프합니다. <strong>DCF의 결과는 가정의 결과</strong>예요. 그래서 보수적으로 잡는 게 안전. 본인이 직접 모델을 굴려 보지 않더라도, StockInto의 적정가가 낮게 나왔다면 시장이 더 낙관적인 가정을 하고 있다고 해석하면 됩니다.
+            </span>
+        </div>
+
+        <h2 id="common-mistakes">DCF에서 사람들이 가장 많이 틀리는 5가지</h2>
+        <p>실제 사용자 질문을 받다 보면 같은 패턴의 오해가 반복됩니다. 본인 계산이 이상하게 나올 때 점검할 포인트.</p>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">1. 성장률을 너무 낙관적으로</h3>
+            <p class="body">
+                "최근 3년 매출이 30% 성장했으니 앞으로도 30%"는 거의 항상 틀립니다. 성장은 둔화되는 게 자연스러운 패턴이에요. 코카콜라가 1980년대 30% 성장했다고 지금도 그러는가? 보수적으로 가는 게 항상 안전. <strong>5년 평균</strong>을 쓰되 <strong>업종 GDP 성장률</strong>로 슬슬 수렴시키는 게 표준 모델링입니다.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">2. 영구성장률을 5%, 10%로 잡기</h3>
+            <p class="body">
+                영구성장률(terminal g)은 <em>"이 회사가 영원히 이만큼 성장한다"</em>는 가정. 5%로 잡으면 결국 회사가 세계 GDP보다 빠르게 성장한다는 말이라 비현실적입니다. <strong>인플레 이하인 1.5~2%</strong>가 보수적 표준. StockInto가 1.5% 고정 사용하는 이유. 1%p만 높여도 적정가가 20% 이상 점프해서 결과가 왜곡됩니다.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">3. WACC를 단순히 채권 금리로</h3>
+            <p class="body">
+                "10년 국채가 4.5%니까 4.5%로 할인하면 되겠다"는 큰 실수. 주식은 채권보다 위험 프리미엄이 있어야 합니다. CAPM으로 산출한 <strong>주식의 WACC는 보통 8~12%</strong>. Beta가 높은 종목(테슬라 1.5+)은 12% 이상도 정상. 할인율을 4.5%로 잡으면 적정가가 비현실적으로 높게 나와요.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">4. 적자 기업에 DCF 굴리기</h3>
+            <p class="body">
+                FCF가 음수인 회사에 DCF를 굴리면 적정가가 음수로 나옵니다. 그래도 그 회사 주가가 양수인 이유는 시장이 <em>"미래에 흑자전환할 것"</em>을 가격에 반영하기 때문. 이런 종목은 DCF 대신 <strong>P/S(매출 배수)</strong>나 <strong>애널리스트 컨센서스</strong>로 평가해야 합니다. StockInto가 적자 종목에 DCF 비중을 0%로 떨어뜨리는 이유.
+            </p>
+        </div>
+
+        <div class="criterion-box">
+            <h3 style="color:#fff;">5. 한 번 계산하고 그대로 믿기</h3>
+            <p class="body">
+                DCF는 정답을 주는 게 아니라 <strong>가정의 합리성 검증 도구</strong>입니다. 같은 회사를 성장률 5%/8%/12% 세 시나리오로 굴려 보세요. 시나리오마다 적정가가 크게 달라질 거예요. 그 폭이 곧 <em>불확실성의 크기</em>이고, 그래서 <strong>안전마진 30%</strong>가 필요한 겁니다. DCF 결과 ± 30% 범위가 합리적 적정가 구간이라 보면 됩니다.
+            </p>
+        </div>
+
         <div class="cta-box" id="try-now">
             <h3>📐 직접 적정가 보기</h3>
             <p style="color:#c9d0dc;margin: 0 0 14px;font-size:0.9rem;">아래 종목을 클릭하면 DCF + PER + Graham 가중평균 적정가를 볼 수 있습니다.</p>
