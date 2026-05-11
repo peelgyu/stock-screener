@@ -1,7 +1,7 @@
 """종목 분석 API Blueprint — /api/analyze + 관련 lazy 로드 엔드포인트.
 
 라우트:
-- /api/analyze   POST  종목 종합 분석 (5인 거장 + 적정주가 + 재무 + 시황)
+- /api/analyze   POST  종목 종합 분석 (유명 투자자 5명 + 적정주가 + 재무 + 시황)
 - /api/news      POST  종목별 뉴스 (네이버 API, 탭 클릭 시 lazy)
 - /api/krx       POST  한국 종목 수급 (외국인·기관·공매도, lazy)
 - /api/options   POST  옵션 체인 분석 (Max Pain, lazy)

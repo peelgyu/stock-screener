@@ -3,7 +3,7 @@
         <section class="seo-section" aria-label="{{ stock_name|default(stock_ticker) }} 분석 페이지" style="margin: 32px 0 16px; padding: 24px 22px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
             <h1 style="color:#fff;font-size:1.4rem;font-weight:800;margin:0 0 10px;letter-spacing:-0.02em;">{{ stock_name|default(stock_ticker) }} 종목 분석</h1>
             <p class="lang-ko" style="color:#c9d0dc;font-size:0.95rem;line-height:1.75;margin:0 0 10px;">
-                <strong style="color:#fff;">{{ stock_name|default(stock_ticker) }}</strong> 주식의 PER·PBR·ROE·부채비율·FCF 등 핵심 지표를 워렌 버핏·벤저민 그레이엄·피터 린치·윌리엄 오닐·필립 피셔 <strong style="color:#fff;">5인 투자 거장의 정량 기준</strong>으로 자동 채점합니다. DCF·PER·Graham 가중평균으로 계산한 <strong style="color:#fff;">{{ stock_ticker }} 적정주가</strong>와 5년 재무 추세, 안전마진까지 한 화면에 표시됩니다.
+                <strong style="color:#fff;">{{ stock_name|default(stock_ticker) }}</strong> 주식의 PER·PBR·ROE·부채비율·FCF 등 핵심 지표를 워렌 버핏·벤저민 그레이엄·피터 린치·윌리엄 오닐·필립 피셔 <strong style="color:#fff;">유명 투자자 5명의 정량 기준</strong>으로 자동 채점합니다. DCF·PER·Graham 가중평균으로 계산한 <strong style="color:#fff;">{{ stock_ticker }} 적정주가</strong>와 5년 재무 추세, 안전마진까지 한 화면에 표시됩니다.
             </p>
             <p class="lang-ko" style="color:#9aa3b2;font-size:0.88rem;line-height:1.7;margin:0;">
                 {% if '.KS' in stock_ticker or '.KQ' in stock_ticker %}
@@ -55,9 +55,9 @@
             </div>
         </section>
 
-        <!-- 섹션 3: 5인 거장의 시선 -->
-        <section class="seo-section lang-ko" aria-label="{{ stock_ticker }} 거장 분석" style="margin: 16px 0; padding: 22px 22px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
-            <h2 style="color:#00D9FF;font-size:1.15rem;font-weight:800;margin:0 0 12px;letter-spacing:-0.02em;">🎯 {{ stock_ticker }}를 5인 거장이라면 어떻게 볼까</h2>
+        <!-- 섹션 3: 유명 투자자 5명의 시선 -->
+        <section class="seo-section lang-ko" aria-label="{{ stock_ticker }} 유명 투자자 분석" style="margin: 16px 0; padding: 22px 22px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
+            <h2 style="color:#00D9FF;font-size:1.15rem;font-weight:800;margin:0 0 12px;letter-spacing:-0.02em;">🎯 {{ stock_ticker }}를 유명 투자자 5명이라면 어떻게 볼까</h2>
             <p style="color:#c9d0dc;font-size:0.92rem;line-height:1.75;margin:0 0 14px;">
                 같은 종목이라도 보는 사람에 따라 매력 포인트가 완전히 다릅니다. {{ stock_name|default(stock_ticker) }}가 어느 스타일에 맞는지 본인의 투자 성향과 매칭하면 의사결정이 한결 쉬워져요.
             </p>
@@ -137,8 +137,8 @@
             </details>
 
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
-                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">{{ stock_ticker }}는 5인 거장 중 누구의 스타일에 가장 적합한가요?</summary>
-                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">분석 결과 화면의 5명 통과율 그래프를 보면 한눈에 파악됩니다. 모든 거장이 동시에 통과하는 종목은 거의 없어요 — 보통 1~2명에서 강하게, 다른 1~2명에서 약하게 나옵니다. 본인 투자 성향이 가치(버핏·그레이엄)인지 모멘텀(오닐)인지 성장(린치·피셔)인지에 따라 결정 기준 거장을 정하세요.</p>
+                <summary style="cursor:pointer;color:#fff;font-size:0.92rem;font-weight:700;">{{ stock_ticker }}는 유명 투자자 5명 중 누구의 스타일에 가장 적합한가요?</summary>
+                <p style="color:#c9d0dc;font-size:0.88rem;line-height:1.7;margin:10px 0 0;">분석 결과 화면의 5명 통과율 그래프를 보면 한눈에 파악됩니다. 5명 모두가 동시에 통과하는 종목은 거의 없어요 — 보통 1~2명에서 강하게, 다른 1~2명에서 약하게 나옵니다. 본인 투자 성향이 가치(버핏·그레이엄)인지 모멘텀(오닐)인지 성장(린치·피셔)인지에 따라 결정 기준이 되는 투자자를 정하세요.</p>
             </details>
 
             <details style="background:#1a1f2b;border:1px solid #2a2f3d;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
@@ -175,7 +175,7 @@
                 "@type": "FAQPage",
                 "mainEntity": [
                   {"@type": "Question", "name": "{{ stock_ticker }} PER이 몇이면 비싼 건가요?", "acceptedAnswer": {"@type": "Answer", "text": "절대값보다 섹터 평균 대비가 본질입니다. 기술주는 PER 25~35, 금융주 8~12, 유틸리티 15~18 수준이 표준입니다."}},
-                  {"@type": "Question", "name": "{{ stock_ticker }}는 5인 거장 중 누구의 스타일에 적합한가요?", "acceptedAnswer": {"@type": "Answer", "text": "분석 결과 화면의 5명 통과율 그래프를 확인하세요. 보통 1~2명에서 강하게, 다른 1~2명에서 약하게 나옵니다."}},
+                  {"@type": "Question", "name": "{{ stock_ticker }}는 유명 투자자 5명 중 누구의 스타일에 적합한가요?", "acceptedAnswer": {"@type": "Answer", "text": "분석 결과 화면의 5명 통과율 그래프를 확인하세요. 보통 1~2명에서 강하게, 다른 1~2명에서 약하게 나옵니다."}},
                   {"@type": "Question", "name": "{{ stock_ticker }} 적정주가는 어떻게 산출되나요?", "acceptedAnswer": {"@type": "Answer", "text": "DCF(현금흐름할인)·PER 배수·Graham 공식 세 방법을 가중 평균합니다. 한국 종목은 원화, 미국은 USD로 표시됩니다."}}
                 ]
               }
@@ -187,7 +187,7 @@
         {% if not stock_ticker %}
         <!-- SEO 콘텐츠 섹션 — 메인 진입 시에만 노출. 봇이 인식할 본문 텍스트 + 내부 링크 강화 -->
         <section class="seo-section" aria-label="StockInto 소개 및 가이드" style="margin: 48px 0 24px; padding: 28px 24px; background: rgba(20, 24, 33, 0.55); border: 1px solid #232936; border-radius: 14px;">
-            <h2 style="color:#00D9FF;font-size:1.35rem;font-weight:800;margin:0 0 14px;letter-spacing:-0.02em;" data-i18n="seo.why_heading">왜 5인 거장 기준으로 분석하나요?</h2>
+            <h2 style="color:#00D9FF;font-size:1.35rem;font-weight:800;margin:0 0 14px;letter-spacing:-0.02em;" data-i18n="seo.why_heading">왜 유명 투자자 5명의 기준으로 분석하나요?</h2>
             <div class="lang-ko">
                 <p style="color:#c9d0dc;font-size:0.93rem;line-height:1.75;margin:0 0 12px;">
                     개인 투자자가 가장 흔히 빠지는 함정은 <strong style="color:#fff;">"좋은 회사"와 "좋은 주식"을 혼동하는 것</strong>입니다. 매출이 늘어나는 회사라도 PER이 100배라면 비싼 주식이고, 영업이익률이 30%인 회사라도 부채가 자본의 5배라면 위험합니다.

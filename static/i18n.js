@@ -60,7 +60,7 @@
             'promo.glossary_sub': 'PER, ROE, DCF, RSI... 70+ 용어 검색.',
             'promo.glossary_cta': '용어 사전 →',
 
-            // ===== 분석 결과 — 5인 거장 =====
+            // ===== 분석 결과 — 유명 투자자 5명 =====
             'inv.buffett': '워렌 버핏',
             'inv.graham': '벤저민 그레이엄',
             'inv.lynch': '피터 린치',
@@ -138,7 +138,7 @@
             'faq.q8': '앱으로 설치할 수 있나요?',
 
             // ===== SEO 섹션 =====
-            'seo.why_heading': '왜 5인 거장 기준으로 분석하나요?',
+            'seo.why_heading': '왜 유명 투자자 5명의 기준으로 분석하나요?',
             'seo.guide_heading': '이렇게 활용하세요 — 3단계 가이드',
             'seo.popular_heading': '🔥 지금 인기 분석 종목',
             'seo.popular_hint': '티커를 클릭하면 바로 분석 결과로 이동합니다.',
@@ -369,7 +369,7 @@
     // 백엔드(Python 분석 모듈)에서 보내는 한국어 라벨을 영어 모드에서 자동 교체.
     // 정확 매칭이 우선이고, 변수 포함 텍스트는 BACKEND_PATTERNS로 처리.
     const BACKEND_TEXT_MAP = {
-        // 등급·거장
+        // 등급·유명 투자자
         '워렌 버핏': 'Warren Buffett', '벤저민 그레이엄': 'Benjamin Graham',
         '피터 린치': 'Peter Lynch', '윌리엄 오닐': "William O'Neil", '필립 피셔': 'Philip Fisher',
 
