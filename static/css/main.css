@@ -76,6 +76,31 @@ img, svg, video, iframe { max-width: 100%; }
 }
 .container { max-width: 800px; margin: 0 auto; padding: 20px 16px; width: 100%; }
 
+/* 콘텐츠 네비 (Row 1) — 로고 위, 콘텐츠 발견용 */
+.contentnav {
+    background: rgba(8, 11, 22, 0.96);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.contentnav-link {
+    color: var(--text-primary); text-decoration: none;
+    font-size: 0.86rem; font-weight: 700;
+    padding: 8px 16px; border-radius: var(--radius-pill);
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+.contentnav-link:hover {
+    background: var(--accent-bg); color: #fff;
+    transform: translateY(-1px);
+}
+@media (max-width: 480px) {
+    .contentnav { padding: 8px 8px; gap: 2px; }
+    .contentnav-link { font-size: 0.74rem; padding: 6px 10px; }
+}
+
 /* 상단 sticky 네비 (모든 페이지 공통) */
 .topnav {
     position: sticky; top: 0; z-index: 100;
