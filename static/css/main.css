@@ -76,11 +76,12 @@ img, svg, video, iframe { max-width: 100%; }
 }
 .container { max-width: 800px; margin: 0 auto; padding: 20px 16px; width: 100%; }
 
-/* 콘텐츠 네비 (Row 1) — 로고 위, 콘텐츠 발견용 */
+/* 콘텐츠 네비 (Row 1) — 로고 바로 위, 같은 헤더 블록으로 시각 통합 */
 .contentnav {
-    background: rgba(8, 11, 22, 0.96);
-    border-bottom: 1px solid var(--border);
-    padding: 14px 16px;
+    background: rgba(10, 14, 26, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 14px 16px 6px;
     display: flex; align-items: center; justify-content: center;
     gap: 6px;
     flex-wrap: wrap;
