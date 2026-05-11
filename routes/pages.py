@@ -58,6 +58,7 @@ def sitemap_xml():
         ("/about", "monthly", "0.9"),
         ("/glossary", "weekly", "0.8"),
         ("/briefing", "daily", "0.9"),
+        ("/screener", "weekly", "0.9"),
         ("/learn/buffett-criteria", "monthly", "0.85"),
         ("/learn/dcf-guide", "monthly", "0.85"),
         ("/learn/graham-criteria", "monthly", "0.85"),
@@ -124,6 +125,12 @@ def stock_detail(ticker: str):
 # ============================================================
 # 한국어 정적 페이지
 # ============================================================
+@pages_bp.route("/screener")
+def screener():
+    """주식 스크리너 — 조건 필터로 종목 발굴."""
+    return render_template("screener.html")
+
+
 @pages_bp.route("/install")
 def install_guide():
     return render_template("install.html")

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% include '_tracking.html' %}
+
+    <title>주식 스크리너 — PER·ROE·부채비율 조건으로 종목 필터링 | StockInto</title>
+    <meta name="description" content="PER·PBR·ROE·부채비율·배당수익률·시가총액을 조건으로 한국·미국 인기 종목 50+를 즉시 필터링. 워렌 버핏 기준(ROE 15%+ · PER 15 이하) 같은 프리셋도 한 번 클릭으로.">
+    <meta name="keywords" content="주식 스크리너, 종목 필터, PER 스크리너, ROE 필터, 가치주 발굴, 배당주 검색, 한국 미국 주식 스크리너, StockInto 스크리너">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://stockinto.com/screener">
+    <meta property="og:title" content="주식 스크리너 — 조건으로 종목 발굴">
+    <meta property="og:description" content="PER·ROE·부채비율 조건 필터로 한국·미국 인기 종목 50+ 즉시 검색.">
+    <meta property="og:url" content="https://stockinto.com/screener">
+    <meta property="og:image" content="https://stockinto.com/static/icon-512.png">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon-32.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+
+    <style>
+        :root {
+            --bg: #0f0f1a; --card: #161b25; --border: #232936;
+            --text: #e7eaf2; --text-dim: #9aa3b2; --accent: #00d2ff;
+            --pass: #22c55e; --fail: #ef4444; --warn: #eab308;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Pretendard, sans-serif; background: var(--bg); color: var(--text); margin: 0; line-height: 1.6; }
+        .topnav { position: sticky; top: 0; z-index: 100; background: rgba(10,14,26,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; }
+        .brand-link img { height: 36px; }
+        .nav-home { color: #aaa; text-decoration: none; font-size: 0.82rem; padding: 6px 14px; border-radius: 16px; border: 1px solid var(--border); }
+        .nav-home:hover { background: #0D5FD9; color: #fff; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 24px 20px 80px; }
+        h1 { color: var(--accent); font-size: 1.7rem; margin: 0 0 8px; letter-spacing: -0.02em; }
+        .lede { color: var(--text-dim); font-size: 0.92rem; margin: 0 0 20px; }
+        .meta-bar { display: flex; gap: 12px; align-items: center; font-size: 0.82rem; color: var(--text-dim); margin-bottom: 16px; flex-wrap: wrap; }
+        .meta-bar .pill { background: var(--card); padding: 4px 10px; border-radius: 9999px; border: 1px solid var(--border); }
+
+        /* 프리셋 */
+        .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+        .preset-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 9999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+        .preset-btn:hover { background: rgba(0, 210, 255, 0.1); border-color: var(--accent); color: var(--accent); }
+        .preset-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+        /* 필터 패널 */
+        .filters { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-bottom: 20px; }
+        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+        .filter-item label { display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .filter-item input, .filter-item select { width: 100%; box-sizing: border-box; background: #0f1420; color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 0.9rem; }
+        .filter-item input:focus, .filter-item select:focus { outline: none; border-color: var(--accent); }
+        .filter-actions { display: flex; gap: 10px; margin-top: 14px; align-items: center; flex-wrap: wrap; }
+        .reset-btn { background: transparent; color: var(--text-dim); border: 1px solid var(--border); padding: 7px 14px; border-radius: 9999px; font-size: 0.82rem; cursor: pointer; }
+        .reset-btn:hover { color: #fff; border-color: var(--text-dim); }
+        .result-count { color: var(--accent); font-weight: 700; font-size: 0.9rem; }
+
+        /* 결과 테이블 */
+        .results-wrap { overflow-x: auto; margin-top: 8px; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
+        th, td { padding: 10px 14px; text-align: left; font-size: 0.85rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
+        th { background: rgba(0, 210, 255, 0.05); color: var(--accent); font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; user-select: none; }
+        th:hover { background: rgba(0, 210, 255, 0.1); }
+        th .arrow { font-size: 0.65rem; margin-left: 4px; opacity: 0.6; }
+        tbody tr { transition: background 0.12s; }
+        tbody tr:hover { background: rgba(0, 210, 255, 0.04); }
+        td a { color: var(--accent); text-decoration: none; font-weight: 700; }
+        td a:hover { text-decoration: underline; }
+        .country-flag { display: inline-block; margin-right: 6px; font-size: 0.85rem; }
+        td.num { text-align: right; font-variant-numeric: tabular-nums; }
+        .pass-rate-bar { display: inline-block; width: 50px; height: 8px; background: #2a2f3d; border-radius: 4px; overflow: hidden; vertical-align: middle; margin-right: 6px; }
+        .pass-rate-bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--fail), var(--warn), var(--pass)); }
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--text-dim); }
+        .empty-state h3 { color: var(--text); font-weight: 700; margin: 0 0 8px; }
+
+        /* SEO 콘텐츠 (테이블 아래) */
+        .seo-section { margin-top: 36px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; }
+        .seo-section h2 { color: var(--accent); font-size: 1.15rem; margin: 0 0 12px; }
+        .seo-section h3 { color: var(--text); font-size: 1rem; margin: 18px 0 8px; }
+        .seo-section p { color: #c9d0dc; font-size: 0.92rem; line-height: 1.75; margin: 0 0 12px; }
+        .seo-section ul { padding-left: 22px; color: #c9d0dc; font-size: 0.9rem; }
+        .seo-section li { margin: 6px 0; line-height: 1.7; }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.3rem; }
+            th, td { padding: 8px 10px; font-size: 0.78rem; }
+            .filter-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+        }
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "StockInto 스크리너",
+      "description": "PER·ROE·부채비율 등 조건으로 한국·미국 인기 종목을 필터링하는 무료 도구.",
+      "url": "https://stockinto.com/screener",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Any",
+      "offers": {"@type": "Offer", "price": "0", "priceCurrency": "KRW"}
+    }
+    </script>
+</head>
+<body>
+    <nav class="topnav">
+        <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
+            <a href="/learn/buffett-criteria" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">🧠 유명 투자자</a>
+            <a href="/" class="nav-home">🏠 메인</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        <h1>🔍 주식 스크리너</h1>
+        <p class="lede">PER·ROE·부채비율 같은 조건으로 한국·미국 인기 종목 50개+를 즉시 필터링. 워렌 버핏·그레이엄 스타일 같은 프리셋도 한 번 클릭으로.</p>
+
+        <div class="meta-bar">
+            <span class="pill">📅 데이터 기준: <strong id="generatedAt" style="color:var(--text);">로딩 중…</strong></span>
+            <span class="pill">📊 종목 수: <strong id="totalCount" style="color:var(--text);">—</strong></span>
+            <span class="pill" style="color:var(--text-dim);">시세는 15분 지연 · 재무는 분기 공시 기준</span>
+        </div>
+
+        <!-- 프리셋 -->
+        <div class="presets">
+            <button class="preset-btn" data-preset="buffett">🧠 워렌 버핏 스타일</button>
+            <button class="preset-btn" data-preset="graham">📚 그레이엄 가치주</button>
+            <button class="preset-btn" data-preset="growth">🚀 고성장 (린치)</button>
+            <button class="preset-btn" data-preset="dividend">💰 고배당</button>
+            <button class="preset-btn" data-preset="lowdebt">🛡 안정 재무</button>
+        </div>
+
+        <!-- 필터 -->
+        <section class="filters" aria-label="스크리너 필터">
+            <div class="filter-grid">
+                <div class="filter-item">
+                    <label>🌐 국가</label>
+                    <select id="f_country">
+                        <option value="">전체</option>
+                        <option value="US">🇺🇸 미국</option>
+                        <option value="KR">🇰🇷 한국</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>🏷 섹터</label>
+                    <select id="f_sector"><option value="">전체</option></select>
+                </div>
+                <div class="filter-item">
+                    <label>📉 PER 최대</label>
+                    <input type="number" id="f_per_max" step="1" placeholder="예: 15">
+                </div>
+                <div class="filter-item">
+                    <label>📈 ROE 최소 (%)</label>
+                    <input type="number" id="f_roe_min" step="1" placeholder="예: 15">
+                </div>
+                <div class="filter-item">
+                    <label>📊 PBR 최대</label>
+                    <input type="number" id="f_pbr_max" step="0.1" placeholder="예: 3">
+                </div>
+                <div class="filter-item">
+                    <label>🛡 부채비율 최대 (%)</label>
+                    <input type="number" id="f_de_max" step="10" placeholder="예: 100">
+                </div>
+                <div class="filter-item">
+                    <label>💰 배당수익률 최소 (%)</label>
+                    <input type="number" id="f_div_min" step="0.5" placeholder="예: 2">
+                </div>
+                <div class="filter-item">
+                    <label>🏦 시가총액 최소 (조원/$B)</label>
+                    <input type="number" id="f_mcap_min" step="10" placeholder="예: 10">
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="reset-btn" id="resetBtn">↻ 필터 초기화</button>
+                <span class="result-count" id="resultCount">— 개 종목 매칭</span>
+            </div>
+        </section>
+
+        <!-- 결과 -->
+        <div class="results-wrap">
+            <table aria-label="스크리너 결과 테이블">
+                <thead>
+                    <tr>
+                        <th data-sort="ticker">티커 <span class="arrow"></span></th>
+                        <th data-sort="name">기업명 <span class="arrow"></span></th>
+                        <th data-sort="sector">섹터 <span class="arrow"></span></th>
+                        <th class="num" data-sort="per">PER <span class="arrow"></span></th>
+                        <th class="num" data-sort="pbr">PBR <span class="arrow"></span></th>
+                        <th class="num" data-sort="roe">ROE <span class="arrow"></span></th>
+                        <th class="num" data-sort="debtToEquity">부채비율 <span class="arrow"></span></th>
+                        <th class="num" data-sort="dividendYield">배당 <span class="arrow"></span></th>
+                        <th class="num" data-sort="marketCap">시가총액 <span class="arrow"></span></th>
+                        <th>분석</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-dim);">로딩 중…</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- SEO 본문 -->
+        <section class="seo-section">
+            <h2>💡 스크리너 사용법</h2>
+            <p>주식 스크리너는 <strong>"좋은 종목"의 후보군을 빠르게 추리는 도구</strong>입니다. 시장 전체에서 본인이 원하는 조건(예: PER 15 이하, ROE 20% 이상, 부채비율 100% 이하)을 만족하는 종목들을 한 번에 찾을 수 있어요. 모든 종목을 일일이 분석할 필요 없이, <strong>스크리너로 1차 거른 뒤 상세 분석</strong>으로 들어가는 게 효율적입니다.</p>
+
+            <h3>📊 프리셋이란?</h3>
+            <p>유명 투자자들이 실제로 사용한 정량 기준을 한 번 클릭으로 적용하는 기능입니다. 예를 들어 <strong>"워렌 버핏 스타일"</strong> 프리셋은 ROE 15%+ · 부채비율 100% 이하 · PER 25 이하 조건을 자동으로 입력합니다. 그레이엄 가치주(PER 15 이하 + PBR 1.5 이하), 린치 고성장(매출 성장 20%+ + PEG 1 이하) 같은 조합도 한 번에.</p>
+
+            <h3>🎯 필터별 의미와 권장값</h3>
+            <ul>
+                <li><strong>PER</strong> — 이익 대비 가격. 기술주 25~35, 금융주 8~12가 일반적. 절대값보다 섹터 평균 대비가 본질.</li>
+                <li><strong>PBR</strong> — 자본 대비 가격. 1.5 이하면 가치주 후보, 무형자산 큰 IT 기업엔 의미 약함.</li>
+                <li><strong>ROE</strong> — 자본 효율성. 15%+ 양호, 20%+ 우수, 30%+ 압도적. 부채비율과 함께 봐야 진짜 실력.</li>
+                <li><strong>부채비율</strong> — 자본 대비 총부채. 100% 이하 보수적, 200%+ 위험. 산업별로 다름(금융 400%까지 정상).</li>
+                <li><strong>배당수익률</strong> — 현재 주가 대비 연 배당. 4%+ 고배당주, 0~2% 성장주.</li>
+                <li><strong>시가총액</strong> — 회사 규모. 대형주(미국 $50B+, 한국 10조원+)는 안정성, 중소형주는 성장 잠재력.</li>
+            </ul>
+
+            <h3>⚠ 주의사항</h3>
+            <p>스크리너는 <strong>후보 발굴 도구</strong>이지 매수 결정 도구가 아닙니다. 조건을 통과한 종목 중에서도 사업 모델, 산업 사이클, 경영진의 정직성 같은 정성 요인을 별도로 확인해야 합니다. 또한 데이터는 분기 공시 기준이라 최근 분기 실적이 안 반영된 시점이 있을 수 있으니, 각 종목의 상세 분석에서 최신 추세를 확인하세요. 본 데이터는 <strong>투자 권유가 아니며 정보 제공 목적</strong>입니다.</p>
+
+            <h3>🔗 관련 가이드</h3>
+            <p>각 기준의 의미는 <a href="/learn/buffett-criteria">버핏 9가지 기준</a> · <a href="/learn/graham-criteria">그레이엄 7원칙</a> · <a href="/learn/lynch-criteria">린치 PEG 공식</a> 가이드에서 자세히. 적정주가 계산 원리는 <a href="/learn/dcf-guide">DCF 가이드</a>. 모르는 용어는 <a href="/glossary">용어 사전</a>.</p>
+        </section>
+    </main>
+
+<script>
+(function () {
+    'use strict';
+
+    let allStocks = [];
+    let filteredStocks = [];
+    let sortKey = 'marketCap';
+    let sortDir = 'desc';
+
+    // ---- 프리셋 정의 ----
+    const PRESETS = {
+        buffett: { per_max: 25, roe_min: 15, de_max: 100, label: '🧠 워렌 버핏 스타일' },
+        graham:  { per_max: 15, pbr_max: 1.5, de_max: 100, label: '📚 그레이엄 가치주' },
+        growth:  { roe_min: 20, label: '🚀 고성장' },
+        dividend: { div_min: 3, de_max: 100, label: '💰 고배당' },
+        lowdebt: { de_max: 50, roe_min: 10, label: '🛡 안정 재무' },
+    };
+
+    // ---- 포맷 ----
+    function fmtNum(v, decimals = 1) {
+        if (v == null || isNaN(v)) return '—';
+        return Number(v).toFixed(decimals);
+    }
+    function fmtPct(v, decimals = 1, alreadyPercent = false) {
+        if (v == null || isNaN(v)) return '—';
+        // yfinance 단위 불일치: dividendYield만 percent 단위, 나머지는 소수
+        if (alreadyPercent) return Number(v).toFixed(decimals) + '%';
+        return (Number(v) * 100).toFixed(decimals) + '%';
+    }
+    function fmtMcap(v, country) {
+        if (v == null || isNaN(v)) return '—';
+        if (country === 'KR') {
+            // KRW → 조원/억원 표시
+            const cho = v / 1e12;
+            if (cho >= 1) return cho.toFixed(1) + '조원';
+            return (v / 1e8).toFixed(0) + '억원';
+        }
+        // USD → $B
+        const b = v / 1e9;
+        if (b >= 1) return '$' + b.toFixed(1) + 'B';
+        return '$' + (v / 1e6).toFixed(0) + 'M';
+    }
+    function fmtPrice(v, country, currency) {
+        if (v == null || isNaN(v)) return '—';
+        if (country === 'KR' || currency === 'KRW') {
+            return '₩' + Math.round(v).toLocaleString();
+        }
+        return '$' + Number(v).toFixed(2);
+    }
+
+    // ---- 필터 적용 ----
+    function applyFilters() {
+        const country = document.getElementById('f_country').value;
+        const sector = document.getElementById('f_sector').value;
+        const perMax = parseFloat(document.getElementById('f_per_max').value);
+        const roeMin = parseFloat(document.getElementById('f_roe_min').value);
+        const pbrMax = parseFloat(document.getElementById('f_pbr_max').value);
+        const deMax = parseFloat(document.getElementById('f_de_max').value);
+        const divMin = parseFloat(document.getElementById('f_div_min').value);
+        const mcapMin = parseFloat(document.getElementById('f_mcap_min').value);
+
+        filteredStocks = allStocks.filter(s => {
+            if (country && s.country !== country) return false;
+            if (sector && s.sector !== sector) return false;
+            if (!isNaN(perMax) && (s.per == null || s.per > perMax || s.per <= 0)) return false;
+            if (!isNaN(roeMin) && (s.roe == null || s.roe * 100 < roeMin)) return false;
+            if (!isNaN(pbrMax) && (s.pbr == null || s.pbr > pbrMax || s.pbr <= 0)) return false;
+            if (!isNaN(deMax) && s.debtToEquity != null && s.debtToEquity > deMax) return false;
+            if (!isNaN(divMin) && (s.dividendYield == null || s.dividendYield < divMin)) return false;
+            if (!isNaN(mcapMin)) {
+                const mcapInUnit = s.country === 'KR' ? (s.marketCap || 0) / 1e12 : (s.marketCap || 0) / 1e9;
+                if (mcapInUnit < mcapMin) return false;
+            }
+            return true;
+        });
+
+        sortAndRender();
+    }
+
+    // ---- 정렬 ----
+    function sortAndRender() {
+        filteredStocks.sort((a, b) => {
+            let va = a[sortKey], vb = b[sortKey];
+            if (typeof va === 'string') {
+                return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+            }
+            if (va == null) va = sortDir === 'asc' ? Infinity : -Infinity;
+            if (vb == null) vb = sortDir === 'asc' ? Infinity : -Infinity;
+            return sortDir === 'asc' ? va - vb : vb - va;
+        });
+        renderTable();
+    }
+
+    // ---- 렌더링 ----
+    function renderTable() {
+        const tbody = document.getElementById('resultsBody');
+        const count = filteredStocks.length;
+        document.getElementById('resultCount').textContent = count + ' 개 종목 매칭';
+
+        if (count === 0) {
+            tbody.innerHTML = '<tr><td colspan="10"><div class="empty-state"><h3>조건에 맞는 종목이 없습니다</h3><p>필터를 완화하거나 초기화해 보세요.</p></div></td></tr>';
+            return;
+        }
+
+        const rows = filteredStocks.map(s => {
+            const flag = s.country === 'KR' ? '🇰🇷' : '🇺🇸';
+            return `
+                <tr>
+                    <td><span class="country-flag">${flag}</span><strong>${s.ticker}</strong></td>
+                    <td>${(s.name || '').slice(0, 22)}</td>
+                    <td style="color:var(--text-dim);font-size:0.78rem;">${s.sector === '—' ? '—' : s.sector.slice(0, 12)}</td>
+                    <td class="num">${fmtNum(s.per)}</td>
+                    <td class="num">${fmtNum(s.pbr, 2)}</td>
+                    <td class="num">${fmtPct(s.roe)}</td>
+                    <td class="num">${fmtNum(s.debtToEquity, 0)}%</td>
+                    <td class="num">${fmtPct(s.dividendYield, 2, true)}</td>
+                    <td class="num">${fmtMcap(s.marketCap, s.country)}</td>
+                    <td><a href="/stock/${s.ticker}">분석 →</a></td>
+                </tr>`;
+        });
+        tbody.innerHTML = rows.join('');
+    }
+
+    // ---- 섹터 옵션 동적 생성 ----
+    function populateSectorOptions() {
+        const sel = document.getElementById('f_sector');
+        const sectors = [...new Set(allStocks.map(s => s.sector).filter(s => s && s !== '—'))].sort();
+        sectors.forEach(sec => {
+            const opt = document.createElement('option');
+            opt.value = sec;
+            opt.textContent = sec;
+            sel.appendChild(opt);
+        });
+    }
+
+    // ---- 프리셋 적용 ----
+    function applyPreset(name) {
+        document.getElementById('f_country').value = '';
+        document.getElementById('f_sector').value = '';
+        document.getElementById('f_per_max').value = '';
+        document.getElementById('f_roe_min').value = '';
+        document.getElementById('f_pbr_max').value = '';
+        document.getElementById('f_de_max').value = '';
+        document.getElementById('f_div_min').value = '';
+        document.getElementById('f_mcap_min').value = '';
+
+        const preset = PRESETS[name];
+        if (!preset) return;
+        if (preset.per_max != null) document.getElementById('f_per_max').value = preset.per_max;
+        if (preset.roe_min != null) document.getElementById('f_roe_min').value = preset.roe_min;
+        if (preset.pbr_max != null) document.getElementById('f_pbr_max').value = preset.pbr_max;
+        if (preset.de_max != null) document.getElementById('f_de_max').value = preset.de_max;
+        if (preset.div_min != null) document.getElementById('f_div_min').value = preset.div_min;
+
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector('[data-preset="' + name + '"]').classList.add('active');
+
+        applyFilters();
+    }
+
+    // ---- 이벤트 바인딩 ----
+    function bindEvents() {
+        ['f_country', 'f_sector', 'f_per_max', 'f_roe_min', 'f_pbr_max', 'f_de_max', 'f_div_min', 'f_mcap_min'].forEach(id => {
+            document.getElementById(id).addEventListener('input', applyFilters);
+            document.getElementById(id).addEventListener('change', applyFilters);
+        });
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            ['f_country', 'f_sector', 'f_per_max', 'f_roe_min', 'f_pbr_max', 'f_de_max', 'f_div_min', 'f_mcap_min'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+            applyFilters();
+        });
+        document.querySelectorAll('.preset-btn').forEach(btn => {
+            btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+        });
+        document.querySelectorAll('th[data-sort]').forEach(th => {
+            th.addEventListener('click', () => {
+                const key = th.dataset.sort;
+                if (sortKey === key) {
+                    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    sortKey = key;
+                    sortDir = (key === 'ticker' || key === 'name' || key === 'sector') ? 'asc' : 'desc';
+                }
+                document.querySelectorAll('th .arrow').forEach(a => a.textContent = '');
+                th.querySelector('.arrow').textContent = sortDir === 'asc' ? '▲' : '▼';
+                sortAndRender();
+            });
+        });
+    }
+
+    // ---- 초기화 ----
+    fetch('/static/screener-data.json?v=' + Date.now())
+        .then(r => r.json())
+        .then(data => {
+            allStocks = data.stocks || [];
+            document.getElementById('generatedAt').textContent = data.generated_at_kst || '—';
+            document.getElementById('totalCount').textContent = data.count + '개';
+            populateSectorOptions();
+            bindEvents();
+            applyFilters();
+        })
+        .catch(err => {
+            document.getElementById('resultsBody').innerHTML = '<tr><td colspan="10"><div class="empty-state"><h3>데이터 로드 실패</h3><p>잠시 후 다시 시도해주세요.</p></div></td></tr>';
+            console.error(err);
+        });
+})();
+</script>
+</body>
+</html>
