@@ -4,7 +4,7 @@
 - 미국 지수: yfinance (^GSPC·^IXIC·^DJI)
 - 한국 지수: FDR (^KS11·^KQ11)
 - 환율: yfinance USD/KRW
-- 공포탐욕지수: 자체 계산 (analysis/fear_greed_v2)
+- 공포탐욕지수: 자체 계산 (analysis/fear_greed)
 - 거래량 TOP: 자체 (analysis/most_active)
 - 시장 뉴스: 네이버 뉴스 검색 + 투자 시그널 필터
 
@@ -176,7 +176,7 @@ def _fetch_top_movers_kr(count: int = 5) -> dict:
 def _fetch_fear_greed() -> Optional[dict]:
     """공포탐욕지수 — 이미 시스템에 있는 것 재사용."""
     try:
-        from analysis.fear_greed_v2 import calculate_fear_greed
+        from analysis.fear_greed import calculate_fear_greed
         result = calculate_fear_greed()
         if result and result.get("available"):
             return {

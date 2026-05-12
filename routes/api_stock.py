@@ -19,11 +19,11 @@ from analysis.evaluators import (
     evaluate_buffett, buffett_strict_grade,
     evaluate_graham, lynch_category, evaluate_lynch, evaluate_fisher,
 )
-from analysis.fear_greed_v2 import evaluate_fear_greed
+from analysis.fear_greed import evaluate_fear_greed
 from analysis.history import get_historical_metrics
 from analysis.market_regime import get_market_regime
-from analysis.oneil_v2 import evaluate_oneil
-from analysis.options_v2 import evaluate_options
+from analysis.oneil import evaluate_oneil
+from analysis.options import evaluate_options
 from analysis.quality import evaluate_earnings_quality
 from analysis.rs_rating import calculate_rs_rating
 from analysis.sector_baseline import get_sector_thresholds

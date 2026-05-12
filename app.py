@@ -78,9 +78,9 @@ from analysis.quality import evaluate_earnings_quality
 from analysis.valuation import calculate_fair_value
 from analysis.rs_rating import calculate_rs_rating
 from analysis.market_regime import get_market_regime
-from analysis.oneil_v2 import evaluate_oneil
-from analysis.fear_greed_v2 import evaluate_fear_greed
-from analysis.options_v2 import evaluate_options
+from analysis.oneil import evaluate_oneil
+from analysis.fear_greed import evaluate_fear_greed
+from analysis.options import evaluate_options
 from analysis.verdict import generate_verdict
 from analysis.most_active import get_most_active
 from analysis.evaluators import (
@@ -239,19 +239,12 @@ def _rate_limit():
 
 
 # 허용된 Origin (CSRF 차단 — 외부 도메인 fetch 공격 방지)
-import re as _re_origin
 _ALLOWED_ORIGINS = {
     "https://stockinto.com",
     "https://www.stockinto.com",
     "https://stockinto.co.kr",
     "https://www.stockinto.co.kr",
-    "https://stock-screener-1-mgkv.onrender.com",
-    # Railway 임시 URL — 도메인 전환 후엔 제거 권장
-    "https://web-production-2c5e2.up.railway.app",
 }
-# Railway 임시 도메인 패턴 자동 허용 (web-production-XXXX.up.railway.app)
-# 도메인 전환 후 이 줄 + 위 임시 URL 두 줄 모두 제거 가능
-_RAILWAY_TEMP_PATTERN = _re_origin.compile(r"^https://[\w\-]+\.up\.railway\.app$")
 # 환경변수 ALLOWED_ORIGINS_EXTRA로 추가 origin도 콤마구분 등록 가능
 _extra = (os.getenv("ALLOWED_ORIGINS_EXTRA") or "").strip()
 if _extra:
@@ -262,23 +255,16 @@ if _extra:
 
 
 def _is_origin_allowed(origin: str) -> bool:
-    """Origin 허용 여부 — 화이트리스트 또는 Railway 임시 URL 패턴."""
+    """Origin 허용 여부 — 화이트리스트 매칭."""
     if not origin:
         return False
     o = origin.rstrip("/")
-    if o in _ALLOWED_ORIGINS:
-        return True
-    if _RAILWAY_TEMP_PATTERN.match(o):
-        return True
-    return False
+    return o in _ALLOWED_ORIGINS
 
 
 @app.before_request
 def _csrf_origin_check():
-    """POST API 요청은 Origin/Referer가 자기 도메인이어야 함 (CSRF 차단).
-
-    검사 순서: 화이트리스트 + Railway 임시 도메인 패턴 모두 허용.
-    """
+    """POST API 요청은 Origin/Referer가 자기 도메인이어야 함 (CSRF 차단)."""
     if request.method != "POST" or not request.path.startswith("/api/"):
         return None
     origin = request.headers.get("Origin", "")
