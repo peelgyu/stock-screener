@@ -122,7 +122,7 @@ img, svg, video, iframe { max-width: 100%; }
     text-decoration: none;
     transition: opacity var(--transition-fast);
 }
-.brand-link img { height: 40px; width: auto; display: block; }
+.brand-link img { height: 56px; width: auto; display: block; }
 .brand-link:hover { opacity: 0.75; }
 .topnav-right { display: flex; gap: 8px; align-items: center; }
 .topnav-link {
@@ -135,7 +135,7 @@ img, svg, video, iframe { max-width: 100%; }
 .topnav-link:hover { background: var(--accent-bg); color: var(--text-primary); }
 @media (max-width: 480px) {
     .topnav { padding: 10px 14px; }
-    .brand-link img { height: 32px; }
+    .brand-link img { height: 44px; }
     .topnav-link { font-size: 0.72rem; padding: 8px 10px; min-height: 36px; }
 }
 
