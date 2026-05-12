@@ -632,14 +632,6 @@ img, svg, video, iframe { max-width: 100%; }
 .disclaimer a { color: #7b2ff7; text-decoration: none; margin: 0 6px; }
 .disclaimer a:hover { text-decoration: underline; }
 
-/* 상단 고정 면책 배너 */
-.top-warning {
-    background: linear-gradient(135deg, #3a2410, #2a1a1a); color: #ffcc80;
-    font-size: 0.72rem; text-align: center; padding: 6px 12px;
-    border-bottom: 1px solid #5a3a20; line-height: 1.5;
-}
-.top-warning strong { color: #ff9800; }
-
 /* 앱 설치 버튼 */
 .install-btn {
     display: none;
