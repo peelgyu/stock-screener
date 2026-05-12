@@ -162,3 +162,46 @@ def evaluate_fear_greed(data: dict) -> dict:
         label = "극단적 공포"
 
     return {"score": total_score, "label": label, "indicators": indicators}
+
+
+_LEVEL_BY_SCORE = (
+    (75, "extreme_greed"),
+    (55, "greed"),
+    (45, "neutral"),
+    (25, "fear"),
+)
+
+
+def _score_to_level(score):
+    if score is None:
+        return None
+    for threshold, level in _LEVEL_BY_SCORE:
+        if score >= threshold:
+            return level
+    return "extreme_fear"
+
+
+def calculate_fear_greed(symbol: str = "^GSPC") -> dict:
+    """No-arg wrapper — S&P500 시계열을 받아 evaluate_fear_greed에 위임.
+
+    daily_briefing._fetch_fear_greed가 호출하는 진입점. 반환 dict에는
+    evaluate_fear_greed의 score/label/indicators에 더해 daily_briefing이
+    기대하는 level과 available 필드가 포함된다.
+    """
+    try:
+        import yfinance as yf
+        ticker = yf.Ticker(symbol)
+        info = ticker.info or {}
+        hist = ticker.history(period="1y", interval="1d")
+        result = evaluate_fear_greed({"info": info, "hist": hist, "stock": ticker})
+    except Exception:
+        return {"available": False, "score": None, "label": None, "level": None, "indicators": []}
+
+    score = result.get("score")
+    return {
+        "available": score is not None,
+        "score": score,
+        "label": result.get("label"),
+        "level": _score_to_level(score),
+        "indicators": result.get("indicators", []),
+    }
