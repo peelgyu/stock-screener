@@ -1,6 +1,6 @@
-// StockInto Service Worker - v50 (🐛 JS·CSS 캐시 우선 → 네트워크 우선 — 배포 즉시 반영 버그 수정)
+// StockInto Service Worker - v51 (🎨 로고 SVG 정렬 변경 — 옛 캐시 강제 무효화)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v50';
+const CACHE_NAME = 'stockinto-v51';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',
