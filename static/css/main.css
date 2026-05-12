@@ -839,3 +839,74 @@ input:focus-visible,
     .term-tooltip { padding: 2px 5px; font-weight: 600; }
     .term-tooltip-popup { max-width: calc(100vw - 24px); font-size: 0.9rem; padding: 16px; }
 }
+
+/* ─────────── SEO content section (templates/partials/_seo_content.html) ─────────── */
+/* CSP 'unsafe-inline' 제거 위해 인라인 style을 클래스로 추출. 시각 동일 유지가 목적. */
+
+/* Card containers — padding/background/border 공통, margin만 변형 */
+.seo-card        { padding:22px 22px; background:rgba(20,24,33,0.55); border:1px solid #232936; border-radius:14px; margin:16px 0; }
+.seo-card--first { margin:32px 0 16px; padding:24px 22px; }
+.seo-card--last  { margin:16px 0 24px; }
+.seo-card--intro { margin:48px 0 24px; padding:28px 24px; }
+
+/* Headings */
+.seo-h1          { color:#fff; font-size:1.4rem; font-weight:800; margin:0 0 10px; letter-spacing:-0.02em; }
+.seo-h2          { color:#00D9FF; font-size:1.15rem; font-weight:800; margin:0 0 12px; letter-spacing:-0.02em; }
+.seo-h2--tight   { color:#00D9FF; font-size:1.15rem; font-weight:800; margin:0 0 10px; letter-spacing:-0.02em; }
+.seo-h2--sub     { color:#00D9FF; font-size:1.2rem;  font-weight:800; margin:28px 0 14px; letter-spacing:-0.02em; }
+.seo-h2--sub2    { color:#00D9FF; font-size:1.2rem;  font-weight:800; margin:32px 0 14px; letter-spacing:-0.02em; }
+.seo-h2--intro   { color:#00D9FF; font-size:1.35rem; font-weight:800; margin:0 0 14px;    letter-spacing:-0.02em; }
+
+/* Body text variants */
+.seo-text        { color:#c9d0dc; font-size:0.95rem; line-height:1.75; margin:0 0 10px; }
+.seo-text--md    { color:#c9d0dc; font-size:0.93rem; line-height:1.75; margin:0 0 12px; }
+.seo-text--em    { color:#c9d0dc; font-size:0.92rem; line-height:1.75; margin:0 0 14px; }
+.seo-text--en    { color:#c9d0dc; font-size:0.93rem; line-height:1.7;  margin:10px 0 0; }
+.seo-text--mute  { color:#9aa3b2; font-size:0.88rem; line-height:1.7;  margin:0; }
+.seo-text--hint  { color:#9aa3b2; font-size:0.88rem; margin:0 0 12px; }
+.seo-text--small { color:#9aa3b2; font-size:0.85rem; margin:0 0 12px; }
+
+/* Inline emphasis (strong) */
+.seo-em          { color:#fff; }
+.seo-em--bold    { color:#fff; font-size:0.95rem; }
+
+/* CTA pill links */
+.seo-pill        { display:inline-block; color:#00d2ff; text-decoration:none; font-size:0.85rem; font-weight:700; padding:6px 12px; border:1px solid #2a3a55; border-radius:9999px; margin:2px; }
+.seo-pill--lg    { display:inline-block; color:#00d2ff; text-decoration:none; font-size:0.85rem; font-weight:700; padding:8px 16px; border:1px solid #2a3a55; border-radius:9999px; margin:4px; }
+
+/* Inline cyan link inside body text */
+.seo-link        { color:#00d2ff; }
+
+/* Border-left callout (5개 핵심 지표) */
+.seo-callout     { border-left:3px solid #1f6feb; padding:8px 14px; margin:10px 0; }
+.seo-callout-p   { color:#9aa3b2; font-size:0.86rem; line-height:1.7; margin:4px 0 0; }
+
+/* Investor cards (5인 시선) */
+.seo-inv-card    { background:#1a1f2b; border-radius:10px; padding:14px 16px; margin:8px 0; }
+.seo-inv-p       { color:#b0b8c4; font-size:0.86rem; line-height:1.7; margin:6px 0 0; }
+
+/* Stock chips grid */
+.seo-chip-grid   { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; margin-bottom:8px; }
+.seo-chip-grid--mb12 { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; margin-bottom:12px; }
+.seo-chip        { background:#1a1f2b; border:1px solid #2a2f3d; border-radius:10px; padding:10px 12px; text-decoration:none; color:#e7eaf2; font-size:0.85rem; }
+
+/* Step cards (3단계 가이드) */
+.seo-step-grid   { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-bottom:8px; }
+.seo-step-card   { background:#1a1f2b; border:1px solid #2a2f3d; border-radius:12px; padding:16px 18px; }
+.seo-step-tag-1  { color:#7b2ff7; font-size:0.78rem; font-weight:700; margin-bottom:6px; }
+.seo-step-tag-2  { color:#1f6feb; font-size:0.78rem; font-weight:700; margin-bottom:6px; }
+.seo-step-tag-3  { color:#00d2ff; font-size:0.78rem; font-weight:700; margin-bottom:6px; }
+.seo-step-title  { color:#e7eaf2; font-size:0.92rem; font-weight:700; margin-bottom:4px; }
+.seo-step-body   { color:#9aa3b2; font-size:0.82rem; line-height:1.55; }
+
+/* Details / FAQ */
+.seo-details     { background:#1a1f2b; border:1px solid #2a2f3d; border-radius:10px; padding:12px 16px; margin-bottom:8px; }
+.seo-details--lg { background:#1a1f2b; border:1px solid #2a2f3d; border-radius:10px; padding:14px 16px; margin-bottom:8px; }
+.seo-summary     { cursor:pointer; color:#fff; font-size:0.92rem; font-weight:700; }
+.seo-detail-body { color:#c9d0dc; font-size:0.88rem; line-height:1.7; margin:10px 0 0; }
+
+/* Footer rows */
+.seo-cta-row     { margin:14px 0 0; }
+.seo-cta-bottom  { text-align:center; margin:12px 0 0; }
+.seo-foot        { margin:24px 0 0; text-align:center; color:#9aa3b2; font-size:0.85rem; }
+.seo-foot-link   { color:#00d2ff; text-decoration:none; margin:0 6px; }
