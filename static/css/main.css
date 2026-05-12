@@ -910,3 +910,33 @@ input:focus-visible,
 .seo-cta-bottom  { text-align:center; margin:12px 0 0; }
 .seo-foot        { margin:24px 0 0; text-align:center; color:#9aa3b2; font-size:0.85rem; }
 .seo-foot-link   { color:#00d2ff; text-decoration:none; margin:0 6px; }
+
+/* ─────────── learn_*.html guide pages — 인라인 style 제거용 ─────────── */
+/* 6편의 가이드(buffett/graham/lynch/oneil/fisher/dcf)에서 공유되는 인라인 패턴 */
+.learn-row          { display:flex; gap:8px; align-items:center; }
+.learn-meta-link    { color:#888; text-decoration:none; }
+.learn-meta-em      { color:#9aa3b2; font-size:0.88rem; }
+.learn-meta-top     { color:#9aa3b2; font-size:0.85rem; margin-top:12px; }
+.learn-meta-mt18    { color:#9aa3b2; font-size:0.88rem; margin-top:18px; }
+.learn-meta-lg      { color:#9aa3b2; font-size:0.9rem; }
+.learn-meta-tight   { color:#9aa3b2; font-size:0.88rem; line-height:1.8; }
+.learn-em           { color:#fff; }
+.learn-pill         { color:#aaa; text-decoration:none; font-size:0.8rem; font-weight:600; padding:6px 12px; border-radius:9999px; }
+.learn-pill-bd      { color:#aaa; text-decoration:none; font-size:0.78rem; padding:6px 12px; border-radius:9999px; border:1px solid #2a2a3e; }
+.learn-section-mb   { margin:12px 0 16px; }
+.learn-m4           { margin:4px; }
+
+/* Semantic colors (등급·통과/실패) */
+.learn-pos          { color:#22c55e; }
+.learn-warn         { color:#eab308; }
+.learn-neg          { color:#ef4444; }
+.learn-link         { color:#00d2ff; }
+
+/* Body text variants */
+.learn-body         { color:#b0b8c4; font-size:0.9rem;  line-height:1.7;  margin:6px 0 0; }
+.learn-body-mute    { color:#c9d0dc; font-size:0.92rem; line-height:1.75; }
+.learn-body-md      { color:#c9d0dc; font-size:0.9rem;  margin:0 0 14px; }
+.learn-body-light   { color:#d0d6e0; font-size:0.88rem; }
+
+/* DCF yellow callout (data-card 변종) */
+.learn-callout-yellow { background:rgba(255,200,0,0.06); border-color:rgba(255,200,0,0.3); }

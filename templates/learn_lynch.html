@@ -82,9 +82,9 @@
 <body>
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-        <div style="display:flex;gap:8px;align-items:center;">
-            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
-            <a href="/about" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">ℹ 소개</a>
+        <div class="learn-row">
+            <a href="/glossary" class="learn-pill">📚 용어</a>
+            <a href="/about" class="learn-pill">ℹ 소개</a>
             <a href="/" class="nav-home">🏠 메인</a>
         </div>
     </nav>
@@ -103,7 +103,7 @@
 
         <div class="data-card">
             <strong>이 글에서 다루는 것</strong><br>
-            <span style="color:#9aa3b2;font-size:0.88rem;">PEG 공식 → 6가지 종목 카테고리 → "Invest in what you know" 발굴법 → ten-bagger 개념 → 실전 발굴 사례·흔한 실수.</span>
+            <span class="learn-meta-em">PEG 공식 → 6가지 종목 카테고리 → "Invest in what you know" 발굴법 → ten-bagger 개념 → 실전 발굴 사례·흔한 실수.</span>
         </div>
 
         <div class="toc">
@@ -132,7 +132,7 @@
 
         <div class="data-card">
             <strong>PEG = PER ÷ EPS 성장률(%)</strong><br>
-            <span style="color:#9aa3b2;font-size:0.88rem;">PEG ≤ 1: 매력적 / PEG 1~2: 합리적 / PEG 2+: 비쌈</span>
+            <span class="learn-meta-em">PEG ≤ 1: 매력적 / PEG 1~2: 합리적 / PEG 2+: 비쌈</span>
         </div>
 
         <p>
@@ -158,42 +158,42 @@
 
         <div class="category-card">
             <h3>1. 저성장주 (Slow Growers) <span class="tag">성장 &lt; 5%</span></h3>
-            <p style="color:#b0b8c4;font-size:0.9rem;line-height:1.7;margin:6px 0 0;">
+            <p class="learn-body">
                 대형 성숙기업, 주로 배당 위주. 코카콜라·존슨앤존슨·전력회사 등. <strong>매수 기준: 배당수익률 4%+ + 안정적 EPS</strong>. 큰 수익은 안 나지만 폭락장 방어용. 린치는 포트폴리오의 일부만 이 카테고리에 둡니다.
             </p>
         </div>
 
         <div class="category-card">
             <h3>2. 우량주 (Stalwarts) <span class="tag">성장 10~12%</span></h3>
-            <p style="color:#b0b8c4;font-size:0.9rem;line-height:1.7;margin:6px 0 0;">
+            <p class="learn-body">
                 대형 견조 성장주. P&G, 코카콜라, 마이크로소프트 같은 종목. <strong>매수 기준: PEG 1 이하 + 성장 둔화 신호 없음</strong>. 50% 오르면 일부 매도하고 다른 우량주로 로테이션. 안정성과 성장의 중간.
             </p>
         </div>
 
         <div class="category-card">
             <h3>3. 고성장주 (Fast Growers) <span class="tag">성장 20~25%+</span></h3>
-            <p style="color:#b0b8c4;font-size:0.9rem;line-height:1.7;margin:6px 0 0;">
+            <p class="learn-body">
                 <strong>린치가 가장 사랑한 카테고리</strong>. 소형~중형 회사에서 주로 발굴, ten-bagger 후보군. <strong>매수 기준: PEG 1 이하 + 매장/지점 확장 여력 + 부채 관리 양호</strong>. 위험도 가장 높지만 수익률도 가장 높음. 린치는 마젤란 자산의 30~40%를 여기에 뒀습니다.
             </p>
         </div>
 
         <div class="category-card">
             <h3>4. 경기민감주 (Cyclicals) <span class="tag">사이클 진폭</span></h3>
-            <p style="color:#b0b8c4;font-size:0.9rem;line-height:1.7;margin:6px 0 0;">
+            <p class="learn-body">
                 자동차·항공·반도체·철강·화학. 경기 사이클에 따라 EPS가 5배까지 흔들림. <strong>매수 기준: PER이 가장 높을 때(불황기 적자 직전) 사고, PER이 낮을 때(호황 정점) 팔라</strong>. 직관과 반대. 일반 PER 잣대를 적용하면 항상 틀립니다.
             </p>
         </div>
 
         <div class="category-card">
             <h3>5. 회생주 (Turnarounds) <span class="tag">고위험·고수익</span></h3>
-            <p style="color:#b0b8c4;font-size:0.9rem;line-height:1.7;margin:6px 0 0;">
+            <p class="learn-body">
                 위기에서 회복 중인 회사. 1980년대 초 크라이슬러, 2009년 GM, 2020년 항공사들. <strong>매수 기준: 부채 관리 가능 + 회생 시그널(신경영진·신제품)</strong>. 빨리 회복하면 1~2년에 5배 가능, 망하면 0. 린치는 자산의 5~10%만 여기에 둡니다.
             </p>
         </div>
 
         <div class="category-card">
             <h3>6. 자산주 (Asset Plays) <span class="tag">숨은 가치</span></h3>
-            <p style="color:#b0b8c4;font-size:0.9rem;line-height:1.7;margin:6px 0 0;">
+            <p class="learn-body">
                 시장이 모르는 부동산·자회사·특허·현금을 가진 회사. <strong>매수 기준: 시가총액 &lt; 자산가치(보수적 평가)</strong>. 발굴 시간이 오래 걸리지만 한 번 시장이 알아채면 빠르게 재평가. 린치는 1980년대 텍사스 부동산 보유 기업들에서 큰 수익.
             </p>
         </div>
@@ -227,35 +227,35 @@
         <h2 id="real-cases">실전 사례 — 린치의 발굴</h2>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">Hanes Pantyhose (1970년대 후반)</h3>
+            <h3 class="learn-em">Hanes Pantyhose (1970년대 후반)</h3>
             <p class="body">
                 마젤란 펀드 초기. 린치 부인이 새로 출시된 "L'eggs" 스타킹을 슈퍼에서 사 와서 호평. 린치는 직접 동네 슈퍼 4곳을 돌며 진열 상태와 회전율 확인. 본사 IR 통화로 매장 확장 계획 확인. 매수 후 6배 수익. <strong>일상 관찰 → 직접 검증 → 정량 확인</strong>의 교과서적 패턴.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">Taco Bell (1980년대)</h3>
+            <h3 class="learn-em">Taco Bell (1980년대)</h3>
             <p class="body">
                 린치 본인이 출장 중 휴게소에서 처음 먹어보고 "이건 폭발할 컨셉이다"고 직감. 당시 미국 동부엔 매장이 거의 없고 서부에만 있었어요. 동부 확장 시작 시점에 매수, 이후 PepsiCo에 인수되며 큰 수익. <em>"먹고 좋다고 느낀 음식점은 보통 그 회사도 좋다"</em> — 린치 어록.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">Dunkin' Donuts (1980년대)</h3>
+            <h3 class="learn-em">Dunkin' Donuts (1980년대)</h3>
             <p class="body">
                 전형적인 고성장 + 매장 확장 패턴. 동북부 지역 강자에서 전국 확장 시작 시점에 매수. PEG 0.7 수준이었고, 경영진 주식 보유 비중이 높아 이해관계 일치 확인. 결과: 5배 수익. <strong>매장 단위 매출 성장 + 신규 출점 가속</strong> 두 가지가 동시 충족된 시점이 매수 신호.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">Chrysler (1982 turnaround)</h3>
+            <h3 class="learn-em">Chrysler (1982 turnaround)</h3>
             <p class="body">
                 회생주 카테고리의 대표 성공. 1980년 파산 직전이었지만 정부 보증 + 신경영진(Lee Iacocca) + 신차 K-car 라인으로 회복 신호. 린치는 자산의 5%를 매수. 1982~85년 7배 상승. <strong>회생주는 "왜 회복할 수밖에 없는가"의 명확한 근거가 있어야 함</strong>.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">한국 적용 — 일상 발굴 사례</h3>
+            <h3 class="learn-em">한국 적용 — 일상 발굴 사례</h3>
             <p class="body">
                 린치식 발굴법은 한국에서도 통합니다. 2017년 카카오뱅크 출시 직후 주변 사람들이 갑자기 카카오뱅크로 갈아탔던 것, 2020년 쿠팡 새벽배송이 일상이 된 것, 2023년 의료비 부담 큰 친척이 셀트리온 바이오시밀러를 처방받은 것 — 이런 신호들이 <strong>분기 실적 발표 1~2분기 전 미리 보입니다</strong>. 본인 일상에서 "갑자기 자주 보이는 회사"를 메모해 두세요.
             </p>
@@ -264,35 +264,35 @@
         <h2 id="mistakes">개인 투자자의 흔한 5가지 실수</h2>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">1. "유망 산업"에 매몰되어 잘 모르는 회사 매수</h3>
+            <h3 class="learn-em">1. "유망 산업"에 매몰되어 잘 모르는 회사 매수</h3>
             <p class="body">
                 "AI 산업이 뜬다더라"는 뉴스 보고 AI 관련주를 사는 패턴. <strong>본인이 그 회사가 정확히 뭘 파는지 한 문장으로 설명 못 하면 사지 마세요</strong>. 린치 어록: <em>"잘 모르는 회사 사느니 통장에 묵혀라"</em>. 산업 트렌드는 매년 바뀌지만 사업 이해도는 평생 가는 자산.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">2. PEG만 보고 카테고리 무시</h3>
+            <h3 class="learn-em">2. PEG만 보고 카테고리 무시</h3>
             <p class="body">
                 PEG 0.5라고 무조건 좋은 게 아닙니다. 사이클주의 PEG는 본질적으로 의미가 약하고(EPS가 곧 폭락 가능), 회생주는 PEG 자체가 계산 불가. <strong>먼저 6 카테고리 분류 → 카테고리에 맞는 기준 적용</strong>이 린치식 순서입니다.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">3. 단기 시장 흐름 추종</h3>
+            <h3 class="learn-em">3. 단기 시장 흐름 추종</h3>
             <p class="body">
                 <strong>"매크로 예측은 시간 낭비"</strong>가 린치의 일관된 입장이었어요. 그는 "금리 예측에 13분 쓰면 그중 10분이 시간 낭비"라고 말했습니다. 개별 종목 발굴에 집중하는 게 더 효율적. Ten-bagger는 매크로와 무관하게 자기 사업 모델로 성장합니다.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">4. 너무 많이 분산 (Diworsification)</h3>
+            <h3 class="learn-em">4. 너무 많이 분산 (Diworsification)</h3>
             <p class="body">
                 린치 신조어 "Diworsification" — 분산이 오히려 망가뜨리는 현상. <strong>개인은 5~10 종목이 적정</strong>. 30개 종목 가지면 ten-bagger 한 개 효과가 희석됩니다. 펀드는 분산이 강제지만 개인은 그럴 필요 없어요. 본인이 잘 아는 종목 5~8개에 집중하는 게 린치 스타일.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">5. 손절 못함 vs 너무 빨리 매도</h3>
+            <h3 class="learn-em">5. 손절 못함 vs 너무 빨리 매도</h3>
             <p class="body">
                 둘 다 흔한 실수. <strong>손절 못함</strong>: "다시 오를 거야"로 -50% 종목을 끝까지 보유. 사업 모델이 무너졌으면 빨리 손절. <strong>너무 빨리 매도</strong>: 50% 수익 났다고 매도했는데 그 종목이 ten-bagger 됨. 린치 어록: <em>"꽃을 뽑고 잡초를 키우지 마라"</em> — 잘 가는 종목은 더 오래 보유, 못 가는 종목은 빨리 정리.
             </p>
@@ -301,10 +301,10 @@
         <div class="cta-box" id="try-now">
             <h3>🔎 린치 기준으로 직접 분석</h3>
             <p>StockInto에서 종목 검색 시 PEG 점수와 카테고리 분류를 자동 표시합니다.</p>
-            <p style="margin: 12px 0 16px;">
-                <a href="/stock/AAPL" class="cta-btn" style="margin: 4px;">Apple 분석 →</a>
-                <a href="/stock/NVDA" class="cta-btn" style="margin: 4px;">NVIDIA 분석 →</a>
-                <a href="/stock/035420.KS" class="cta-btn" style="margin: 4px;">NAVER 분석 →</a>
+            <p class="learn-section-mb">
+                <a href="/stock/AAPL" class="cta-btn learn-m4">Apple 분석 →</a>
+                <a href="/stock/NVDA" class="cta-btn learn-m4">NVIDIA 분석 →</a>
+                <a href="/stock/035420.KS" class="cta-btn learn-m4">NAVER 분석 →</a>
             </p>
         </div>
 
@@ -319,7 +319,7 @@
         </div>
 
         <div class="back">
-            <a href="/" style="color:#888;text-decoration:none;">← 메인으로 돌아가기</a>
+            <a href="/" class="learn-meta-link">← 메인으로 돌아가기</a>
         </div>
     </article>
 </body>

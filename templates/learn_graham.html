@@ -79,9 +79,9 @@
 <body>
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-        <div style="display:flex;gap:8px;align-items:center;">
-            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
-            <a href="/about" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">ℹ 소개</a>
+        <div class="learn-row">
+            <a href="/glossary" class="learn-pill">📚 용어</a>
+            <a href="/about" class="learn-pill">ℹ 소개</a>
             <a href="/" class="nav-home">🏠 메인</a>
         </div>
     </nav>
@@ -100,7 +100,7 @@
 
         <div class="data-card">
             <strong>이 글에서 다루는 것</strong><br>
-            <span style="color:#9aa3b2;font-size:0.88rem;">방어형 투자자 7가지 정량 기준 → Net-net 공식 → Mr.Market 우화 → 안전마진 33% 의미 → 실전 사례·흔한 실수.</span>
+            <span class="learn-meta-em">방어형 투자자 7가지 정량 기준 → Net-net 공식 → Mr.Market 우화 → 안전마진 33% 의미 → 실전 사례·흔한 실수.</span>
         </div>
 
         <div class="toc">
@@ -208,7 +208,7 @@
         <p>
             그레이엄은 1929 대공황 이후 1930년대 내내 net-net 종목들을 사들였고, 평균 보유 5년에 50%+ 수익률을 냈습니다. 현대 시장에선 net-net이 거의 사라졌지만(시장 효율성 증가), <strong>약세장 막바지엔 가끔 출현</strong>합니다. 1973-74 약세장, 2008 금융위기, 2020 3월 코로나 폭락 시 일부 종목이 net-net으로 떨어졌어요.
         </p>
-        <p style="color:#9aa3b2;font-size:0.88rem;">
+        <p class="learn-meta-em">
             <em>현실 적용:</em> 한국 코스닥 동전주에서 net-net 종목이 종종 보이지만, <strong>거버넌스 리스크</strong>(대주주 횡령·사기상장)가 같이 따라옵니다. 청산가치만 보지 말고 경영진 평판도 함께 검증해야 합니다.
         </p>
 
@@ -237,21 +237,21 @@
         <h2 id="real-cases">실전 사례 — GEICO와 1973-74 약세장</h2>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">GEICO 인수 (1948년)</h3>
+            <h3 class="learn-em">GEICO 인수 (1948년)</h3>
             <p class="body">
                 그레이엄이 자기 펀드 자금의 25%를 GEICO에 몰빵했습니다. 당시 GEICO는 보험업계 신생사였지만, 그레이엄은 직접보험(중개사 없는) 모델이 비용 우위라는 점을 봤어요. 결과: 그의 펀드 수익의 절반 이상이 GEICO 한 종목에서 나왔고, 이후 버핏도 평생 보유한 종목이 됐습니다. <em>방어형 7기준은 통과 안 했지만 적극형 분석으로 발굴한 케이스.</em>
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">1973-74 약세장 — Net-net의 부활</h3>
+            <h3 class="learn-em">1973-74 약세장 — Net-net의 부활</h3>
             <p class="body">
                 다우지수 -45% 폭락기간. 그레이엄은 은퇴 상태였지만 인터뷰에서 "이건 1932년 이후 가장 좋은 net-net 시즌"이라고 평가했어요. 실제로 당시 다수 우량주가 운전자본 이하로 떨어졌고, 이후 5년간 평균 200%+ 수익. <strong>약세장은 기회</strong>라는 그레이엄식 사고의 직접 증거.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">한국 시장 적용 — IMF·금융위기·코로나</h3>
+            <h3 class="learn-em">한국 시장 적용 — IMF·금융위기·코로나</h3>
             <p class="body">
                 IMF 외환위기(1997-98) 직후, 한국 우량주들이 PBR 0.5 이하로 거래됐습니다. 삼성전자가 PBR 0.7, POSCO가 PBR 0.4 같은 식. 당시 매수했다면 <strong>10년 후 5~10배</strong>. 2008·2020 폭락기에도 비슷한 기회 출현. 그레이엄식 방어형 기준은 약세장에서 진가를 발휘합니다.
             </p>
@@ -260,35 +260,35 @@
         <h2 id="mistakes">개인 투자자의 흔한 5가지 실수</h2>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">1. PER만 보고 사기</h3>
+            <h3 class="learn-em">1. PER만 보고 사기</h3>
             <p class="body">
                 "PER 8이면 무조건 싸다"는 건 그레이엄식 사고의 절반만 가져온 것. <strong>가치 함정(value trap)</strong>이라 부르는 종목들 — PER이 낮은 이유가 사업이 쇠퇴 중이거나 회계 조작 의심이 있을 수 있습니다. 7가지 기준을 함께 봐야 진짜 가치주.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">2. 사업의 질 무시</h3>
+            <h3 class="learn-em">2. 사업의 질 무시</h3>
             <p class="body">
                 정량 기준만 보면 사업 모델이 무너지고 있는 회사를 사게 됩니다. 그레이엄 본인도 후일 "정성적 분석을 더 많이 했어야 했다"고 인정. 특히 <strong>산업의 구조적 변화</strong>(예: 신문산업의 디지털 전환)는 숫자에 안 잡힙니다.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">3. 인플레이션 무시</h3>
+            <h3 class="learn-em">3. 인플레이션 무시</h3>
             <p class="body">
                 EPS가 10년째 같은 회사는 통과한 게 아니라 사실 후퇴 중입니다. <strong>실질 EPS</strong>(인플레 보정)로 보면 -20%~-30% 감소가 보이거든요. 명목 수치만 보지 말고 실질 추세를 확인하세요.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">4. 분산 부족</h3>
+            <h3 class="learn-em">4. 분산 부족</h3>
             <p class="body">
                 Net-net 종목 발견했다고 자산 절반을 넣는 분들이 있는데, 그레이엄 본인이 "최소 10~30 종목 분산"을 명시했습니다. 약세장 net-net은 본질적으로 망할 가능성도 있는 종목이라, <strong>한 종목 망해도 포트폴리오는 살아남게</strong> 분산이 필수.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">5. Mr.Market에 휘둘리기</h3>
+            <h3 class="learn-em">5. Mr.Market에 휘둘리기</h3>
             <p class="body">
                 A 등급 종목을 적정가 -30%에 샀는데 다음 주 -40%로 더 떨어지면 패닉 매도하는 패턴. <em>"왜 내려갔지?"</em>를 따지는 게 아니라 본인의 평가가 여전히 유효한가를 봐야 합니다. 가치 평가가 그대로면 <strong>더 싸게 살 기회</strong>이지 매도 신호가 아니에요.
             </p>
@@ -297,10 +297,10 @@
         <div class="cta-box" id="try-now">
             <h3>📊 그레이엄 기준으로 직접 분석</h3>
             <p>StockInto에서 종목을 검색하면 그레이엄 안전마진과 7가지 기준 통과 여부를 자동으로 확인할 수 있습니다.</p>
-            <p style="margin: 12px 0 16px;">
-                <a href="/stock/JNJ" class="cta-btn" style="margin: 4px;">J&J 분석 →</a>
-                <a href="/stock/KO" class="cta-btn" style="margin: 4px;">코카콜라 분석 →</a>
-                <a href="/stock/005930.KS" class="cta-btn" style="margin: 4px;">삼성전자 분석 →</a>
+            <p class="learn-section-mb">
+                <a href="/stock/JNJ" class="cta-btn learn-m4">J&J 분석 →</a>
+                <a href="/stock/KO" class="cta-btn learn-m4">코카콜라 분석 →</a>
+                <a href="/stock/005930.KS" class="cta-btn learn-m4">삼성전자 분석 →</a>
             </p>
         </div>
 
@@ -315,7 +315,7 @@
         </div>
 
         <div class="back">
-            <a href="/" style="color:#888;text-decoration:none;">← 메인으로 돌아가기</a>
+            <a href="/" class="learn-meta-link">← 메인으로 돌아가기</a>
         </div>
     </article>
 </body>

@@ -84,9 +84,9 @@
 <body>
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-        <div style="display:flex;gap:8px;align-items:center;">
-            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
-            <a href="/about" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">ℹ 소개</a>
+        <div class="learn-row">
+            <a href="/glossary" class="learn-pill">📚 용어</a>
+            <a href="/about" class="learn-pill">ℹ 소개</a>
             <a href="/" class="nav-home">🏠 메인</a>
         </div>
     </nav>
@@ -109,7 +109,7 @@
 
         <div class="data-card">
             <strong>이 글에서 다루는 것</strong><br>
-            <span style="color:#9aa3b2;font-size:0.88rem;">15가지 정성 기준 → scuttlebutt 발로 뛰는 조사법 → 매도 시점에 대한 입장 → 모토로라·TI 50년 보유 사례 → 흔한 실수.</span>
+            <span class="learn-meta-em">15가지 정성 기준 → scuttlebutt 발로 뛰는 조사법 → 매도 시점에 대한 입장 → 모토로라·TI 50년 보유 사례 → 흔한 실수.</span>
         </div>
 
         <div class="toc">
@@ -227,41 +227,41 @@
         </p>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">1. 동종업계 사람</h3>
+            <h3 class="learn-em">1. 동종업계 사람</h3>
             <p class="body">
                 관련 산업에 몸담은 사람들. 같은 산업의 다른 회사 임원들에게 "이 회사 어떻게 보세요?"라고 물으면 IR 자료엔 안 나오는 진실이 나옵니다. <strong>특히 라이벌 회사 임원의 평가</strong>가 가장 정직 — 칭찬하면 진짜 강한 회사.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">2. 경쟁사 의견</h3>
+            <h3 class="learn-em">2. 경쟁사 의견</h3>
             <p class="body">
                 직접 경쟁사 영업담당자에게 "당신 경쟁사 중에 가장 무서운 곳은?"이라고 묻기. 상대편이 두려워하는 회사가 실력 있는 회사. 자기 회사 자랑은 다 무시하고, <em>경쟁사 두려움 표현</em>만 모아서 분석.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">3. 고객 인터뷰</h3>
+            <h3 class="learn-em">3. 고객 인터뷰</h3>
             <p class="body">
                 B2B 회사면 그 회사의 주요 고객사 구매팀에 직접 접촉. "왜 이 공급사를 쓰세요? 다른 데로 바꿀 가능성은?" 고객 충성도가 가장 정직한 경쟁우위 지표.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">4. 전·현직 직원</h3>
+            <h3 class="learn-em">4. 전·현직 직원</h3>
             <p class="body">
                 LinkedIn·Glassdoor 시대엔 가장 접근하기 쉬워졌음. 직원 평점 평균만 봐도 노사관계(POINT 7), 경영진 정직성(POINT 15) 같은 항목들의 단서 보임. 단, 익명 평점은 노이즈가 크니 100건 이상 표본 필요.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">5. 무역협회·산업 모임</h3>
+            <h3 class="learn-em">5. 무역협회·산업 모임</h3>
             <p class="body">
                 업계 컨퍼런스·세미나·전시회. 피셔는 1950년대부터 매년 RSA(반도체 산업협회) 모임에 참석해 트렌드와 평판을 흡수했어요. 한국에선 KISIA·KEA 같은 협회 행사, 코엑스 박람회 활용 가능.
             </p>
         </div>
 
-        <p style="color:#9aa3b2;font-size:0.88rem;margin-top:18px;">
+        <p class="learn-meta-mt18">
             <em>현대 적용</em>: 개인 투자자가 이 모든 채널을 다 활용하긴 어렵지만, <strong>LinkedIn 글래스도어 + 산업 컨퍼런스 영상 + Reddit 직장 후기</strong>만 활용해도 IR 자료로는 못 보는 정보가 80% 이상 보입니다. 피셔의 시간 대비 현대 정보 접근성은 압도적.
         </p>
 
@@ -281,7 +281,7 @@
         <h2 id="real-cases">실전 사례 — 피셔의 50년 보유</h2>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">모토로라 (1955년 매수 → 2004년 사망까지 보유)</h3>
+            <h3 class="learn-em">모토로라 (1955년 매수 → 2004년 사망까지 보유)</h3>
             <p class="body">
                 피셔의 대표 거래. 1955년 모토로라는 라디오·TV 회사였지만, 피셔가 직접 본사 방문 + 엔지니어 인터뷰 + 경쟁사 의견 수집한 결과 <strong>"이 회사가 반도체로 전환할 능력이 있다"</strong>고 판단. 매수 후 49년 보유. 그 사이 모토로라는 라디오 → TV → 반도체 → 휴대전화로 4번 변신했고, 매수가 대비 약 <strong>2,500배</strong> 수익.
             </p>
@@ -291,21 +291,21 @@
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">Texas Instruments (1956년 매수)</h3>
+            <h3 class="learn-em">Texas Instruments (1956년 매수)</h3>
             <p class="body">
                 반도체 초기 시장에서 두 회사(모토로라 + TI)를 동시 발굴. 두 회사 모두 50년 보유. 피셔는 <em>"한 산업에서 1등과 2등을 동시에 사면, 어느 회사가 결국 이기든 한 쪽은 잡힌다"</em>고 농담했어요. 결과: 두 회사 모두 200배+ 상승.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">Dow Chemical (1947년 매수)</h3>
+            <h3 class="learn-em">Dow Chemical (1947년 매수)</h3>
             <p class="body">
                 화학 산업이 본격 성장하기 직전. 피셔는 다우의 R&D 비중이 경쟁사 대비 압도적이라는 점에 주목. 신소재(폴리에틸렌·실리콘) 개발 능력이 향후 30년 결정. 50년 보유 후 약 100배.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">한국 적용 — 장기 보유 후보군</h3>
+            <h3 class="learn-em">한국 적용 — 장기 보유 후보군</h3>
             <p class="body">
                 피셔식 분석을 한국에 적용하면 어떤 종목이 후보일까. 삼성전자(반도체 R&D + 50년 메모리 1위), NAVER(검색·광고 → 이커머스 + AI 확장), 셀트리온(바이오시밀러 신산업 개척) — 이런 종목들이 15-Point 다수 통과. 단, <strong>거버넌스 리스크</strong>(POINT 15)는 한국 재벌 구조의 약점이라 개별 검증 필수.
             </p>
@@ -314,35 +314,35 @@
         <h2 id="mistakes">개인 투자자의 흔한 5가지 실수</h2>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">1. 정량만 보고 정성 무시</h3>
+            <h3 class="learn-em">1. 정량만 보고 정성 무시</h3>
             <p class="body">
                 PER·ROE만 보면 코닥(2000년대 초)·노키아(2000년대)·블랙베리(2000년대)가 다 우량주로 잡혔습니다. <strong>사업 모델이 무너지고 있다는 사실은 숫자에 1~2년 늦게 반영</strong>. 피셔식 정성 분석이 1~2년 빨리 알람.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">2. 단기 펀더멘털 변화에 휘둘림</h3>
+            <h3 class="learn-em">2. 단기 펀더멘털 변화에 휘둘림</h3>
             <p class="body">
                 "이번 분기 실적 안 좋네"라고 매도하는 패턴. 피셔의 50년 보유 철학과 정반대. <strong>분기 실적은 노이즈, 5년 추세가 시그널</strong>. 모토로라도 1970년대 일본 반도체에 밀려 어려웠지만 피셔는 보유. 결과적으로 1980년대 반등.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">3. 너무 많은 종목 보유 (Diworsification)</h3>
+            <h3 class="learn-em">3. 너무 많은 종목 보유 (Diworsification)</h3>
             <p class="body">
                 <strong>피셔 추천: 10~12 종목 집중</strong>. 30개 보유하면 각 종목에 충분한 시간 못 쓰고 결국 평범한 회사를 골라 들이는 결과. 본인이 정성 분석에 충분히 시간 쓸 수 있는 만큼만 보유.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">4. "What's hot" 종목 추격</h3>
+            <h3 class="learn-em">4. "What's hot" 종목 추격</h3>
             <p class="body">
                 AI 붐, 메타버스, NFT — 트렌드 추격은 피셔식과 정반대. 피셔는 <em>"진짜 좋은 회사는 트렌드와 무관하게 본질로 성장한다"</em>고 했어요. 모토로라는 1955년 매수 시점에 핫한 회사가 아니었어요. 트렌드가 아닌 <strong>15-Point 통과</strong>가 매수 기준이어야.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">5. 경영진 분석 안 하고 결정</h3>
+            <h3 class="learn-em">5. 경영진 분석 안 하고 결정</h3>
             <p class="body">
                 15-Point 중 7개(7~10번, 14~15번)가 사실상 경영진 평가. 피셔에게 회사는 <strong>"경영진 + 자산 + 시장 잠재력의 결합"</strong>이고, 그중 경영진이 가장 중요. CEO 인터뷰 영상, 직원 평점, 동종업계 평판 — 이런 자료를 안 보고 매수하면 핵심을 놓친 것.
             </p>
@@ -351,10 +351,10 @@
         <div class="cta-box" id="try-now">
             <h3>🌱 피셔 기준으로 직접 분석</h3>
             <p>StockInto에서 종목 검색 시 R&D 비중·다년 ROE 일관성·매출 안정성을 자동 채점합니다.</p>
-            <p style="margin: 12px 0 16px;">
-                <a href="/stock/MSFT" class="cta-btn" style="margin: 4px;">Microsoft 분석 →</a>
-                <a href="/stock/GOOGL" class="cta-btn" style="margin: 4px;">Alphabet 분석 →</a>
-                <a href="/stock/005930.KS" class="cta-btn" style="margin: 4px;">삼성전자 분석 →</a>
+            <p class="learn-section-mb">
+                <a href="/stock/MSFT" class="cta-btn learn-m4">Microsoft 분석 →</a>
+                <a href="/stock/GOOGL" class="cta-btn learn-m4">Alphabet 분석 →</a>
+                <a href="/stock/005930.KS" class="cta-btn learn-m4">삼성전자 분석 →</a>
             </p>
         </div>
 
@@ -369,7 +369,7 @@
         </div>
 
         <div class="back">
-            <a href="/" style="color:#888;text-decoration:none;">← 메인으로 돌아가기</a>
+            <a href="/" class="learn-meta-link">← 메인으로 돌아가기</a>
         </div>
     </article>
 </body>

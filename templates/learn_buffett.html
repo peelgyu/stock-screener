@@ -81,10 +81,10 @@
 <body>
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-        <div style="display:flex;gap:8px;align-items:center;">
-            <a href="/en/learn/buffett-criteria" style="color:#aaa;text-decoration:none;font-size:0.78rem;padding:6px 12px;border-radius:9999px;border:1px solid #2a2a3e;" aria-label="View in English">🇺🇸 EN</a>
-            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
-            <a href="/about" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">ℹ 소개</a>
+        <div class="learn-row">
+            <a href="/en/learn/buffett-criteria" class="learn-pill-bd" aria-label="View in English">🇺🇸 EN</a>
+            <a href="/glossary" class="learn-pill">📚 용어</a>
+            <a href="/about" class="learn-pill">ℹ 소개</a>
             <a href="/" class="nav-home">🏠 메인</a>
         </div>
     </nav>
@@ -99,7 +99,7 @@
 
         <div class="data-card">
             <strong>이 글에서 다루는 것</strong><br>
-            <span style="color:#9aa3b2;font-size:0.88rem;">각 기준의 ① 의미 ② 임계값 ③ 통과·미통과 예시 ④ StockInto에서 어떻게 채점되는지. 마지막에 직접 분석해 볼 수 있는 종목 링크 포함.</span>
+            <span class="learn-meta-em">각 기준의 ① 의미 ② 임계값 ③ 통과·미통과 예시 ④ StockInto에서 어떻게 채점되는지. 마지막에 직접 분석해 볼 수 있는 종목 링크 포함.</span>
         </div>
 
         <div class="toc">
@@ -222,14 +222,14 @@
         <h2 id="scoring">StockInto의 등급 기준</h2>
         <p>9가지 기준 중 데이터가 없는 항목(N/A)은 분모에서 제외하고, 나머지 통과율로 등급을 매깁니다.</p>
         <ul>
-            <li><strong style="color:#22c55e;">A+</strong> — 90%+ 통과 (예: 9/9 또는 8/8)</li>
-            <li><strong style="color:#22c55e;">A</strong> — 80%+ 통과</li>
-            <li><strong style="color:#22c55e;">B</strong> — 70%+ 통과</li>
-            <li><strong style="color:#eab308;">C</strong> — 50%+ 통과 (부분 충족)</li>
-            <li><strong style="color:#ef4444;">D</strong> — 30%+ 통과 (미달 다수)</li>
-            <li><strong style="color:#ef4444;">F</strong> — 30% 미만 (대부분 미충족)</li>
+            <li><strong class="learn-pos">A+</strong> — 90%+ 통과 (예: 9/9 또는 8/8)</li>
+            <li><strong class="learn-pos">A</strong> — 80%+ 통과</li>
+            <li><strong class="learn-pos">B</strong> — 70%+ 통과</li>
+            <li><strong class="learn-warn">C</strong> — 50%+ 통과 (부분 충족)</li>
+            <li><strong class="learn-neg">D</strong> — 30%+ 통과 (미달 다수)</li>
+            <li><strong class="learn-neg">F</strong> — 30% 미만 (대부분 미충족)</li>
         </ul>
-        <p style="color:#9aa3b2;font-size:0.88rem;">
+        <p class="learn-meta-em">
             <em>주의:</em> 등급은 정량 기준 통과율일 뿐, 매수·매도 권유가 아닙니다. 사업 모델·경영진·산업 사이클은 정량으로 잡히지 않으니 등급은 후보 발굴 도구로만 쓰세요.
         </p>
 
@@ -237,7 +237,7 @@
         <p>이론은 그만 보고 실제로 어떻게 적용됐는지를 봐야 감이 옵니다. 버크셔의 60년 역사에서 결정적이었던 거래 다섯 개를 정리했습니다. 어느 거래가 어느 기준에서 통과했는지 의식하면서 읽으세요.</p>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">코카콜라 (1988년 매수 · 35년 보유)</h3>
+            <h3 class="learn-em">코카콜라 (1988년 매수 · 35년 보유)</h3>
             <p class="body">
                 1987년 블랙먼데이로 시장 전체가 무너진 뒤, 버핏은 코카콜라 주식을 10억 달러어치 사들였습니다. 당시 PER 약 13배, ROE 30%대, 그리고 결정적으로 <strong>"누구나 마시지만 누구도 따라잡을 수 없는 브랜드 해자"</strong>. 이후 35년간 한 주도 팔지 않았고, 배당만으로 원금의 수십 배를 회수했습니다. 이 거래의 핵심은 <em>가격이 아니라 비즈니스의 영속성</em>이었어요.
             </p>
@@ -247,7 +247,7 @@
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">아메리칸 익스프레스 (1964년 · "샐러드 오일 스캔들")</h3>
+            <h3 class="learn-em">아메리칸 익스프레스 (1964년 · "샐러드 오일 스캔들")</h3>
             <p class="body">
                 AMEX의 자회사가 가짜 샐러드 오일 담보로 사기를 당해 주가가 절반으로 폭락했을 때, 버핏은 자기 펀드 자산의 40%를 AMEX에 몰빵했습니다. 그가 본 건 <strong>"스캔들은 일회성, 카드 사업 본체는 멀쩡하다"</strong>는 사실. 실제로 부정 손실은 일시적 이벤트였고 사업 펀더멘털은 그대로였어요. 5년 만에 5배 회수. 안전마진의 교과서적 사례입니다.
             </p>
@@ -257,7 +257,7 @@
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">시즈캔디 (1972년 · "가격 결정력의 발견")</h3>
+            <h3 class="learn-em">시즈캔디 (1972년 · "가격 결정력의 발견")</h3>
             <p class="body">
                 버핏이 이 거래를 "가장 중요한 교훈"이라 부르는 이유. 인수 후 시즈캔디는 매년 가격을 5~10%씩 올려도 매출이 줄지 않았습니다. <strong>"고객이 가격을 따져보지 않고 사는 제품"</strong>이 진짜 해자라는 것을 깨달은 거래. 이 인사이트가 이후 코카콜라·애플 매수의 토대가 됩니다.
             </p>
@@ -267,7 +267,7 @@
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">IBM (2011년 매수 → 2018년 손절)</h3>
+            <h3 class="learn-em">IBM (2011년 매수 → 2018년 손절)</h3>
             <p class="body">
                 버핏이 본인의 실수로 인정한 거래. 2011년 PER 12배의 IBM이 매력적으로 보였지만, <strong>클라우드 전환에 IBM이 실패했다</strong>는 정성 요인을 정량 데이터가 보여주지 못했어요. 매출이 7년 연속 감소했음에도 PER·ROE는 그럭저럭 유지되어 보였습니다. 결국 손실 처리. 교훈: <em>정량 기준 통과 ≠ 미래 보장</em>. 산업 변화와 사업 모델 진화는 숫자에 안 잡힙니다.
             </p>
@@ -277,7 +277,7 @@
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">애플 (2016년 매수 · 현재 버크셔 1위 보유)</h3>
+            <h3 class="learn-em">애플 (2016년 매수 · 현재 버크셔 1위 보유)</h3>
             <p class="body">
                 "기술주는 안 산다"던 버핏이 입장을 바꾼 거래. 그가 본 건 단순했습니다 — <strong>"애플은 기술회사가 아니라 소비재 회사"</strong>. iPhone은 한 번 사면 다른 데로 못 옮기는 락인 효과, 서비스 매출 비중 증가, 압도적 GM(40%+). PER 11배에 산 애플이 현재 PER 30배. 시즈캔디·코카콜라 매수와 본질이 같은 패턴입니다.
             </p>
@@ -290,35 +290,35 @@
         <p>StockInto를 운영하며 사용자 질문을 받다 보면 비슷한 실수가 반복됩니다. 본인이 해당하는지 점검해 보세요.</p>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">1. 단년 ROE만 보고 "우량주"라 단정</h3>
+            <h3 class="learn-em">1. 단년 ROE만 보고 "우량주"라 단정</h3>
             <p class="body">
                 작년 ROE 25%였다고 무조건 좋은 게 아닙니다. 한 번 운 좋게 터진 분기 실적, 또는 자산 매각 같은 일회성 이익으로 ROE가 부풀려졌을 수 있어요. <strong>5년 평균 + 표준편차</strong>를 같이 봐야 진짜 실력이 보입니다. StockInto가 다년 일관성 기준(6번)을 별도로 채점하는 이유.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">2. PER 절대값에 매몰</h3>
+            <h3 class="learn-em">2. PER 절대값에 매몰</h3>
             <p class="body">
                 "PER 30이면 무조건 비싸다"는 단순 잣대는 30년 전 사고방식. 지금은 섹터별 표준이 완전히 다릅니다. 반도체 PER 30은 평균 수준, 은행 PER 30은 거품. <strong>섹터 중앙값 대비 위치</strong>가 본질이에요. 한국 은행주가 PER 5에 거래되는 건 싸서가 아니라 시장이 성장 한계를 본 결과입니다.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">3. 등급만 보고 사업 모델은 무시</h3>
+            <h3 class="learn-em">3. 등급만 보고 사업 모델은 무시</h3>
             <p class="body">
                 A 등급이라도 본인이 그 회사가 무엇을 파는지 한 문장으로 설명할 수 없다면 사면 안 됩니다. 린치의 명언 — <em>"잘 모르는 회사 사느니 통장에 묵혀라"</em>. 정량은 후보 발굴까지만, 그 뒤 결정은 사업 이해도가 있어야 합니다.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">4. 한두 종목에 몰빵</h3>
+            <h3 class="learn-em">4. 한두 종목에 몰빵</h3>
             <p class="body">
                 A 등급 종목 발견했다고 자산의 절반을 넣는 분들이 있어요. 버핏조차 분산투자를 합니다(버크셔 포트폴리오 40여 종목). 개인은 <strong>최소 10~15종목 분산</strong>이 안전. 한 종목이 망해도 포트폴리오는 살아남게.
             </p>
         </div>
 
         <div class="criterion-box">
-            <h3 style="color:#fff;">5. 안전마진 무시하고 "지금 사야겠다" 조급함</h3>
+            <h3 class="learn-em">5. 안전마진 무시하고 "지금 사야겠다" 조급함</h3>
             <p class="body">
                 A 등급 종목이라도 적정가 대비 +20%에 사면 향후 5년 수익률이 거의 없을 수 있어요. <strong>안전마진 30%</strong>는 협상 마진이 아니라 손실 흡수 쿠션입니다. 시장이 가끔 주는 폭락 기회를 기다리는 인내가 결과를 가릅니다. 그레이엄이 한 말: <em>"시장은 단기로 투표기, 장기로 저울"</em>.
             </p>
@@ -327,12 +327,12 @@
         <div class="cta-box" id="try-now">
             <h3>🎯 직접 분석해 보기</h3>
             <p>버핏 기준을 종목에 직접 적용해 보세요. 1초면 결과가 나옵니다.</p>
-            <p style="margin: 12px 0 16px;">
-                <a href="/stock/AAPL" class="cta-btn" style="margin: 4px;">Apple 분석 →</a>
-                <a href="/stock/BRK-B" class="cta-btn" style="margin: 4px;">Berkshire 분석 →</a>
-                <a href="/stock/005930.KS" class="cta-btn" style="margin: 4px;">삼성전자 분석 →</a>
+            <p class="learn-section-mb">
+                <a href="/stock/AAPL" class="cta-btn learn-m4">Apple 분석 →</a>
+                <a href="/stock/BRK-B" class="cta-btn learn-m4">Berkshire 분석 →</a>
+                <a href="/stock/005930.KS" class="cta-btn learn-m4">삼성전자 분석 →</a>
             </p>
-            <p style="color:#9aa3b2;font-size:0.85rem;margin-top:12px;">또는 메인에서 다른 종목 검색 → <a href="/" style="color:#00d2ff;">홈으로</a></p>
+            <p class="learn-meta-top">또는 메인에서 다른 종목 검색 → <a href="/" class="learn-link">홈으로</a></p>
         </div>
 
         <h2>🔗 관련 가이드</h2>
@@ -345,7 +345,7 @@
         </div>
 
         <div class="back">
-            <a href="/" style="color:#888;text-decoration:none;">← 메인으로 돌아가기</a>
+            <a href="/" class="learn-meta-link">← 메인으로 돌아가기</a>
         </div>
     </article>
 </body>
