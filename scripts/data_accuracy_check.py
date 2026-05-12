@@ -1,5 +1,9 @@
-"""데이터 정확도 검증 — 우리 API vs 공식 자료 비교."""
-import sys; sys.path.insert(0, '.')
+"""데이터 정확도 검증 — 우리 API vs 공식 자료 비교.
+
+scripts/ 하위 실행: stockinto 루트에서 `python -m scripts.data_accuracy_check`
+"""
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app import app
 from data.cache import cache; cache.clear()
 import json

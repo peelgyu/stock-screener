@@ -1,6 +1,9 @@
 """다년도 펀더멘털 추이 (yfinance 재무제표)."""
 
+import logging
 import math
+
+logger = logging.getLogger(__name__)
 
 
 def _pick(row, *keys):
@@ -37,7 +40,8 @@ def get_historical_metrics(stock) -> dict:
         inc = stock.income_stmt
         bs = stock.balance_sheet
         cf = stock.cashflow
-    except Exception:
+    except Exception as e:
+        logger.warning("Financial statements unavailable: %s", e)
         return {"available": False}
 
     if inc is None or inc.empty:

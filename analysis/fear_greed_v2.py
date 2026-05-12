@@ -2,10 +2,7 @@
 
 import numpy as np
 
-
-def _safe(info, key, default=None):
-    v = info.get(key, default)
-    return v if v is not None else default
+from analysis.evaluators import safe_get
 
 
 def _calc_rsi(prices, period=14):
@@ -65,9 +62,9 @@ def evaluate_fear_greed(data: dict) -> dict:
         })
 
     # 2) 52주 범위
-    price = _safe(info, "currentPrice") or _safe(info, "regularMarketPrice")
-    high52 = _safe(info, "fiftyTwoWeekHigh")
-    low52 = _safe(info, "fiftyTwoWeekLow")
+    price = safe_get(info, "currentPrice") or safe_get(info, "regularMarketPrice")
+    high52 = safe_get(info, "fiftyTwoWeekHigh")
+    low52 = safe_get(info, "fiftyTwoWeekLow")
     if price and high52 and low52 and high52 != low52:
         pos = (price - low52) / (high52 - low52) * 100
         label = "고점 근처 (탐욕)" if pos >= 80 else "저점 근처 (공포)" if pos <= 20 else "중간"

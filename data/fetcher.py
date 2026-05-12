@@ -8,8 +8,11 @@
 미국 종목: yfinance 우선 + SEC EDGAR(재무 보강, app.py에서)
 """
 
+import logging
 import time
 import yfinance as yf
+
+logger = logging.getLogger(__name__)
 
 try:
     import FinanceDataReader as fdr
@@ -36,6 +39,8 @@ def _fetch_yfinance(ticker: str, retries: int = 2, delay: float = 2.0):
             last_error = e
         if attempt < retries - 1:
             time.sleep(delay)
+    if last_error is not None:
+        logger.debug("yfinance fetch failed for %s after %d retries: %s", ticker, retries, last_error)
     return None
 
 
@@ -66,7 +71,8 @@ def _fetch_fdr_us(ticker: str):
             ],
         }
         return {"source": "fdr_us", "info": info, "stock": None, "hist": df}
-    except Exception:
+    except Exception as e:
+        logger.debug("FDR US fetch failed for %s: %s", ticker, e)
         return None
 
 
@@ -144,6 +150,7 @@ def _fetch_fdr_korean(ticker: str):
 
         return {"source": "fdr", "info": info, "stock": None, "hist": df}
     except Exception as e:
+        logger.warning("FDR Korean fetch failed for %s: %s", ticker, e)
         return None
 
 

@@ -8,9 +8,12 @@
 """
 from __future__ import annotations
 
+import logging
 from typing import Optional
 
 from .cache import cache
+
+logger = logging.getLogger(__name__)
 
 try:
     import FinanceDataReader as fdr  # type: ignore
@@ -94,6 +97,7 @@ def calc_kr_beta(ticker: str, years: int = 5) -> Optional[float]:
 
         cache.set(cache_key, beta, 24 * 3600)
         return float(beta)
-    except Exception:
+    except Exception as e:
+        logger.warning("KR beta calc failed for %s: %s", ticker, e)
         cache.set(cache_key, "none", 3600)
         return None

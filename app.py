@@ -3,11 +3,14 @@
 import os
 import math
 import time
+import logging
 import ipaddress
 import urllib.request
 import urllib.parse
 import json as json_lib
 from collections import defaultdict
+
+_init_logger = logging.getLogger(__name__)
 
 try:
     from dotenv import load_dotenv
@@ -32,8 +35,9 @@ if _SENTRY_DSN:
             # 자주 발생하는 무해 에러는 보내지 않음 (노이즈 줄이기)
             ignore_errors=["KeyboardInterrupt", "SystemExit"],
         )
-    except Exception:
-        pass
+    except Exception as e:
+        # Sentry init 실패는 silent로 두면 에러 추적 OFF인 채로 운영됨 → 반드시 로깅
+        _init_logger.warning("Sentry SDK init failed (error tracking disabled): %s", e)
 
 from flask import Flask, render_template, request, jsonify, redirect, send_from_directory
 from flask.json.provider import DefaultJSONProvider

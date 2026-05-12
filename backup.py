@@ -21,11 +21,12 @@ INCLUDE = [
     "requirements.txt",
     "render.yaml",
     "README.md",
-    "stock_screener_terminal.py",
     "make_icons.py",
     "backup.py",
     "analysis",
     "data",
+    "routes",
+    "scripts",
     "templates",
     "static",
 ]

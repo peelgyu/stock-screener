@@ -16,14 +16,17 @@
 
 ```
 STOCK SCREENER/
-├── app.py                      # Flask 웹앱 백엔드 (메인)
-├── kr_stocks.py                # 한국 주식 매핑 DB
-├── templates/
-│   └── index.html              # 웹앱 프론트엔드 (UI)
-├── requirements.txt            # Python 의존성
-├── render.yaml                 # Render.com 배포 설정
-├── stock_screener_terminal.py  # 터미널 버전 (CLI)
-└── README.md                   # 이 파일
+├── app.py            # Flask 웹앱 백엔드 (메인)
+├── kr_stocks.py      # 한국 주식 매핑 DB
+├── routes/           # Blueprint 라우트 (api_stock, api_market, pages, cron, debug)
+├── analysis/         # 평가·밸류에이션·히스토리 로직
+├── data/             # fetcher·캐시·DART·SEC·KRX 클라이언트
+├── templates/        # Jinja2 템플릿
+├── static/           # CSS/JS/이미지
+├── scripts/          # 검증·빌드 유틸 (data_accuracy_check, build_screener_data)
+├── requirements.txt  # Python 의존성
+├── render.yaml       # Render.com 배포 설정
+└── README.md         # 이 파일
 ```
 
 ## 실행 방법
@@ -33,12 +36,6 @@ STOCK SCREENER/
 pip install flask yfinance numpy
 python app.py
 # 브라우저에서 http://localhost:5000 접속
-```
-
-### 터미널 버전
-```bash
-pip install yfinance rich
-python stock_screener_terminal.py AAPL
 ```
 
 ## 배포
