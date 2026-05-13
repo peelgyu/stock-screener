@@ -1,6 +1,6 @@
-// StockInto Service Worker - v51 (🎨 로고 SVG 정렬 변경 — 옛 캐시 강제 무효화)
+// StockInto Service Worker - v52 (📊 일일 브리핑 오후 갱신 + 마감시각 KST 표시)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v51';
+const CACHE_NAME = 'stockinto-v52';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

@@ -40,30 +40,76 @@ def _today_kst_str() -> str:
     return _kst_now().strftime("%Y-%m-%d")
 
 
-# 매일 아침 KST 08:30 — "전날 시황" 갱신 기준 시각
-# 이 시각 이전에는 그저께 시황을, 이후에는 어제 시황을 표시
-# (미국 시장은 한국 새벽 5~6시 마감, 한국 시장은 어제 15:30 마감)
-BRIEFING_CUTOFF_HOUR = 8
-BRIEFING_CUTOFF_MIN = 30
+# 브리핑 phase 컷오프 (KST 분 단위)
+# - dawn      (00:00 ~ 08:30): 그저께 마감 시황 (미국·한국 둘 다)
+# - morning   (08:30 ~ 16:00): 어제 한국 마감 + 오늘 새벽 미국 마감
+# - afternoon (16:00 ~ 24:00): 오늘 한국 마감 + 오늘 새벽 미국 마감 ★ 한국장 마감 직후 갱신
+_PHASE_CUTOFFS = (
+    (8 * 60 + 30, "morning"),
+    (16 * 60,     "afternoon"),
+)
+
+
+def _briefing_phase(now: Optional[datetime] = None) -> str:
+    now = now or _kst_now()
+    minute_of_day = now.hour * 60 + now.minute
+    phase = "dawn"
+    for cutoff, name in _PHASE_CUTOFFS:
+        if minute_of_day >= cutoff:
+            phase = name
+    return phase
 
 
 def _briefing_target_date() -> str:
-    """현재 시점에 표시해야 할 브리핑 날짜 — '전날 시황' 갱신 기준.
+    """현재 시점에 표시해야 할 브리핑 날짜.
 
-    매일 KST 08:30이 갱신 컷오프:
-    - 08:30 이전: 그저께 날짜 반환 (가장 최근 마감일이 그저께)
-    - 08:30 이후: 어제 날짜 반환 (어제 마감 데이터 표시)
-
-    예: 2026-05-05 09:00 KST → "2026-05-04" (어제 시황)
-        2026-05-05 07:00 KST → "2026-05-03" (그저께 시황)
+    - dawn      → 그저께
+    - morning   → 어제
+    - afternoon → 오늘 (한국장 KST 15:30 마감 후 갱신분)
     """
     now = _kst_now()
-    cutoff = now.replace(hour=BRIEFING_CUTOFF_HOUR, minute=BRIEFING_CUTOFF_MIN, second=0, microsecond=0)
-    if now < cutoff:
+    phase = _briefing_phase(now)
+    if phase == "dawn":
         target = now - timedelta(days=2)
-    else:
+    elif phase == "morning":
         target = now - timedelta(days=1)
+    else:
+        target = now
     return target.strftime("%Y-%m-%d")
+
+
+def _market_close_meta(now: Optional[datetime] = None) -> dict:
+    """phase에 따라 미국·한국 마감 시각을 KST 절대 시각으로 반환.
+
+    - 한국: 단순 KST 15:30 (해당 거래일)
+    - 미국: ET 16:00 마감 → zoneinfo로 KST 변환 (DST 자동 처리)
+    """
+    from zoneinfo import ZoneInfo
+
+    now = now or _kst_now()
+    phase = _briefing_phase(now)
+    today_kst = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    if phase == "afternoon":
+        kr_close = today_kst.replace(hour=15, minute=30)
+    else:
+        kr_close = (today_kst - timedelta(days=1)).replace(hour=15, minute=30)
+
+    # afternoon/morning 시점에는 KST 오늘 새벽에 끝난 ET 거래일이 가장 최근.
+    # dawn 시점에는 그 전날 ET 거래일이 마지막 (오늘 새벽 마감은 아직 진행 중이거나 막 끝남).
+    if phase == "dawn":
+        et_close_date = (now - timedelta(days=2)).date()
+    else:
+        et_close_date = (now - timedelta(days=1)).date()
+    et_close = datetime(et_close_date.year, et_close_date.month, et_close_date.day, 16, 0,
+                        tzinfo=ZoneInfo("America/New_York"))
+    us_close_kst = et_close.astimezone(ZoneInfo("Asia/Seoul"))
+
+    return {
+        "phase": phase,
+        "us_close_kst": us_close_kst.strftime("%Y-%m-%d %H:%M KST"),
+        "kr_close_kst": kr_close.strftime("%Y-%m-%d %H:%M KST"),
+    }
 
 
 def _fetch_index(symbol: str) -> Optional[dict]:
@@ -225,8 +271,16 @@ def generate_briefing(date_str: Optional[str] = None) -> dict:
             except Exception:
                 results[k] = None
 
+    close_meta = _market_close_meta(now)
+    phase = close_meta["phase"]
+    title_kr = "📊 오늘 한국 마감 시황" if phase == "afternoon" else "📊 전날 시황 브리핑"
+
     return {
         "date": date_str,
+        "phase": phase,
+        "title_kr": title_kr,
+        "us_close_kst": close_meta["us_close_kst"],
+        "kr_close_kst": close_meta["kr_close_kst"],
         "generated_at_kst": now.strftime("%Y-%m-%d %H:%M KST"),
         "weekday_kr": ["월", "화", "수", "목", "금", "토", "일"][now.weekday()],
         "us_indices": {

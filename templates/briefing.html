@@ -71,6 +71,12 @@
         .briefing-header .subtitle {
             font-size: 0.85rem; color: var(--text-secondary);
         }
+        .briefing-close-meta {
+            display:flex; flex-wrap:wrap; justify-content:center; gap:14px;
+            margin-top:10px; font-size:0.78rem; color:#9aa3b2;
+        }
+        .briefing-close-meta strong { color:#c9d0dc; font-weight:600; }
+        .briefing-generated { font-size:0.7rem; color:#777; margin-top:6px; }
 
         .section {
             background: var(--bg-card);
@@ -198,9 +204,13 @@
 
     <main class="container">
         <div class="briefing-header">
-            <h1>📊 전날 시황 브리핑</h1>
-            <div class="subtitle">📅 {{ briefing.date }} ({{ briefing.weekday_kr }}) 마감 기준 · 매일 아침 08:30 KST 갱신</div>
-            <div style="font-size:0.7rem;color:#777;margin-top:6px;">생성: {{ briefing.generated_at_kst }}</div>
+            <h1>{{ briefing.title_kr or '📊 전날 시황 브리핑' }}</h1>
+            <div class="subtitle">📅 {{ briefing.date }} ({{ briefing.weekday_kr }}) · 한국시간 기준 · 매일 08:30·16:00 KST 갱신</div>
+            <div class="briefing-close-meta">
+                {% if briefing.us_close_kst %}<span>🇺🇸 미국 마감: <strong>{{ briefing.us_close_kst }}</strong></span>{% endif %}
+                {% if briefing.kr_close_kst %}<span>🇰🇷 한국 마감: <strong>{{ briefing.kr_close_kst }}</strong></span>{% endif %}
+            </div>
+            <div class="briefing-generated">생성: {{ briefing.generated_at_kst }}</div>
         </div>
 
         {# US 지수 #}

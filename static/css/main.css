@@ -566,7 +566,9 @@ img, svg, video, iframe { max-width: 100%; }
 .briefing-modal-close:hover { background: rgba(255,255,255,0.06); color: #fff; }
 .briefing-modal-header { margin-bottom: 16px; padding-right: 30px; }
 .briefing-modal-header h2 { font-size: 1.15rem; font-weight: 700; color: var(--text, #e7eaf2); margin-bottom: 4px; }
-.briefing-modal-date { font-size: 0.78rem; color: #888; }
+.briefing-modal-date { font-size: 0.78rem; color: #888; line-height: 1.55; }
+.briefing-modal-close-times { display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; font-size:0.72rem; color:#9aa3b2; }
+.briefing-modal-close-times strong { color:#c9d0dc; font-weight:600; }
 .briefing-modal-body { font-size: 0.85rem; }
 .briefing-modal-indices {
     display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;

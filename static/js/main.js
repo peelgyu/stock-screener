@@ -28,16 +28,23 @@
         }
 
         function briefingPeriodKey() {
-            // "전날 시황" 갱신 키 — KST 08:30 컷오프 적용
-            // 같은 갱신 주기 내에선 같은 키 → 모달 한 번만 표시
+            // 갱신 키 — KST 08:30 / 16:00 두 컷오프 적용
+            // dawn(00:00~08:30) → 어제_pm   (어제 오후 시점 마지막 갱신)
+            // morning(08:30~16:00) → 오늘_am
+            // afternoon(≥16:00) → 오늘_pm  (한국장 마감 직후 갱신)
+            // 컷오프 넘어가면 키 자동 변경 → 모달 다시 뜸
             const nowKST = new Date(Date.now() + 9*3600*1000);
-            const cutoffMin = 8 * 60 + 30;          // 08:30 = 510분
             const totalMin = nowKST.getUTCHours() * 60 + nowKST.getUTCMinutes();
-            // 08:30 이전이면 어제 갱신 주기에 해당
-            if (totalMin < cutoffMin) {
+            let suffix;
+            if (totalMin < 8 * 60 + 30) {
                 nowKST.setUTCDate(nowKST.getUTCDate() - 1);
+                suffix = 'pm';
+            } else if (totalMin < 16 * 60) {
+                suffix = 'am';
+            } else {
+                suffix = 'pm';
             }
-            return nowKST.toISOString().slice(0, 10);
+            return nowKST.toISOString().slice(0, 10) + '_' + suffix;
         }
 
         function shouldShowBriefingModal() {
@@ -104,9 +111,19 @@
         }
 
         function renderBriefingModal(data) {
+            const titleEl = document.getElementById('briefingModalTitle');
             const dateEl = document.getElementById('briefingModalDate');
             const bodyEl = document.getElementById('briefingModalBody');
-            if (dateEl) dateEl.textContent = `📅 ${data.date} (${data.weekday_kr || ''}) 마감 기준 · 매일 08:30 KST 갱신`;
+            if (titleEl && data.title_kr) titleEl.textContent = data.title_kr;
+            if (dateEl) {
+                const usClose = escapeBriefHtml(data.us_close_kst || '—');
+                const krClose = escapeBriefHtml(data.kr_close_kst || '—');
+                dateEl.innerHTML = `📅 ${data.date} (${data.weekday_kr || ''}) · 한국시간 기준
+                    <div class="briefing-modal-close-times">
+                        <span>🇺🇸 미국 마감: <strong>${usClose}</strong></span>
+                        <span>🇰🇷 한국 마감: <strong>${krClose}</strong></span>
+                    </div>`;
+            }
 
             const us = data.us_indices || {};
             const kr = data.kr_indices || {};
