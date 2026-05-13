@@ -228,7 +228,7 @@
                             {{ "{:+.2f}".format(idx.change_pct) }}%
                         </div>
                     {% else %}
-                        <div class="value" style="color:#666;">—</div>
+                        <div class="value muted-4">—</div>
                         <div class="change neutral">데이터 없음</div>
                     {% endif %}
                 </div>
@@ -251,7 +251,7 @@
                             {{ "{:+.2f}".format(idx.change_pct) }}%
                         </div>
                     {% else %}
-                        <div class="value" style="color:#666;">—</div>
+                        <div class="value muted-4">—</div>
                         <div class="change neutral">데이터 없음</div>
                     {% endif %}
                 </div>
@@ -272,7 +272,7 @@
                         <div style="font-size:0.65rem;color:#999;margin-top:6px;">기준: {{ briefing.fx.fetched_at }}</div>
                         {% endif %}
                     {% else %}
-                        <div class="value" style="color:#666;">—</div>
+                        <div class="value muted-4">—</div>
                     {% endif %}
                 </div>
                 <div class="index-card">
@@ -284,7 +284,7 @@
                         <div class="change neutral">{{ fg.label or '' }}</div>
                     {% else %}
                         <div class="name">공포탐욕지수</div>
-                        <div class="value" style="color:#666;">—</div>
+                        <div class="value muted-4">—</div>
                     {% endif %}
                 </div>
             </div>
@@ -367,7 +367,7 @@
 
         {# 면책·출처 #}
         <div class="footer-disclaimer">
-            <strong style="color:#ff9800;">⚠ 본 브리핑은 정보 제공 목적이며, 투자 자문이 아닙니다.</strong><br>
+            <strong class="txt-orange">⚠ 본 브리핑은 정보 제공 목적이며, 투자 자문이 아닙니다.</strong><br>
             {{ briefing.disclaimer or '투자 판단과 그 결과의 책임은 이용자 본인에게 있습니다.' }}<br><br>
             <strong>📅 데이터 시점</strong>: {{ briefing.generated_at_kst }} 기준. 시장 상황은 그 이후 실시간으로 변동됩니다.<br>
             <strong>출처</strong>:
@@ -377,9 +377,9 @@
                 환율 — {{ briefing.data_sources.fx }}
             {% endif %}
             <br><br>
-            <a href="/" style="color:var(--accent);">📈 종목 분석으로</a> ·
-            <a href="/glossary" style="color:var(--text-secondary);">📚 용어 사전</a> ·
-            <a href="/terms" style="color:var(--text-dim);">이용약관</a>
+            <a href="/" class="txt-accent-c">📈 종목 분석으로</a> ·
+            <a href="/glossary" class="txt-secondary">📚 용어 사전</a> ·
+            <a href="/terms" class="txt-dim">이용약관</a>
         </div>
     </main>
 </body>

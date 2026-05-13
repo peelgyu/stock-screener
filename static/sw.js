@@ -1,6 +1,6 @@
-// StockInto Service Worker - v52 (📊 일일 브리핑 오후 갱신 + 마감시각 KST 표시)
+// StockInto Service Worker - v53 (🛡 CSP 3차: 인라인 style 71건 → 클래스화)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v52';
+const CACHE_NAME = 'stockinto-v53';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

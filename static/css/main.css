@@ -942,3 +942,22 @@ input:focus-visible,
 
 /* DCF yellow callout (data-card 변종) */
 .learn-callout-yellow { background:rgba(255,200,0,0.06); border-color:rgba(255,200,0,0.3); }
+
+/* ─────────── 잔여 인라인 style 제거용 utility (CSP 3차) ─────────── */
+/* 단순 색상·hidden·로고 사이즈 — 여러 페이지에서 공유 */
+.muted-2          { color:#aaa; }
+.muted-3          { color:#888; }
+.muted-4          { color:#666; }
+.is-hidden        { display:none; }
+.brand-logo-36    { height:36px; width:auto; display:block; }
+
+/* var(--*) 참조 색 (CSP enforce 시 인라인 var()도 금지되므로) */
+.txt-secondary    { color:var(--text-secondary); }
+.txt-dim          { color:var(--text-dim); }
+.txt-primary-c    { color:var(--text); }
+.txt-accent-c     { color:var(--accent); }
+
+/* 시맨틱 색 (changePercent 등) */
+.txt-green        { color:var(--green); }
+.txt-red          { color:var(--red); }
+.txt-orange       { color:#ff9800; }

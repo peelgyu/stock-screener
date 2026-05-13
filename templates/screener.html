@@ -103,9 +103,9 @@
 <body>
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-        <div style="display:flex;gap:8px;align-items:center;">
-            <a href="/glossary" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">📚 용어</a>
-            <a href="/learn/buffett-criteria" style="color:#aaa;text-decoration:none;font-size:0.8rem;font-weight:600;padding:6px 12px;border-radius:9999px;">🧠 유명 투자자</a>
+        <div class="learn-row">
+            <a href="/glossary" class="learn-pill">📚 용어</a>
+            <a href="/learn/buffett-criteria" class="learn-pill">🧠 유명 투자자</a>
             <a href="/" class="nav-home">🏠 메인</a>
         </div>
     </nav>
@@ -115,9 +115,9 @@
         <p class="lede">PER·ROE·부채비율 같은 조건으로 한국·미국 인기 종목 50개+를 즉시 필터링. 워렌 버핏·그레이엄 스타일 같은 프리셋도 한 번 클릭으로.</p>
 
         <div class="meta-bar">
-            <span class="pill">📅 데이터 기준: <strong id="generatedAt" style="color:var(--text);">로딩 중…</strong></span>
-            <span class="pill">📊 종목 수: <strong id="totalCount" style="color:var(--text);">—</strong></span>
-            <span class="pill" style="color:var(--text-dim);">시세는 15분 지연 · 재무는 분기 공시 기준</span>
+            <span class="pill">📅 데이터 기준: <strong id="generatedAt" class="txt-primary-c">로딩 중…</strong></span>
+            <span class="pill">📊 종목 수: <strong id="totalCount" class="txt-primary-c">—</strong></span>
+            <span class="pill txt-dim">시세는 15분 지연 · 재무는 분기 공시 기준</span>
         </div>
 
         <!-- 프리셋 -->
