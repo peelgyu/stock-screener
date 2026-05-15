@@ -3,11 +3,14 @@
 각 함수는 순수 dict 변환·메타데이터 생성용. 라우트와 분리하면 단위 테스트도 쉬워짐.
 
 함수:
-- _safe_call             함수 호출 + 예외 로깅 + default 반환
+- _safe_call             함수 호출 + 예외 로깅 + default 반환 (thread-safe 로깅)
+- _await_future          ThreadPoolExecutor future timeout 보호 (TimeoutError → default)
 - _merge_dart_into_history  DART/SEC 공시 재무 → history 병합
 - _populate_info_from_dart  DART/SEC 공시 → info(yfinance 형식) 보강
 - _build_data_meta       응답 메타데이터 (시점·출처)
 """
+import concurrent.futures
+import logging
 from datetime import datetime, timedelta, timezone
 
 from flask import current_app
@@ -15,12 +18,45 @@ from flask import current_app
 from data.cache import cache
 
 
+_THREAD_LOGGER = logging.getLogger("stockinto.threadpool")
+
+
+def _log_warning(msg: str) -> None:
+    """app context 있으면 Flask logger, 없으면 표준 logging.
+
+    ThreadPoolExecutor worker thread에서 호출돼도 RuntimeError 안 남.
+    (Sentry PYTHON-2: 'Working outside of application context' 회귀 방지)
+    """
+    try:
+        current_app.logger.warning(msg)
+    except RuntimeError:
+        _THREAD_LOGGER.warning(msg)
+
+
 def _safe_call(fn, default, *args, **kwargs):
-    """함수 호출 + 예외 시 default 반환 + 로깅."""
+    """함수 호출 + 예외 시 default 반환 + thread-safe 로깅."""
     try:
         return fn(*args, **kwargs)
     except Exception as e:
-        current_app.logger.warning(f"{fn.__name__} failed: {e}")
+        _log_warning(f"{fn.__name__} failed: {e}")
+        return default
+
+
+def _await_future(future, timeout, default, label):
+    """ThreadPoolExecutor future를 timeout 보호로 받음.
+
+    timeout 시 default 반환 + 로깅. None future는 None 반환.
+    (Sentry PYTHON-3: 'TimeoutError in api_stock.analyze' 회귀 방지)
+    """
+    if future is None:
+        return None
+    try:
+        return future.result(timeout=timeout)
+    except concurrent.futures.TimeoutError:
+        _log_warning(f"{label} timeout after {timeout}s")
+        return default
+    except Exception as e:
+        _log_warning(f"{label} raised {type(e).__name__}: {e}")
         return default
 
 

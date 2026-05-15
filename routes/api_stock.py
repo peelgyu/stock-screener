@@ -38,6 +38,7 @@ from data.fx import get_usd_krw
 from kr_stocks import KR_STOCKS, US_STOCKS_KR, get_kr_description, get_us_description, sector_kr
 from routes._analysis_helpers import (
     _safe_call,
+    _await_future,
     _merge_dart_into_history,
     _populate_info_from_dart,
     _build_data_meta,
@@ -186,13 +187,13 @@ def analyze():
             _fut_sec_fin = _ex.submit(_safe_call, sec_client.fetch_financials, None, ticker, 6)
             _fut_sec_ttm = _ex.submit(_safe_call, sec_client.fetch_ttm_metrics, None, ticker)
 
-        market_data = _fut_market.result(timeout=20)
-        rs_data = _fut_rs.result(timeout=20)
-        history_data = _fut_history.result(timeout=20)
-        dart_fin = _fut_dart_fin.result(timeout=20) if _fut_dart_fin else None
-        dart_div = _fut_dart_div.result(timeout=20) if _fut_dart_div else None
-        sec_fin = _fut_sec_fin.result(timeout=20) if _fut_sec_fin else None
-        sec_ttm = _fut_sec_ttm.result(timeout=20) if _fut_sec_ttm else None
+        market_data  = _await_future(_fut_market,   20, {"available": False}, "market_regime")
+        rs_data      = _await_future(_fut_rs,       20, {"available": False}, "rs_rating")
+        history_data = _await_future(_fut_history,  20, {"available": False}, "historical_metrics")
+        dart_fin     = _await_future(_fut_dart_fin, 20, None,                 "dart_financials")
+        dart_div     = _await_future(_fut_dart_div, 20, None,                 "dart_dividend")
+        sec_fin      = _await_future(_fut_sec_fin,  20, None,                 "sec_financials")
+        sec_ttm      = _await_future(_fut_sec_ttm,  20, None,                 "sec_ttm")
 
     # 한국 주식(.KS/.KQ)은 DART 공시 데이터로 재무 history 보강 (더 정확)
     if is_kr:
