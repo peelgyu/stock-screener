@@ -30,8 +30,8 @@ if _SENTRY_DSN:
             traces_sample_rate=0.05,           # 트레이스 5%만 (비용 통제)
             profiles_sample_rate=0.0,
             send_default_pii=False,            # IP·이메일 등 미전송
-            environment=os.getenv("RENDER_ENV", "production"),
-            release=os.getenv("RENDER_GIT_COMMIT", "unknown")[:7],
+            environment=os.getenv("RAILWAY_ENVIRONMENT_NAME", "production"),
+            release=os.getenv("RAILWAY_GIT_COMMIT_SHA", "unknown")[:7],
             # 자주 발생하는 무해 에러는 보내지 않음 (노이즈 줄이기)
             ignore_errors=["KeyboardInterrupt", "SystemExit"],
         )

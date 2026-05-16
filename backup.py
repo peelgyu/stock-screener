@@ -19,7 +19,6 @@ INCLUDE = [
     "app.py",
     "kr_stocks.py",
     "requirements.txt",
-    "render.yaml",
     "README.md",
     "make_icons.py",
     "backup.py",
