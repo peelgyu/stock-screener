@@ -35,9 +35,9 @@ echo "==> 2/4 기존 콘텐츠 청소 (.git 제외)"
 cd "$TMP_DIR"
 ls | xargs -I {} rm -rf {} 2>/dev/null || true
 
-echo "==> 3/4 stockinto 콘텐츠 복사 (백업·캐시·.env 제외)"
+echo "==> 3/4 stockinto 콘텐츠 복사 (백업·캐시·.env·앱인토스 서브프로젝트 제외)"
 cp -a "$SRC_DIR/." "$TMP_DIR/"
-rm -rf "$TMP_DIR/백업" "$TMP_DIR/.pytest_cache" "$TMP_DIR/.env" 2>/dev/null || true
+rm -rf "$TMP_DIR/백업" "$TMP_DIR/.pytest_cache" "$TMP_DIR/.env" "$TMP_DIR/stockinto X 앱인토스" 2>/dev/null || true
 find "$TMP_DIR" -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 find "$TMP_DIR" -name "*.pyc" -delete 2>/dev/null || true
 

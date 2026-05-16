@@ -2,10 +2,10 @@
     <button class="install-btn" id="installBtn" data-action="triggerInstall">📱 앱으로 설치</button>
 
     <!-- 영어 사용자 안내 배너 — 영어 메인에서 들어왔거나 lang_pref=en 저장돼 있으면 표시 -->
-    <div id="enUserBanner" style="display:none;background:linear-gradient(90deg,#0D5FD9,#1f6feb);color:#fff;padding:10px 16px;text-align:center;font-size:0.85rem;position:relative;">
+    <div id="enUserBanner" class="en-user-banner is-hidden">
         <strong>🇺🇸 English visitor?</strong> Stock analysis is currently in Korean only — but the data (PER, ROE, fair value, charts) is universal.
-        <a href="/en/" style="color:#fff;text-decoration:underline;font-weight:700;margin-left:6px;">← Back to English site</a>
-        <button data-action="dismissEnBanner" aria-label="Dismiss" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:transparent;border:0;color:#fff;font-size:1.1rem;cursor:pointer;padding:4px 10px;">✕</button>
+        <a href="/en/" class="en-user-banner-link">← Back to English site</a>
+        <button data-action="dismissEnBanner" aria-label="Dismiss" class="en-banner-dismiss">✕</button>
     </div>
 
     <!-- 콘텐츠 네비 (Row 1) — 메인 페이지·정적 페이지 발견율 강화. AdSense·SEO 효과 -->

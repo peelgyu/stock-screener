@@ -193,7 +193,7 @@
                     </tr>
                 </thead>
                 <tbody id="resultsBody">
-                    <tr><td colspan="10" style="text-align:center;padding:40px;color:var(--text-dim);">로딩 중…</td></tr>
+                    <tr><td colspan="10" class="screener-loading">로딩 중…</td></tr>
                 </tbody>
             </table>
         </div>
@@ -334,7 +334,7 @@
                 <tr>
                     <td><span class="country-flag">${flag}</span><strong>${s.ticker}</strong></td>
                     <td>${(s.name || '').slice(0, 22)}</td>
-                    <td style="color:var(--text-dim);font-size:0.78rem;">${s.sector === '—' ? '—' : s.sector.slice(0, 12)}</td>
+                    <td class="screener-sector-cell">${s.sector === '—' ? '—' : s.sector.slice(0, 12)}</td>
                     <td class="num">${fmtNum(s.per)}</td>
                     <td class="num">${fmtNum(s.pbr, 2)}</td>
                     <td class="num">${fmtPct(s.roe)}</td>

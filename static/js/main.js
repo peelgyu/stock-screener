@@ -1372,7 +1372,7 @@
         function dismissEnBanner() {
             try { localStorage.setItem('lang_pref', 'ko'); } catch (e) {}
             var b = document.getElementById('enUserBanner');
-            if (b) b.style.display = 'none';
+            if (b) b.classList.add('is-hidden');
         }
         (function() {
             try {
