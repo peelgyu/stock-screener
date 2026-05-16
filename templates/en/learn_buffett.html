@@ -83,7 +83,7 @@
 <body>
     <nav class="topnav">
         <a href="/en/" class="brand-link" aria-label="StockInto home"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div class="learn-row">
             <a href="/learn/buffett-criteria" class="lang-toggle">🇰🇷 한국어</a>
             <a href="/en/" class="nav-home">🏠 Home</a>
         </div>
@@ -99,7 +99,7 @@
 
         <div class="data-card">
             <strong>What's covered</strong><br>
-            <span style="color:#9aa3b2;font-size:0.88rem;">Each criterion's ① meaning ② threshold ③ pass/fail examples ④ how StockInto scores it. With links to try the analysis live at the end.</span>
+            <span class="learn-meta-em">Each criterion's ① meaning ② threshold ③ pass/fail examples ④ how StockInto scores it. With links to try the analysis live at the end.</span>
         </div>
 
         <div class="toc">
@@ -222,26 +222,26 @@
         <h2 id="scoring">StockInto's Grading Scale</h2>
         <p>Among the 9 criteria, those without sufficient data (N/A) are excluded from the denominator. Pass rate determines the grade.</p>
         <ul>
-            <li><strong style="color:#22c55e;">A+</strong> — 90%+ passed (e.g., 9/9 or 8/8)</li>
-            <li><strong style="color:#22c55e;">A</strong> — 80%+ passed</li>
-            <li><strong style="color:#22c55e;">B</strong> — 70%+ passed</li>
-            <li><strong style="color:#eab308;">C</strong> — 50%+ passed (partial fit)</li>
-            <li><strong style="color:#ef4444;">D</strong> — 30%+ passed (most criteria failed)</li>
-            <li><strong style="color:#ef4444;">F</strong> — under 30% (mostly failed)</li>
+            <li><strong class="learn-pos">A+</strong> — 90%+ passed (e.g., 9/9 or 8/8)</li>
+            <li><strong class="learn-pos">A</strong> — 80%+ passed</li>
+            <li><strong class="learn-pos">B</strong> — 70%+ passed</li>
+            <li><strong class="learn-warn">C</strong> — 50%+ passed (partial fit)</li>
+            <li><strong class="learn-neg">D</strong> — 30%+ passed (most criteria failed)</li>
+            <li><strong class="learn-neg">F</strong> — under 30% (mostly failed)</li>
         </ul>
-        <p style="color:#9aa3b2;font-size:0.88rem;">
+        <p class="learn-meta-em">
             <em>Note:</em> Grades reflect quantitative pass rates, not buy/sell recommendations. Business model, management quality, and industry cycle aren't captured in numbers — use the grade as a screening tool, not a verdict.
         </p>
 
         <div class="cta-box" id="try-now">
             <h3>🎯 Try it on real stocks</h3>
             <p>Apply Buffett's criteria instantly. Results in 1 second.</p>
-            <p style="margin: 12px 0 16px;">
-                <a href="/stock/AAPL" class="cta-btn" style="margin: 4px;">Analyze Apple →</a>
-                <a href="/stock/BRK-B" class="cta-btn" style="margin: 4px;">Analyze Berkshire →</a>
-                <a href="/stock/KO" class="cta-btn" style="margin: 4px;">Analyze Coca-Cola →</a>
+            <p class="learn-section-mb">
+                <a href="/stock/AAPL" class="cta-btn learn-m4">Analyze Apple →</a>
+                <a href="/stock/BRK-B" class="cta-btn learn-m4">Analyze Berkshire →</a>
+                <a href="/stock/KO" class="cta-btn learn-m4">Analyze Coca-Cola →</a>
             </p>
-            <p style="color:#9aa3b2;font-size:0.85rem;margin-top:12px;">Or search any other ticker on the <a href="/en/" style="color:#00d2ff;">homepage</a>.</p>
+            <p class="learn-meta-top">Or search any other ticker on the <a href="/en/" class="learn-link">homepage</a>.</p>
         </div>
 
         <h2>🔗 Related guides</h2>
@@ -253,7 +253,7 @@
         </div>
 
         <div class="back">
-            <a href="/en/" style="color:#888;">← Back to home</a>
+            <a href="/en/" class="learn-meta-link">← Back to home</a>
         </div>
     </article>
 </body>

@@ -128,7 +128,7 @@
 <body>
     <nav class="topnav">
         <a href="/en/" class="brand-link" aria-label="StockInto home"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div class="learn-row">
             <a href="/" class="lang-toggle" aria-label="한국어로 보기">🇰🇷 한국어</a>
             <a href="/en/about" class="nav-link">ℹ About</a>
         </div>
@@ -186,24 +186,24 @@
             <h2>How to use it — 3-step guide</h2>
             <div class="step-grid">
                 <div class="step-card">
-                    <div class="step-tag" style="color:#7b2ff7;">STEP 1 · SEARCH</div>
+                    <div class="step-tag txt-purple">STEP 1 · SEARCH</div>
                     <div class="step-title">Enter ticker or name</div>
                     <div class="step-desc">"AAPL", "Samsung", "005930.KS" all work. Autocomplete helps you find it fast.</div>
                 </div>
                 <div class="step-card">
-                    <div class="step-tag" style="color:#1f6feb;">STEP 2 · ANALYZE</div>
+                    <div class="step-tag txt-blue-mid">STEP 2 · ANALYZE</div>
                     <div class="step-title">5-investor scoring + fair value</div>
                     <div class="step-desc">Pass rates from Buffett, Graham, Lynch, O'Neil, Fisher; weighted DCF + PER + Graham fair price on one screen.</div>
                 </div>
                 <div class="step-card">
-                    <div class="step-tag" style="color:#00d2ff;">STEP 3 · DECIDE</div>
+                    <div class="step-tag txt-link-cyan">STEP 3 · DECIDE</div>
                     <div class="step-title">Read the evidence, decide yourself</div>
                     <div class="step-desc">A~F grades are reference. Examine which criteria pass/fail and the margin of safety, then make your own call.</div>
                 </div>
             </div>
 
             <h2>🔥 Popular stocks to analyze</h2>
-            <p style="color:#9aa3b2;font-size:0.85rem;margin:0 0 12px;">Click any ticker for instant analysis.</p>
+            <p class="popular-hint">Click any ticker for instant analysis.</p>
             <div class="stocks-grid">
                 <a href="/stock/AAPL">🇺🇸 <strong>AAPL</strong> Apple</a>
                 <a href="/stock/MSFT">🇺🇸 <strong>MSFT</strong> Microsoft</a>
@@ -222,9 +222,9 @@
                 <a href="/stock/207940.KS">🇰🇷 <strong>Samsung Bio</strong></a>
                 <a href="/stock/068270.KS">🇰🇷 <strong>Celltrion</strong></a>
             </div>
-            <p style="text-align:center;margin:12px 0 0;">
-                <a href="/en/picks/buffett-style" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:8px 16px;border:1px solid #2a3a55;border-radius:9999px;margin:4px;">🎯 Buffett-style picks →</a>
-                <a href="/en/picks/dividend-aristocrats" style="display:inline-block;color:#00d2ff;text-decoration:none;font-size:0.85rem;font-weight:700;padding:8px 16px;border:1px solid #2a3a55;border-radius:9999px;margin:4px;">💰 Dividend Aristocrats →</a>
+            <p class="popular-cta-row">
+                <a href="/en/picks/buffett-style" class="cta-pill">🎯 Buffett-style picks →</a>
+                <a href="/en/picks/dividend-aristocrats" class="cta-pill">💰 Dividend Aristocrats →</a>
             </p>
 
             <h2>Frequently Asked Questions</h2>
@@ -257,20 +257,20 @@
                 <p>Yes, as a PWA (Progressive Web App). Works on Android, iOS, Windows. No download required — installable from your browser in 30 seconds. <a href="/install">Installation guide →</a></p>
             </details>
 
-            <p style="margin:24px 0 0;text-align:center;color:#9aa3b2;font-size:0.85rem;">
+            <p class="seo-foot">
                 Learn more →
-                <a href="/en/about" style="color:#00d2ff;text-decoration:none;margin:0 6px;">About</a> ·
-                <a href="/en/learn/buffett-criteria" style="color:#00d2ff;text-decoration:none;margin:0 6px;">Buffett Guide</a> ·
-                <a href="/en/learn/dcf-guide" style="color:#00d2ff;text-decoration:none;margin:0 6px;">DCF Guide</a> ·
-                <a href="/en/picks/buffett-style" style="color:#00d2ff;text-decoration:none;margin:0 6px;">Buffett picks</a>
+                <a href="/en/about" class="seo-foot-link">About</a> ·
+                <a href="/en/learn/buffett-criteria" class="seo-foot-link">Buffett Guide</a> ·
+                <a href="/en/learn/dcf-guide" class="seo-foot-link">DCF Guide</a> ·
+                <a href="/en/picks/buffett-style" class="seo-foot-link">Buffett picks</a>
             </p>
         </section>
 
         <div class="footer">
-            <p style="color:#666;font-size:0.78rem;">
-                <strong style="color:#aaa;">⚠ Disclaimer:</strong> StockInto is for reference only and does not constitute investment advice. We are not a licensed financial services provider under Korean Capital Markets Act. Use at your own risk.
+            <p class="foot-disclaimer">
+                <strong class="foot-disclaimer-strong">⚠ Disclaimer:</strong> StockInto is for reference only and does not constitute investment advice. We are not a licensed financial services provider under Korean Capital Markets Act. Use at your own risk.
             </p>
-            <p style="margin-top:12px;">
+            <p class="foot-cta-row">
                 <a href="/en/about">About</a> ·
                 <a href="/en/learn/buffett-criteria">Buffett Guide</a> ·
                 <a href="/en/learn/dcf-guide">DCF Guide</a> ·
@@ -278,7 +278,7 @@
                 <a href="/en/picks/dividend-aristocrats">Dividend</a> ·
                 <a href="/terms">Terms</a> ·
                 <a href="/privacy">Privacy</a> ·
-                <a href="/" style="color:#00d2ff;">🇰🇷 한국어</a>
+                <a href="/" class="learn-link">🇰🇷 한국어</a>
             </p>
         </div>
     </div>

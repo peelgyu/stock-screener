@@ -1385,7 +1385,7 @@
                 }
                 if (pref === 'en') {
                     var banner = document.getElementById('enUserBanner');
-                    if (banner) banner.style.display = 'block';
+                    if (banner) banner.classList.remove('is-hidden');
                 }
             } catch (e) { /* localStorage 차단 환경 무시 */ }
         })();

@@ -1,6 +1,6 @@
-// StockInto Service Worker - v54 (🎨 정적 페이지 헤더 brand-link 통일)
+// StockInto Service Worker - v55 (🛡 CSP 4차 — 잔여 인라인 style 87건 제거 완료)
 // 메인 HTML은 캐시 안 함 (항상 최신 JS/CSS 받도록)
-const CACHE_NAME = 'stockinto-v54';
+const CACHE_NAME = 'stockinto-v55';
 const STATIC_ASSETS = [
   '/static/manifest.json',
   '/static/icon-192.png',

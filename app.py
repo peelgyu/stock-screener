@@ -293,7 +293,8 @@ def _security_headers(resp):
 
     CSP는 Report-Only 모드 — 위반은 차단하지 않고 콘솔에만 기록.
     리팩터 3단계 후 인라인 <script>·onclick 모두 제거됨 → 'script-src self' 가능.
-    inline style="..." 233건 잔재 → 'style-src unsafe-inline' 임시 허용 (다음 정리 대상).
+    CSP 4차(2026-05-16): templates 인라인 style 0건 달성 → 'style-src unsafe-inline' 제거,
+    JS API 통해 설정되는 element.style은 'style-src-attr unsafe-inline'로 별도 보호.
     """
     resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
@@ -307,7 +308,8 @@ def _security_headers(resp):
         "https://www.googletagmanager.com https://www.google-analytics.com "
         "https://pagead2.googlesyndication.com https://*.googlesyndication.com "
         "https://*.adtrafficquality.google; "
-        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "style-src 'self' https://cdn.jsdelivr.net; "
+        "style-src-attr 'unsafe-inline'; "
         "img-src 'self' data: https: blob:; "
         "font-src 'self' data: https://cdn.jsdelivr.net; "
         "connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com "

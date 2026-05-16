@@ -89,7 +89,7 @@
 <body>
     <nav class="topnav">
         <a href="/en/" class="brand-link" aria-label="StockInto home"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
-        <div style="display:flex;gap:8px;align-items:center;">
+        <div class="learn-row">
             <a href="/learn/dcf-guide" class="lang-toggle">🇰🇷 한국어</a>
             <a href="/en/" class="nav-home">🏠 Home</a>
         </div>
@@ -105,7 +105,7 @@
 
         <div class="data-card">
             <strong>The one-line summary</strong><br>
-            <span style="color:#9aa3b2;font-size:0.9rem;">Cash the company will earn over the next 5 years + everything earned forever after → all converted to "what if I received it today" → summed → divided by shares outstanding = fair price per share.</span>
+            <span class="learn-meta-lg">Cash the company will earn over the next 5 years + everything earned forever after → all converted to "what if I received it today" → summed → divided by shares outstanding = fair price per share.</span>
         </div>
 
         <div class="toc">
@@ -166,7 +166,7 @@ TV = FCF<sub>5</sub> × (1 + g<sub>terminal</sub>) / (r - g<sub>terminal</sub>)
 
         <div class="warn-card">
             <strong>⚠ Divergence warning</strong><br>
-            <span style="color:#d0d6e0;font-size:0.88rem;">If the denominator (r - g_terminal) approaches 0, terminal value explodes to infinity. Safe assumption: <strong>r > g_terminal + 1%</strong>. StockInto enforces r always sufficiently larger than 1.5% + 1% = 2.5%.</span>
+            <span class="learn-body-light">If the denominator (r - g_terminal) approaches 0, terminal value explodes to infinity. Safe assumption: <strong>r > g_terminal + 1%</strong>. StockInto enforces r always sufficiently larger than 1.5% + 1% = 2.5%.</span>
         </div>
 
         <h2 id="step-3">STEP 3 · Discount everything with WACC</h2>
@@ -222,17 +222,17 @@ Fair price per share = [ Σ FCF<sub>t</sub> / (1+r)<sup>t</sup>  +  TV / (1+r)<s
             <li><strong>Useless for unprofitable companies</strong> — Negative FCF makes DCF impossible. → Replaced by P/S (revenue multiple) and analyst consensus.</li>
             <li><strong>Inappropriate for financials</strong> — Banks and insurers have a different FCF concept. → DCF excluded, PER and Graham used instead.</li>
         </ul>
-        <p style="color:#9aa3b2;font-size:0.88rem;">
+        <p class="learn-meta-em">
             That's why StockInto doesn't use DCF alone, but rather a <strong>weighted average of 5 methods (DCF, PER, Graham, analyst target, P/S)</strong>. Weights vary by sector and company category (e.g., tech: DCF 35%, real estate: 15%).
         </p>
 
         <div class="cta-box" id="try-now">
             <h3>📐 See real fair values</h3>
-            <p style="color:#c9d0dc;margin: 0 0 14px;font-size:0.9rem;">Click any stock below to see its DCF + PER + Graham weighted fair value.</p>
-            <p style="margin: 12px 0 16px;">
-                <a href="/stock/AAPL" class="cta-btn" style="margin: 4px;">Apple →</a>
-                <a href="/stock/MSFT" class="cta-btn" style="margin: 4px;">Microsoft →</a>
-                <a href="/stock/GOOGL" class="cta-btn" style="margin: 4px;">Alphabet →</a>
+            <p class="learn-body-md">Click any stock below to see its DCF + PER + Graham weighted fair value.</p>
+            <p class="learn-section-mb">
+                <a href="/stock/AAPL" class="cta-btn learn-m4">Apple →</a>
+                <a href="/stock/MSFT" class="cta-btn learn-m4">Microsoft →</a>
+                <a href="/stock/GOOGL" class="cta-btn learn-m4">Alphabet →</a>
             </p>
         </div>
 
@@ -245,7 +245,7 @@ Fair price per share = [ Σ FCF<sub>t</sub> / (1+r)<sup>t</sup>  +  TV / (1+r)<s
         </div>
 
         <div class="back">
-            <a href="/en/" style="color:#888;">← Back to home</a>
+            <a href="/en/" class="learn-meta-link">← Back to home</a>
         </div>
     </article>
 </body>

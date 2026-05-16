@@ -20,7 +20,7 @@
     <nav class="topnav">
         <a href="/" class="brand-link" aria-label="StockInto 홈"><img src="/static/logo-wordmark.svg" alt="StockInto"></a>
         <div class="topnav-right">
-            <button data-action="toggleLang" class="topnav-link" id="langToggle" style="border:1px solid #2a2a3e;background:transparent;cursor:pointer;font:inherit;color:inherit;" data-i18n-aria-label="nav.lang_to_en_aria"></button>
+            <button data-action="toggleLang" class="topnav-link lang-toggle-btn" id="langToggle" data-i18n-aria-label="nav.lang_to_en_aria"></button>
             <a href="/about" class="topnav-link" data-i18n="nav.about">ℹ 소개</a>
             <a href="/install" class="topnav-link" data-i18n="nav.install">📱 앱</a>
             <a href="/contact" class="topnav-link" data-i18n="nav.contact">✉ 문의</a>
@@ -36,6 +36,6 @@
             <div class="vs-tab active" data-market="us" data-action="switchVSTab" data-market="us">🇺🇸 US</div>
             <div class="vs-tab" data-market="kr" data-action="switchVSTab" data-market="kr">🇰🇷 KR</div>
         </div>
-        <div class="vs-list active" id="vsListUs"><div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로딩 중…</div></div>
-        <div class="vs-list" id="vsListKr"><div style="text-align:center;color:#666;padding:20px;font-size:0.75rem;">로딩 중…</div></div>
+        <div class="vs-list active" id="vsListUs"><div class="vs-loading-row">로딩 중…</div></div>
+        <div class="vs-list" id="vsListKr"><div class="vs-loading-row">로딩 중…</div></div>
     </aside>

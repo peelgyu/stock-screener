@@ -195,7 +195,7 @@
 <body>
     <nav class="topnav">
         <a href="/" class="brand">📈 StockInto</a>
-        <div style="display:flex;gap:14px;font-size:0.78rem;">
+        <div class="briefing-topnav-right">
             <a href="/">분석</a>
             <a href="/glossary">용어</a>
             <a href="/about">소개</a>
@@ -239,7 +239,7 @@
         {# KR 지수 #}
         <div class="section">
             <div class="section-title">🇰🇷 한국 시장 지수</div>
-            <div class="index-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="index-grid index-grid--2col">
                 {% for key, name in [('kospi', 'KOSPI'), ('kosdaq', 'KOSDAQ')] %}
                 {% set idx = briefing.kr_indices.get(key) %}
                 <div class="index-card">
@@ -262,14 +262,14 @@
         {# 환율 + 공포탐욕 #}
         <div class="section">
             <div class="section-title">💱 환율 · 😨 공포탐욕지수</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="briefing-grid-2col">
                 <div class="index-card">
                     <div class="name">USD/KRW</div>
                     {% if briefing.fx and briefing.fx.usd_krw %}
                         <div class="value">₩{{ "{:,.0f}".format(briefing.fx.usd_krw) }}</div>
                         <div class="change neutral">달러당</div>
                         {% if briefing.fx.fetched_at %}
-                        <div style="font-size:0.65rem;color:#999;margin-top:6px;">기준: {{ briefing.fx.fetched_at }}</div>
+                        <div class="fx-fetched-at">기준: {{ briefing.fx.fetched_at }}</div>
                         {% endif %}
                     {% else %}
                         <div class="value muted-4">—</div>
@@ -278,9 +278,9 @@
                 <div class="index-card">
                     {% if briefing.fear_greed and briefing.fear_greed.score is not none %}
                         {% set fg = briefing.fear_greed %}
-                        {% set fg_color = '#f44336' if fg.score < 25 else ('#fbbf24' if fg.score < 55 else '#4caf50') %}
+                        {% set fg_class = 'fg-score-red' if fg.score < 25 else ('fg-score-yellow' if fg.score < 55 else 'fg-score-green') %}
                         <div class="name">공포탐욕지수</div>
-                        <div class="value" style="color:{{ fg_color }};">{{ fg.score }}</div>
+                        <div class="value {{ fg_class }}">{{ fg.score }}</div>
                         <div class="change neutral">{{ fg.label or '' }}</div>
                     {% else %}
                         <div class="name">공포탐욕지수</div>
@@ -297,24 +297,24 @@
         <div class="section">
             <div class="section-title">🇺🇸 미국 거래량 활발 종목</div>
             {% if us_g %}
-            <div style="margin-bottom:12px;font-size:0.82rem;color:var(--text-secondary);">📈 상승 TOP</div>
+            <div class="briefing-mover-label-up">📈 상승 TOP</div>
             {% for m in us_g %}
             <div class="mover-row">
                 <span class="ticker">{{ m.symbol }}</span>
                 <span class="name">{{ (m.name or m.symbol)[:30] }}</span>
-                <span class="pct" style="color:{% if m.changePercent > 0 %}var(--green){% else %}var(--red){% endif %};">
+                <span class="pct {{ 'txt-green' if m.changePercent > 0 else 'txt-red' }}">
                     {{ "{:+.2f}".format(m.changePercent) }}%
                 </span>
             </div>
             {% endfor %}
             {% endif %}
             {% if us_l %}
-            <div style="margin:14px 0 10px;font-size:0.82rem;color:var(--text-secondary);">📉 하락 TOP</div>
+            <div class="briefing-mover-label-down">📉 하락 TOP</div>
             {% for m in us_l %}
             <div class="mover-row">
                 <span class="ticker">{{ m.symbol }}</span>
                 <span class="name">{{ (m.name or m.symbol)[:30] }}</span>
-                <span class="pct" style="color:{% if m.changePercent > 0 %}var(--green){% else %}var(--red){% endif %};">
+                <span class="pct {{ 'txt-green' if m.changePercent > 0 else 'txt-red' }}">
                     {{ "{:+.2f}".format(m.changePercent) }}%
                 </span>
             </div>
